@@ -8,7 +8,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Build" Version="15.1.0-preview-000545-01" />
     <PackageReference Include="Microsoft.Build.Runtime" Version="15.1.0-preview-000545-01" />
-    <PackageReference Include="Microsoft.Net.Compilers.netcore" Version="2.0.0-rc4" />
   </ItemGroup>
 
 </Project>

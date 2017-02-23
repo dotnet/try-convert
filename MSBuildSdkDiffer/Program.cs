@@ -112,16 +112,18 @@ namespace MSBuildDiffer
                 if (addedItems.Any() || removedItems.Any())
                 {
                     report.Add($"{ group.ItemType} items:");
+                    List<string> changedItems = new List<string>();
                     if (removedItems.Any())
                     {
-                        report.AddRange(removedItems);
+                        changedItems.AddRange(removedItems);
                     }
 
                     if (addedItems.Any())
                     {
-                        report.AddRange(addedItems);
+                        changedItems.AddRange(addedItems);
                     }
 
+                    report.AddRange(changedItems.OrderBy(s => s.TrimStart('+', '-', ' ')));
                     report.Add("");
                 }
             }

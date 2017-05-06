@@ -4,8 +4,8 @@
       "commandName": "Project",
       "commandLineArgs": "\"C:\\roslyn-project-system\\src\\Microsoft.VisualStudio.ProjectSystem.Managed.VS\\Microsoft.VisualStudio.ProjectSystem.Managed.VS.csproj\"",
       "environmentVariables": {
-        "RoslynTargetsPath": "C:\\Program Files\\dotnet\\sdk\\1.0.0-rc4-004788\\Roslyn",
-        "MSBuildSdksPath": "C:\\Program Files\\dotnet\\sdk\\1.0.0-rc4-004788\\Sdks\\"
+        "RoslynTargetsPath": "C:\\Program Files\\dotnet\\sdk\\1.0.0\\Roslyn",
+        "MSBuildSdksPath": "C:\\Program Files\\dotnet\\sdk\\1.0.0\\Sdks\\"
       }
     }
   }

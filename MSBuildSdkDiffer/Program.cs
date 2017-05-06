@@ -4,20 +4,32 @@ using System.IO;
 using System.Linq;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
+using CommandLine;
 
-namespace MSBuildDiffer
+namespace MSBuildSdkDiffer
 {
     class Program
     {
         static int Main(string[] args)
         {
-            if (args.Length == 0)
+            var options = Parser.Default.ParseArguments<Options>(args);
+            switch (options)
             {
-                Console.Error.WriteLine("Please specify the full path to an MSBuild project to load.");
-                return 1;
+                case Parsed<Options> parsedOptions:
+                    return Run(parsedOptions.Value);
+                case NotParsed<Options> notParsed:
+                    foreach(var error in notParsed.Errors)
+                    {
+                        Console.WriteLine(error);
+                    }
+                    return 1;
             }
+            return 1;
+        }
 
-            string projectPath = Path.GetFullPath(args[0]);
+        private static int Run(Options options)
+        {
+            string projectPath = Path.GetFullPath(options.ProjectFilePath);
 
             if (!File.Exists(projectPath))
             {
@@ -25,13 +37,26 @@ namespace MSBuildDiffer
                 return 2;
             }
 
-            Project project = new Project(projectPath);
+            var globalProperties = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(options.RoslynTargetsPath))
+            {
+                globalProperties.Add("RoslynTargetsPath", options.RoslynTargetsPath);
+            }
+
+            if (!string.IsNullOrEmpty(options.MSBuildSdksPath))
+            {
+                globalProperties.Add("MSBuildSDKsPath", options.MSBuildSdksPath);
+            }
+
+            var collection = new ProjectCollection(globalProperties);
+            Project project = collection.LoadProject(projectPath);
+
             Console.WriteLine($"Successfully loaded project file '{projectPath}'.");
 
             //Stash away names of properties in the file since to create the sdk baseline, we'll modify the project in memory.
             var rootElement = ProjectRootElement.Open(projectPath);
             var propertiesInFile = rootElement.Properties.Select(p => p.Name).Distinct().ToList();
-            Project sdkBaselineProject = CreateSdkBaselineProject(project, rootElement);
+            Project sdkBaselineProject = CreateSdkBaselineProject(project, rootElement, globalProperties);
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
 
             LogProjectProperties(project, "currentProject.log");
@@ -146,7 +171,7 @@ namespace MSBuildDiffer
         /// We need to use the same name as the original csproj and same path so that all the default that derive
         /// from name\path get the right values (there are a lot of them).
         /// </summary>
-        private static Project CreateSdkBaselineProject(Project project, ProjectRootElement rootElement)
+        private static Project CreateSdkBaselineProject(Project project, ProjectRootElement rootElement, IDictionary<string, string> globalProperties)
         {
             rootElement.RemoveAllChildren();
             rootElement.Sdk = "Microsoft.NET.Sdk";
@@ -155,7 +180,7 @@ namespace MSBuildDiffer
             propGroup.AddProperty("OutputType", project.GetPropertyValue("OutputType") ?? throw new InvalidOperationException("OutputType is not set!"));
 
             // Create a new collection because a project with this name has already been loaded into the global collection.
-            var pc = new ProjectCollection(ToolsetDefinitionLocations.Default);
+            var pc = new ProjectCollection(globalProperties);
             var newProjectModel = new Project(rootElement, null, "15.0", pc);
             return newProjectModel;
         }

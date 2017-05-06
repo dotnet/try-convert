@@ -2,7 +2,7 @@
   "profiles": {
     "MSBuildDiffer": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\roslyn-project-system\\src\\Microsoft.VisualStudio.ProjectSystem.Managed.VS\\Microsoft.VisualStudio.ProjectSystem.Managed.VS.csproj\"",
+      "commandLineArgs": "\"C:\\Users\\srivatsn\\Documents\\Visual Studio 2017\\Projects\\ConsoleApp24\\ConsoleApp24\\ConsoleApp24.csproj\" -r \"C:\\Program Files\\dotnet\\sdk\\1.0.0\\Roslyn\"",
       "environmentVariables": {
         "RoslynTargetsPath": "C:\\Program Files\\dotnet\\sdk\\1.0.0\\Roslyn",
         "MSBuildSdksPath": "C:\\Program Files\\dotnet\\sdk\\1.0.0\\Sdks\\"

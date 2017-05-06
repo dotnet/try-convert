@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Build.Evaluation;
 
-namespace MSBuildDiffer
+namespace MSBuildSdkDiffer
 {
     public class ProjectItemComparer : IEqualityComparer<ProjectItem>
     {

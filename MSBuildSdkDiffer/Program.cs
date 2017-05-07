@@ -37,16 +37,7 @@ namespace MSBuildSdkDiffer
                 return 2;
             }
 
-            var globalProperties = new Dictionary<string, string>();
-            if (!string.IsNullOrEmpty(options.RoslynTargetsPath))
-            {
-                globalProperties.Add("RoslynTargetsPath", options.RoslynTargetsPath);
-            }
-
-            if (!string.IsNullOrEmpty(options.MSBuildSdksPath))
-            {
-                globalProperties.Add("MSBuildSDKsPath", options.MSBuildSdksPath);
-            }
+            Dictionary<string, string> globalProperties = InitializeGlobalProperties(options);
 
             var collection = new ProjectCollection(globalProperties);
             Project project = collection.LoadProject(projectPath);
@@ -59,111 +50,27 @@ namespace MSBuildSdkDiffer
             Project sdkBaselineProject = CreateSdkBaselineProject(project, rootElement, globalProperties);
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
 
-            LogProjectProperties(project, "currentProject.log");
-            LogProjectProperties(sdkBaselineProject, "sdkBaseLineProject.log");
-            GenerateReport(project, propertiesInFile, sdkBaselineProject, "report.diff");
+            project.LogProjectProperties("currentProject.log");
+            sdkBaselineProject.LogProjectProperties("sdkBaseLineProject.log");
+            DiffReport.GenerateReport(project, propertiesInFile, sdkBaselineProject, "report.diff");
 
             return 0;
         }
 
-        private static void GenerateReport(Project project, List<string> propertiesInFile, Project sdkBaselineProject, string reportFilePath)
+        private static Dictionary<string, string> InitializeGlobalProperties(Options options)
         {
-            var report = new List<string>();
-            var defaultedProps = new List<string>();
-            var notDefaultedProps = new List<string>();
-            var changedProps = new List<string>();
-            foreach (var propInFile in propertiesInFile)
+            var globalProperties = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(options.RoslynTargetsPath))
             {
-                var originalEvaluatedProp = project.GetProperty(propInFile);
-                var newEvaluatedProp = sdkBaselineProject.GetProperty(propInFile);
-                var originalProp = $"- {originalEvaluatedProp.Name} = {originalEvaluatedProp.EvaluatedValue}";
-                if (newEvaluatedProp != null)
-                {
-                    var newProp = $"+ {newEvaluatedProp.Name} = {newEvaluatedProp.EvaluatedValue}";
-                    if (originalEvaluatedProp.EvaluatedValue != newEvaluatedProp.EvaluatedValue)
-                    {
-                        changedProps.Add(originalProp);
-                        changedProps.Add(newProp);
-                    }
-                    else
-                    {
-                        defaultedProps.Add(newProp);
-                    }
-                }
-                else
-                {
-                    notDefaultedProps.Add(originalProp);
-                }
+                globalProperties.Add("RoslynTargetsPath", options.RoslynTargetsPath);
             }
 
-            if (defaultedProps.Any())
+            if (!string.IsNullOrEmpty(options.MSBuildSdksPath))
             {
-                report.Add("Properties that are defaulted by the SDK:");
-                report.AddRange(defaultedProps);
-                report.Add("");
-            }
-            if (notDefaultedProps.Any())
-            {
-                report.Add("Properties that are not defaulted by the SDK:");
-                report.AddRange(notDefaultedProps);
-                report.Add("");
-            }
-            if (changedProps.Any())
-            {
-                report.Add("Properties whose value is different from the SDK's default:");
-                report.AddRange(changedProps);
-                report.Add("");
+                globalProperties.Add("MSBuildSDKsPath", options.MSBuildSdksPath);
             }
 
-            var oldItemGroups = from oldItem in project.Items group oldItem by oldItem.ItemType;
-            var newItemGroups = from newItem in sdkBaselineProject.Items group newItem by newItem.ItemType;
-
-            var addedRemovedGroups = from og in oldItemGroups
-                                     from ng in newItemGroups
-                                     where og.Key == ng.Key
-                                     select new { ItemType = og.Key, AddedItems = ng.Except(og, ProjectItemComparer.Instance), RemovedItems = og.Except(ng, ProjectItemComparer.Instance) };
-
-            foreach (var group in addedRemovedGroups)
-            {
-                // Items that start with _ are private items. Not much value in reporting them.
-                if (group.ItemType.StartsWith("_"))
-                {
-                    continue;
-                }
-
-                var addedItems = group.AddedItems.Select(s => $"+ {s.EvaluatedInclude}");
-                var removedItems = group.RemovedItems.Select(s => $"- {s.EvaluatedInclude}");
-
-                if (addedItems.Any() || removedItems.Any())
-                {
-                    report.Add($"{ group.ItemType} items:");
-                    List<string> changedItems = new List<string>();
-                    if (removedItems.Any())
-                    {
-                        changedItems.AddRange(removedItems);
-                    }
-
-                    if (addedItems.Any())
-                    {
-                        changedItems.AddRange(addedItems);
-                    }
-
-                    report.AddRange(changedItems.OrderBy(s => s.TrimStart('+', '-', ' ')));
-                    report.Add("");
-                }
-            }
-
-            File.WriteAllLines(reportFilePath, report);
-        }
-
-        private static void LogProjectProperties(Project project, string logFileName)
-        {
-            var lines = new List<string>();
-            foreach (var prop in project.Properties.OrderBy(p => p.Name))
-            {
-                lines.Add($"{prop.Name} = {prop.EvaluatedValue}");
-            }
-            File.WriteAllLines(logFileName, lines);
+            return globalProperties;
         }
 
         /// <summary>
@@ -176,50 +83,13 @@ namespace MSBuildSdkDiffer
             rootElement.RemoveAllChildren();
             rootElement.Sdk = "Microsoft.NET.Sdk";
             var propGroup = rootElement.AddPropertyGroup();
-            propGroup.AddProperty("TargetFramework", GetTargetFramework(project));
+            propGroup.AddProperty("TargetFramework", project.GetTargetFramework());
             propGroup.AddProperty("OutputType", project.GetPropertyValue("OutputType") ?? throw new InvalidOperationException("OutputType is not set!"));
 
             // Create a new collection because a project with this name has already been loaded into the global collection.
             var pc = new ProjectCollection(globalProperties);
             var newProjectModel = new Project(rootElement, null, "15.0", pc);
             return newProjectModel;
-        }
-
-        private static string GetTargetFramework(Project project)
-        {
-            var tf = project.GetPropertyValue("TargetFramework");
-            if (tf != "")
-            {
-                return tf;
-            }
-
-            var tfi = project.GetPropertyValue("TargetFrameworkIdentifier");
-            if (tfi == "")
-            {
-                throw new InvalidOperationException("TargetFrameworkIdentifier is not set!");
-            }
-
-            switch (tfi)
-            {
-                case ".NETFramework": tf = "net";
-                    break;
-                case ".NETStandard": tf = "netstandard";
-                    break;
-                case ".NETCoreApp": tf = "netcoreapp";
-                    break;
-                default:
-                    throw new InvalidOperationException($"Unknown TargetFrameworkIdentifier {tfi}");
-            }
-
-            var tfv = project.GetPropertyValue("TargetFrameworkVersion");
-            if (tfv == "")
-            {
-                throw new InvalidOperationException("TargetFrameworkVersion is not set!");
-            }
-
-            tf += tfv.TrimStart('v');
-
-            return tf;
         }
     }
 }

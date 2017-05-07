@@ -6,11 +6,11 @@ namespace MSBuildSdkDiffer
 {
     internal struct PropertiesDiff
     {
-        public readonly ImmutableArray<ProjectProperty> DefaultedProperties;
-        public readonly ImmutableArray<ProjectProperty> NotDefaultedProperties;
-        public readonly ImmutableArray<(ProjectProperty oldProp, ProjectProperty newProp)> ChangedProperties;
+        public readonly ImmutableArray<IProjectProperty> DefaultedProperties;
+        public readonly ImmutableArray<IProjectProperty> NotDefaultedProperties;
+        public readonly ImmutableArray<(IProjectProperty oldProp, IProjectProperty newProp)> ChangedProperties;
 
-        public PropertiesDiff(ImmutableArray<ProjectProperty> defaultedProperties, ImmutableArray<ProjectProperty> notDefaultedPropeties, ImmutableArray<(ProjectProperty, ProjectProperty)> changedProperties) : this()
+        public PropertiesDiff(ImmutableArray<IProjectProperty> defaultedProperties, ImmutableArray<IProjectProperty> notDefaultedPropeties, ImmutableArray<(IProjectProperty, IProjectProperty)> changedProperties) : this()
         {
             DefaultedProperties = defaultedProperties;
             NotDefaultedProperties = notDefaultedPropeties;

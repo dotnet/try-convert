@@ -1,63 +1,61 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Microsoft.Build.Evaluation;
 
 namespace MSBuildSdkDiffer
 {
-    internal class DiffReport
+    internal class Differ
     {
-        public static void GenerateReport(IProject project, List<string> propertiesInFile, IProject sdkBaselineProject, string reportFilePath)
+        private readonly IProject _project;
+        private readonly List<string> _propertiesInFile;
+        private readonly IProject _sdkBaselineProject;
+
+        public Differ(IProject project, List<string> propertiesInFile, IProject sdkBaselineProject)
         {
-            var report = new List<string>();
-            var defaultedProps = new List<string>();
-            var notDefaultedProps = new List<string>();
-            var changedProps = new List<string>();
-            foreach (var propInFile in propertiesInFile)
+            _project = project ?? throw new System.ArgumentNullException(nameof(project));
+            _propertiesInFile = propertiesInFile ?? throw new System.ArgumentNullException(nameof(propertiesInFile));
+            _sdkBaselineProject = sdkBaselineProject ?? throw new System.ArgumentNullException(nameof(sdkBaselineProject));
+        }
+
+        public PropertiesDiff GetPropertiesDiff()
+        {
+            var defaultedProps = ImmutableArray.CreateBuilder<ProjectProperty>();
+            var notDefaultedProps = ImmutableArray.CreateBuilder<ProjectProperty>();
+            var changedProps = ImmutableArray.CreateBuilder<(ProjectProperty, ProjectProperty)>();
+
+            foreach (var propInFile in _propertiesInFile)
             {
-                var originalEvaluatedProp = project.GetProperty(propInFile);
-                var newEvaluatedProp = sdkBaselineProject.GetProperty(propInFile);
-                var originalProp = $"- {originalEvaluatedProp.Name} = {originalEvaluatedProp.EvaluatedValue}";
+                var originalEvaluatedProp = _project.GetProperty(propInFile);
+                var newEvaluatedProp = _sdkBaselineProject.GetProperty(propInFile);
                 if (newEvaluatedProp != null)
                 {
-                    var newProp = $"+ {newEvaluatedProp.Name} = {newEvaluatedProp.EvaluatedValue}";
                     if (originalEvaluatedProp.EvaluatedValue != newEvaluatedProp.EvaluatedValue)
                     {
-                        changedProps.Add(originalProp);
-                        changedProps.Add(newProp);
+                        changedProps.Add((originalEvaluatedProp, newEvaluatedProp));
                     }
                     else
                     {
-                        defaultedProps.Add(newProp);
+                        defaultedProps.Add(newEvaluatedProp);
                     }
                 }
                 else
                 {
-                    notDefaultedProps.Add(originalProp);
+                    notDefaultedProps.Add(originalEvaluatedProp);
                 }
             }
 
-            if (defaultedProps.Any())
-            {
-                report.Add("Properties that are defaulted by the SDK:");
-                report.AddRange(defaultedProps);
-                report.Add("");
-            }
-            if (notDefaultedProps.Any())
-            {
-                report.Add("Properties that are not defaulted by the SDK:");
-                report.AddRange(notDefaultedProps);
-                report.Add("");
-            }
-            if (changedProps.Any())
-            {
-                report.Add("Properties whose value is different from the SDK's default:");
-                report.AddRange(changedProps);
-                report.Add("");
-            }
+            return new PropertiesDiff(defaultedProps.ToImmutable(), notDefaultedProps.ToImmutable(), changedProps.ToImmutable());
+        }
 
-            var oldItemGroups = from oldItem in project.Items group oldItem by oldItem.ItemType;
-            var newItemGroups = from newItem in sdkBaselineProject.Items group newItem by newItem.ItemType;
+        public void GenerateReport(string reportFilePath)
+        {
+            var report = new List<string>();
+            report.AddRange(GetPropertiesDiff().GetDiffLines());
+            
+            var oldItemGroups = from oldItem in _project.Items group oldItem by oldItem.ItemType;
+            var newItemGroups = from newItem in _sdkBaselineProject.Items group newItem by newItem.ItemType;
 
             var addedRemovedGroups = from og in oldItemGroups
                                      from ng in newItemGroups

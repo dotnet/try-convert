@@ -9,6 +9,7 @@
     <PackageReference Include="CommandLineParser" Version="2.1.1-beta" />
     <PackageReference Include="Microsoft.Build" Version="15.1.1012" />
     <PackageReference Include="Microsoft.Build.Runtime" Version="15.1.1012" />
+    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
   </ItemGroup>
 
 </Project>

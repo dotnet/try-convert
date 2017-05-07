@@ -52,7 +52,8 @@ namespace MSBuildSdkDiffer
 
             project.LogProjectProperties("currentProject.log");
             sdkBaselineProject.LogProjectProperties("sdkBaseLineProject.log");
-            DiffReport.GenerateReport(project, propertiesInFile, sdkBaselineProject, "report.diff");
+            var differ = new Differ(project, propertiesInFile, sdkBaselineProject);
+            differ.GenerateReport("report.diff");
 
             return 0;
         }

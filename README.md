@@ -3,6 +3,8 @@ Diff a given msbuild-based project with the default values that come from the .N
 
 This is a tool that can be used to help with the conversion of old-style csprojs to ones based on the .NET SDK. 
 
+[![Build status](https://ci.appveyor.com/api/projects/status/dcg6k8sca3v83xba?svg=true)](https://ci.appveyor.com/project/SrivatsnNarayanan/msbuildsdkdiffer)
+
 # What does the tool do?
 It loads up a given project and evaluates it to get a list of all properties and items. It then replaces the project in memory with a simple .NET SDK based template and then re-evaluates it.
 It does the second evaluation in the same project folder so that items that are automatically picked up by globbing will be known as well. It then produces a diff of the two states to identify the following:

@@ -40,14 +40,14 @@ namespace MSBuildSdkDiffer
             Dictionary<string, string> globalProperties = InitializeGlobalProperties(options);
 
             var collection = new ProjectCollection(globalProperties);
-            Project project = collection.LoadProject(projectPath);
-
+            MSBuildProject project = new MSBuildProject(collection.LoadProject(projectPath));
+            
             Console.WriteLine($"Successfully loaded project file '{projectPath}'.");
 
             //Stash away names of properties in the file since to create the sdk baseline, we'll modify the project in memory.
             var rootElement = ProjectRootElement.Open(projectPath);
             var propertiesInFile = rootElement.Properties.Select(p => p.Name).Distinct().ToList();
-            Project sdkBaselineProject = CreateSdkBaselineProject(project, rootElement, globalProperties);
+            MSBuildProject sdkBaselineProject = CreateSdkBaselineProject(project, rootElement, globalProperties);
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
 
             project.LogProjectProperties("currentProject.log");
@@ -78,7 +78,7 @@ namespace MSBuildSdkDiffer
         /// We need to use the same name as the original csproj and same path so that all the default that derive
         /// from name\path get the right values (there are a lot of them).
         /// </summary>
-        private static Project CreateSdkBaselineProject(Project project, ProjectRootElement rootElement, IDictionary<string, string> globalProperties)
+        private static MSBuildProject CreateSdkBaselineProject(MSBuildProject project, ProjectRootElement rootElement, IDictionary<string, string> globalProperties)
         {
             rootElement.RemoveAllChildren();
             rootElement.Sdk = "Microsoft.NET.Sdk";
@@ -88,7 +88,7 @@ namespace MSBuildSdkDiffer
 
             // Create a new collection because a project with this name has already been loaded into the global collection.
             var pc = new ProjectCollection(globalProperties);
-            var newProjectModel = new Project(rootElement, null, "15.0", pc);
+            var newProjectModel = new MSBuildProject(new Project(rootElement, null, "15.0", pc));
             return newProjectModel;
         }
     }

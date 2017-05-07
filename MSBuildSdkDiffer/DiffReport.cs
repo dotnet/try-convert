@@ -7,7 +7,7 @@ namespace MSBuildSdkDiffer
 {
     internal class DiffReport
     {
-        public static void GenerateReport(Project project, List<string> propertiesInFile, Project sdkBaselineProject, string reportFilePath)
+        public static void GenerateReport(IProject project, List<string> propertiesInFile, IProject sdkBaselineProject, string reportFilePath)
         {
             var report = new List<string>();
             var defaultedProps = new List<string>();

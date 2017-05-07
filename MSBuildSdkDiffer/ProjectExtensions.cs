@@ -8,7 +8,7 @@ namespace MSBuildSdkDiffer
 {
     internal static class ProjectExtensions
     {
-        public static void LogProjectProperties(this Project project, string logFileName)
+        public static void LogProjectProperties(this IProject project, string logFileName)
         {
             var lines = new List<string>();
             foreach (var prop in project.Properties.OrderBy(p => p.Name))
@@ -18,10 +18,10 @@ namespace MSBuildSdkDiffer
             File.WriteAllLines(logFileName, lines);
         }
 
-        public static string GetTargetFramework(this Project project)
+        public static string GetTargetFramework(this IProject project)
         {
             var tf = project.GetPropertyValue("TargetFramework");
-            if (tf != "")
+            if (!string.IsNullOrEmpty(tf))
             {
                 return tf;
             }

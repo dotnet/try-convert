@@ -49,11 +49,8 @@ namespace MSBuildSdkDiffer
             return new PropertiesDiff(defaultedProps.ToImmutable(), notDefaultedProps.ToImmutable(), changedProps.ToImmutable());
         }
 
-        public void GenerateReport(string reportFilePath)
+        public ImmutableArray<ItemsDiff> GetItemsDiff()
         {
-            var report = new List<string>();
-            report.AddRange(GetPropertiesDiff().GetDiffLines());
-            
             var oldItemGroups = from oldItem in _project.Items group oldItem by oldItem.ItemType;
             var newItemGroups = from newItem in _sdkBaselineProject.Items group newItem by newItem.ItemType;
 
@@ -61,6 +58,8 @@ namespace MSBuildSdkDiffer
                                      from ng in newItemGroups
                                      where og.Key == ng.Key
                                      select new { ItemType = og.Key, AddedItems = ng.Except(og, ProjectItemComparer.Instance), RemovedItems = og.Except(ng, ProjectItemComparer.Instance) };
+
+            var builder = ImmutableArray.CreateBuilder<ItemsDiff>();
 
             foreach (var group in addedRemovedGroups)
             {
@@ -70,26 +69,25 @@ namespace MSBuildSdkDiffer
                     continue;
                 }
 
-                var addedItems = group.AddedItems.Select(s => $"+ {s.EvaluatedInclude}");
-                var removedItems = group.RemovedItems.Select(s => $"- {s.EvaluatedInclude}");
+                var addedItems = group.AddedItems.ToImmutableArray();
+                var removedItems = group.RemovedItems.ToImmutableArray();
 
-                if (addedItems.Any() || removedItems.Any())
-                {
-                    report.Add($"{ group.ItemType} items:");
-                    List<string> changedItems = new List<string>();
-                    if (removedItems.Any())
-                    {
-                        changedItems.AddRange(removedItems);
-                    }
+                var diff = new ItemsDiff(group.ItemType, addedItems, removedItems, default(ImmutableArray<(ProjectItem, ProjectItem)>));
+                builder.Add(diff);
+            }
 
-                    if (addedItems.Any())
-                    {
-                        changedItems.AddRange(addedItems);
-                    }
+            return builder.ToImmutable();
+        }
 
-                    report.AddRange(changedItems.OrderBy(s => s.TrimStart('+', '-', ' ')));
-                    report.Add("");
-                }
+        public void GenerateReport(string reportFilePath)
+        {
+            var report = new List<string>();
+            report.AddRange(GetPropertiesDiff().GetDiffLines());
+
+            var itemDiffs = GetItemsDiff();
+            foreach (var diff in itemDiffs)
+            {
+                report.AddRange(diff.GetDiffLines());
             }
 
             File.WriteAllLines(reportFilePath, report);

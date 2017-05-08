@@ -12,6 +12,10 @@ namespace MSBuildSdkDiffer.Tests
         [Theory]
         [InlineData("A=B", "A", "A=B", "A", null, null)]
         [InlineData("A=B", "A", "D=E", null, "A", null)]
+        [InlineData("A=B;C=D", "A", "C=D", null, "A", null)]
+        [InlineData("A=B;C=D", "A", "A=C", null, null, "A")]
+        [InlineData("A=B;C=D", "A;C", "C=E", null, "A", "C")]
+        [InlineData("A=B;C=D;E=F", "A;C;E", "C=E;E=F", "E", "A", "C")]
         public void PropertiesDiff_GetLines(string projectProps, string propsInFile, string sdkBaselineProps, string expectedDefaultedProps, string expectedNotDefaultedProps, string expectedChangedProps)
         {
             var project = IProjectFactory.Create(projectProps);

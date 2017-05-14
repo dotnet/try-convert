@@ -1,22 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Microsoft.Build.Evaluation;
 
 namespace MSBuildSdkDiffer
 {
     internal struct ItemsDiff
     {
         public readonly string ItemType;
-        public readonly ImmutableArray<ProjectItem> DefaultedItems;
-        public readonly ImmutableArray<ProjectItem> NotDefaultedItems;
-        public readonly ImmutableArray<(ProjectItem oldProp, ProjectItem newProp)> ChangedItems;
+        public readonly ImmutableArray<IProjectItem> DefaultedItems;
+        public readonly ImmutableArray<IProjectItem> NotDefaultedItems;
+        public readonly ImmutableArray<IProjectItem> IntroducedItems;
+        public readonly ImmutableArray<(IProjectItem oldProp, IProjectItem newProp)> ChangedItems;
 
-        public ItemsDiff(string itemType, ImmutableArray<ProjectItem> defaultedItems, ImmutableArray<ProjectItem> notDefaultedItems, ImmutableArray<(ProjectItem, ProjectItem)> changedItems) : this()
+        public ItemsDiff(string itemType, ImmutableArray<IProjectItem> defaultedItems, ImmutableArray<IProjectItem> notDefaultedItems, ImmutableArray<IProjectItem> introducedItems, ImmutableArray<(IProjectItem, IProjectItem)> changedItems) : this()
         {
             ItemType = itemType;
             DefaultedItems = defaultedItems;
             NotDefaultedItems = notDefaultedItems;
+            IntroducedItems = introducedItems;
             ChangedItems = changedItems;
         }
 
@@ -35,10 +36,15 @@ namespace MSBuildSdkDiffer
 
                 if (!DefaultedItems.IsEmpty)
                 {
+                    changedItems.AddRange(DefaultedItems.Select(s => $"= {s.EvaluatedInclude}"));
+                }
+
+                if (!IntroducedItems.IsEmpty)
+                {
                     changedItems.AddRange(DefaultedItems.Select(s => $"+ {s.EvaluatedInclude}"));
                 }
 
-                lines.AddRange(changedItems.OrderBy(s => s.TrimStart('+', '-', ' ')));
+                lines.AddRange(changedItems.OrderBy(s => s.TrimStart('+', '-', '=', ' ')));
                 lines.Add("");
             }
 

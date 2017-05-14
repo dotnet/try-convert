@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using Microsoft.Build.Evaluation;
 
 namespace MSBuildSdkDiffer
@@ -12,7 +12,7 @@ namespace MSBuildSdkDiffer
     {
         ICollection<ProjectProperty> Properties { get; }
 
-        ICollection<ProjectItem> Items { get; }
+        ICollection<IProjectItem> Items { get; }
 
         IProjectProperty GetProperty(string name);
 
@@ -23,6 +23,12 @@ namespace MSBuildSdkDiffer
     {
         string Name { get; }
         string EvaluatedValue { get; }
+    }
+
+    public interface IProjectItem
+    {
+        string ItemType { get; }
+        string EvaluatedInclude { get; }
     }
 
     internal class MSBuildProjectProperty : IProjectProperty
@@ -39,6 +45,20 @@ namespace MSBuildSdkDiffer
         public string EvaluatedValue => _property.EvaluatedValue;
     }
 
+    internal class MSBuildProjectItem : IProjectItem
+    {
+        private readonly ProjectItem _item;
+
+        public MSBuildProjectItem(ProjectItem item)
+        {
+            _item = item;
+        }
+
+        public string ItemType => _item.ItemType;
+
+        public string EvaluatedInclude => _item.EvaluatedInclude;
+    }
+
     internal class MSBuildProject : IProject
     {
         private readonly Project _project;
@@ -47,7 +67,7 @@ namespace MSBuildSdkDiffer
 
         public ICollection<ProjectProperty> Properties => _project.Properties;
 
-        public ICollection<ProjectItem> Items => _project.Items;
+        public ICollection<IProjectItem> Items => _project.Items.Select(i => new MSBuildProjectItem(i)).ToArray();
 
         public IProjectProperty GetProperty(string name) => new MSBuildProjectProperty(_project.GetProperty(name));
 

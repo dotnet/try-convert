@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using Microsoft.Build.Evaluation;
 
 namespace MSBuildSdkDiffer
 {
@@ -57,22 +56,22 @@ namespace MSBuildSdkDiffer
             var addedRemovedGroups = from og in oldItemGroups
                                      from ng in newItemGroups
                                      where og.Key == ng.Key
-                                     select new { ItemType = og.Key, AddedItems = ng.Except(og, ProjectItemComparer.Instance), RemovedItems = og.Except(ng, ProjectItemComparer.Instance) };
+                                     select new {
+                                                 ItemType = og.Key,
+                                                 DefaultedItems = ng.Intersect(og, ProjectItemComparer.Instance),
+                                                 IntroducedItems = ng.Except(og, ProjectItemComparer.Instance),
+                                                 NotDefaultedItems = og.Except(ng, ProjectItemComparer.Instance),
+                                                };
 
             var builder = ImmutableArray.CreateBuilder<ItemsDiff>();
 
             foreach (var group in addedRemovedGroups)
             {
-                // Items that start with _ are private items. Not much value in reporting them.
-                if (group.ItemType.StartsWith("_"))
-                {
-                    continue;
-                }
+                var defaultedItems = group.DefaultedItems.ToImmutableArray();
+                var notDefaultedItems = group.NotDefaultedItems.ToImmutableArray();
+                var introducedItems = group.IntroducedItems.ToImmutableArray();
 
-                var addedItems = group.AddedItems.ToImmutableArray();
-                var removedItems = group.RemovedItems.ToImmutableArray();
-
-                var diff = new ItemsDiff(group.ItemType, addedItems, removedItems, default(ImmutableArray<(ProjectItem, ProjectItem)>));
+                var diff = new ItemsDiff(group.ItemType, defaultedItems, notDefaultedItems, introducedItems, ImmutableArray<(IProjectItem, IProjectItem)>.Empty);
                 builder.Add(diff);
             }
 
@@ -87,6 +86,12 @@ namespace MSBuildSdkDiffer
             var itemDiffs = GetItemsDiff();
             foreach (var diff in itemDiffs)
             {
+                // Items that start with _ are private items. Not much value in reporting them.
+                if (diff.ItemType.StartsWith("_"))
+                {
+                    continue;
+                }
+
                 report.AddRange(diff.GetDiffLines());
             }
 

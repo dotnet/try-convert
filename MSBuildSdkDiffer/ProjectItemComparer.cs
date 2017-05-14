@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
-using Microsoft.Build.Evaluation;
 
 namespace MSBuildSdkDiffer
 {
-    public class ProjectItemComparer : IEqualityComparer<ProjectItem>
+    public class ProjectItemComparer : IEqualityComparer<IProjectItem>
     {
         private ProjectItemComparer() { }
 
         public static ProjectItemComparer Instance = new ProjectItemComparer();
 
-        public bool Equals(ProjectItem x, ProjectItem y)
+        public bool Equals(IProjectItem x, IProjectItem y)
         {
             return x.ItemType == y.ItemType && x.EvaluatedInclude == y.EvaluatedInclude;
         }
 
-        public int GetHashCode(ProjectItem obj)
+        public int GetHashCode(IProjectItem obj)
         {
             return (obj.EvaluatedInclude + obj.ItemType).GetHashCode();
         }

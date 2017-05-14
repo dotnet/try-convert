@@ -12,12 +12,13 @@ namespace MSBuildSdkDiffer
     {
         static int Main(string[] args)
         {
-            var options = Parser.Default.ParseArguments<Options>(args);
+            var options = Parser.Default.ParseArguments<LogOptions, DiffOptions, ConvertOptions>(args);
             switch (options)
             {
-                case Parsed<Options> parsedOptions:
-                    return Run(parsedOptions.Value);
-                case NotParsed<Options> notParsed:
+                case Parsed<object> command:
+                    return Run(command.Value as Options);
+
+                case NotParsed<object> notParsed:
                     foreach(var error in notParsed.Errors)
                     {
                         Console.WriteLine(error);
@@ -50,11 +51,21 @@ namespace MSBuildSdkDiffer
             MSBuildProject sdkBaselineProject = CreateSdkBaselineProject(project, rootElement, globalProperties);
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
 
-            project.LogProjectProperties("currentProject.log");
-            sdkBaselineProject.LogProjectProperties("sdkBaseLineProject.log");
-            var differ = new Differ(project, propertiesInFile, sdkBaselineProject);
-            differ.GenerateReport("report.diff");
 
+            switch (options)
+            {
+                case LogOptions opt:
+                    project.LogProjectProperties(opt.CurrentProjectLogPath);
+                    sdkBaselineProject.LogProjectProperties(opt.SdkBaseLineProjectLogPath);
+                    break;
+                case DiffOptions opt:
+                    var differ = new Differ(project, propertiesInFile, sdkBaselineProject);
+                    differ.GenerateReport(opt.DiffReportPath);
+                    break;
+                case ConvertOptions opt:
+                    break;
+            }
+            
             return 0;
         }
 

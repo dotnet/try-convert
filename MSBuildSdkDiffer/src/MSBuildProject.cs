@@ -69,7 +69,7 @@ namespace MSBuildSdkDiffer
 
         public ICollection<IProjectItem> Items => _project.Items.Select(i => new MSBuildProjectItem(i)).ToArray();
 
-        public IProjectProperty GetProperty(string name) => new MSBuildProjectProperty(_project.GetProperty(name));
+        public IProjectProperty GetProperty(string name) => _project.GetProperty(name) != null ? new MSBuildProjectProperty(_project.GetProperty(name)) : null;
 
         public string GetPropertyValue(string name) => _project.GetPropertyValue(name);
     }

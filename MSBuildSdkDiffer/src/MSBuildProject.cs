@@ -10,7 +10,7 @@ namespace MSBuildSdkDiffer
     /// </summary>
     public interface IProject
     {
-        ICollection<ProjectProperty> Properties { get; }
+        ICollection<IProjectProperty> Properties { get; }
 
         ICollection<IProjectItem> Items { get; }
 
@@ -65,7 +65,7 @@ namespace MSBuildSdkDiffer
 
         public MSBuildProject(Project project) => _project = project ?? throw new ArgumentNullException(nameof(project));
 
-        public ICollection<ProjectProperty> Properties => _project.Properties;
+        public ICollection<IProjectProperty> Properties => _project.Properties.Select(p => new MSBuildProjectProperty(p)).ToArray();
 
         public ICollection<IProjectItem> Items => _project.Items.Select(i => new MSBuildProjectItem(i)).ToArray();
 

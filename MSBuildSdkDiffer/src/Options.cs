@@ -35,7 +35,7 @@ namespace MSBuildSdkDiffer
     {
         [Option('d', "diffReportPath",
                 HelpText = "Location to output a diff of the current project against a sdk baseline",
-                Default = "diffreport.diff")]
+                Default = "report.diff")]
         public string DiffReportPath { get; set; }
     }
 

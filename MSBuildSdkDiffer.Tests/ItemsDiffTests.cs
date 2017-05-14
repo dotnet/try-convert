@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using MSBuildSdkDiffer.Tests.Mocks;
 using Xunit;
@@ -57,7 +58,52 @@ namespace MSBuildSdkDiffer.Tests
             }
         }
 
+        [Fact]
+        public void ItemsDiff_GetLines()
+        {
+            var defaultedItems = IProjectFactory.Create(GetItems("A:B,C")).Items.ToImmutableArray();
+            var removedItems = IProjectFactory.Create(GetItems("A:D,E")).Items.ToImmutableArray();
+            var introducedItems = IProjectFactory.Create(GetItems("A:F,G")).Items.ToImmutableArray();
+            var changedItems = ImmutableArray<(IProjectItem, IProjectItem)>.Empty;
+            var diff = new ItemsDiff("A", defaultedItems, removedItems, introducedItems, changedItems);
 
+            var lines = diff.GetDiffLines();
+            var expectedLines = new[]
+            {
+                "A items:",
+                "- B",
+                "- C",
+                "= D",
+                "= E",
+                "+ F",
+                "+ G",
+                "",
+            };
+
+            Assert.Equal(expectedLines, lines);
+        }
+
+        [Fact]
+        public void ItemsDiff_GetLines_Partial()
+        {
+            var defaultedItems = IProjectFactory.Create(GetItems("X:Y,Z")).Items.ToImmutableArray();
+            var removedItems = ImmutableArray<IProjectItem>.Empty;
+            var introducedItems = ImmutableArray<IProjectItem>.Empty;
+            var changedItems = ImmutableArray<(IProjectItem, IProjectItem)>.Empty;
+            var diff = new ItemsDiff("X", defaultedItems, removedItems, introducedItems, changedItems);
+
+            var lines = diff.GetDiffLines();
+            var expectedLines = new[]
+            {
+                "X items:",
+                "- Y",
+                "- Z",
+                "",
+            };
+
+            Assert.Equal(expectedLines, lines);
+
+        }
         /// <summary>
         /// Expected format here is "A:B,C;C:D,E"
         /// </summary>

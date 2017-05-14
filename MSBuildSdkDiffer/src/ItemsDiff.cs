@@ -25,26 +25,24 @@ namespace MSBuildSdkDiffer
         {
             var lines = ImmutableArray.CreateBuilder<string>();
 
-            if (!DefaultedItems.IsEmpty && !NotDefaultedItems.IsEmpty)
+            if (!DefaultedItems.IsEmpty || !NotDefaultedItems.IsEmpty || !IntroducedItems.IsEmpty || !ChangedItems.IsEmpty)
             {
                 lines.Add($"{ ItemType} items:");
-                List<string> changedItems = new List<string>();
-                if (!NotDefaultedItems.IsEmpty)
-                {
-                    changedItems.AddRange(NotDefaultedItems.Select(s => $"- {s.EvaluatedInclude}"));
-                }
-
                 if (!DefaultedItems.IsEmpty)
                 {
-                    changedItems.AddRange(DefaultedItems.Select(s => $"= {s.EvaluatedInclude}"));
+                    lines.AddRange(DefaultedItems.Select(s => $"- {s.EvaluatedInclude}"));
+                }
+
+                if (!NotDefaultedItems.IsEmpty)
+                {
+                    lines.AddRange(NotDefaultedItems.Select(s => $"= {s.EvaluatedInclude}"));
                 }
 
                 if (!IntroducedItems.IsEmpty)
                 {
-                    changedItems.AddRange(DefaultedItems.Select(s => $"+ {s.EvaluatedInclude}"));
+                    lines.AddRange(IntroducedItems.Select(s => $"+ {s.EvaluatedInclude}"));
                 }
 
-                lines.AddRange(changedItems.OrderBy(s => s.TrimStart('+', '-', '=', ' ')));
                 lines.Add("");
             }
 

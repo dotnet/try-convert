@@ -8,13 +8,11 @@ namespace MSBuildSdkDiffer
     internal class Differ
     {
         private readonly IProject _project;
-        private readonly IEnumerable<string> _propertiesInFile;
         private readonly IProject _sdkBaselineProject;
 
-        public Differ(IProject project, IEnumerable<string> propertiesInFile, IProject sdkBaselineProject)
+        public Differ(IProject project, IProject sdkBaselineProject)
         {
             _project = project ?? throw new System.ArgumentNullException(nameof(project));
-            _propertiesInFile = propertiesInFile ?? throw new System.ArgumentNullException(nameof(propertiesInFile));
             _sdkBaselineProject = sdkBaselineProject ?? throw new System.ArgumentNullException(nameof(sdkBaselineProject));
         }
 
@@ -24,7 +22,9 @@ namespace MSBuildSdkDiffer
             var notDefaultedProps = ImmutableArray.CreateBuilder<IProjectProperty>();
             var changedProps = ImmutableArray.CreateBuilder<(IProjectProperty, IProjectProperty)>();
 
-            foreach (var propInFile in _propertiesInFile)
+            var propertiesInFile = _project.Properties.Where(p => p.IsDefinedInProject).Select(p => p.Name).Distinct();
+
+            foreach (var propInFile in propertiesInFile)
             {
                 var originalEvaluatedProp = _project.GetProperty(propInFile);
                 var newEvaluatedProp = _sdkBaselineProject.GetProperty(propInFile);

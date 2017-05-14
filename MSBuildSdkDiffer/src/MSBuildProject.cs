@@ -17,6 +17,8 @@ namespace MSBuildSdkDiffer
         IProjectProperty GetProperty(string name);
 
         string GetPropertyValue(string name);
+
+        string FullPath { get; }
     }
 
     public interface IProjectProperty
@@ -24,6 +26,7 @@ namespace MSBuildSdkDiffer
         string Name { get; }
         string EvaluatedValue { get; }
         string UnevaluatedValue { get; }
+        bool IsDefinedInProject { get; }
     }
 
     public interface IProjectItem
@@ -46,6 +49,11 @@ namespace MSBuildSdkDiffer
         public string EvaluatedValue => _property.EvaluatedValue;
 
         public string UnevaluatedValue => _property.UnevaluatedValue;
+
+        public bool IsDefinedInProject => !_property.IsImported && 
+                                          !_property.IsEnvironmentProperty && 
+                                          !_property.IsGlobalProperty &&
+                                          !_property.IsReservedProperty;
     }
 
     internal class MSBuildProjectItem : IProjectItem
@@ -71,6 +79,8 @@ namespace MSBuildSdkDiffer
         public ICollection<IProjectProperty> Properties => _project.Properties.Select(p => new MSBuildProjectProperty(p)).ToArray();
 
         public ICollection<IProjectItem> Items => _project.Items.Select(i => new MSBuildProjectItem(i)).ToArray();
+
+        public string FullPath => _project.FullPath;
 
         public IProjectProperty GetProperty(string name) => _project.GetProperty(name) != null ? new MSBuildProjectProperty(_project.GetProperty(name)) : null;
 

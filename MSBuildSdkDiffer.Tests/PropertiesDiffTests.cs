@@ -16,10 +16,10 @@ namespace MSBuildSdkDiffer.Tests
         [InlineData("A=B;C=D;E=F", "A;C;E", "C=E;E=F", "E", "A", "C")]
         public void PropertiesDiff(string projectProps, string propsInFile, string sdkBaselineProps, string expectedDefaultedProps, string expectedNotDefaultedProps, string expectedChangedProps)
         {
-            var project = IProjectFactory.Create(projectProps);
-            var sdkBaselineProject = IProjectFactory.Create(sdkBaselineProps);
+            var project = IProjectFactory.Create(projectProps, propsInFile);
+            var sdkBaselineProject = IProjectFactory.Create(sdkBaselineProps, propsInFile);
 
-            var differ = new Differ(project, propsInFile.Split(';'), sdkBaselineProject);
+            var differ = new Differ(project, sdkBaselineProject);
 
             var diff = differ.GetPropertiesDiff();
 

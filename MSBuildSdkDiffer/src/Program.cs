@@ -35,11 +35,11 @@ namespace MSBuildSdkDiffer
                     projectLoader.SdkBaselineProject.LogProjectProperties(opt.SdkBaseLineProjectLogPath);
                     break;
                 case DiffOptions opt:
-                    var differ = new Differ(projectLoader.Project, projectLoader.PropertiesInFile, projectLoader.SdkBaselineProject);
+                    var differ = new Differ(projectLoader.Project, projectLoader.SdkBaselineProject);
                     differ.GenerateReport(opt.DiffReportPath);
                     break;
                 case ConvertOptions opt:
-                    var converter = new Converter(projectLoader.Project, projectLoader.PropertiesInFile, projectLoader.SdkBaselineProject, projectLoader.RootElement);
+                    var converter = new Converter(projectLoader.Project, projectLoader.SdkBaselineProject);
                     converter.GenerateProjectFile(opt.OutputProjectPath);
                     break;
             }

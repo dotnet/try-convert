@@ -20,7 +20,7 @@ namespace MSBuildSdkDiffer.Tests
             var project = IProjectFactory.Create(GetItems(projectItems));
             var sdkBaselineProject = IProjectFactory.Create(GetItems(sdkBaselineItems));
 
-            var differ = new Differ(project, Enumerable.Empty<string>(), sdkBaselineProject);
+            var differ = new Differ(project, sdkBaselineProject);
 
             var diffs = differ.GetItemsDiff();
 

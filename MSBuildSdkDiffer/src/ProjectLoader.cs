@@ -11,8 +11,6 @@ namespace MSBuildSdkDiffer
     {
         public MSBuildProject Project { get; private set; }
         public MSBuildProject SdkBaselineProject { get; private set; }
-        public List<string> PropertiesInFile { get; private set; }
-        public ProjectRootElement RootElement { get; private set; }
 
         public void LoadProjects(Options options)
         {
@@ -31,9 +29,7 @@ namespace MSBuildSdkDiffer
             Console.WriteLine($"Successfully loaded project file '{projectPath}'.");
 
             //Stash away names of properties in the file since to create the sdk baseline, we'll modify the project in memory.
-            RootElement = ProjectRootElement.Open(projectPath);
-            PropertiesInFile = RootElement.Properties.Select(p => p.Name).Distinct().ToList();
-            SdkBaselineProject = CreateSdkBaselineProject(Project, RootElement, globalProperties);
+            SdkBaselineProject = CreateSdkBaselineProject(Project, globalProperties);
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
         }
 
@@ -58,8 +54,9 @@ namespace MSBuildSdkDiffer
         /// We need to use the same name as the original csproj and same path so that all the default that derive
         /// from name\path get the right values (there are a lot of them).
         /// </summary>
-        private static MSBuildProject CreateSdkBaselineProject(MSBuildProject project, ProjectRootElement rootElement, IDictionary<string, string> globalProperties)
+        private static MSBuildProject CreateSdkBaselineProject(MSBuildProject project, IDictionary<string, string> globalProperties)
         {
+            var rootElement = ProjectRootElement.Open(project.FullPath);
             rootElement.RemoveAllChildren();
             rootElement.Sdk = "Microsoft.NET.Sdk";
             var propGroup = rootElement.AddPropertyGroup();

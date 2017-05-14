@@ -30,7 +30,7 @@ namespace MSBuildSdkDiffer
             if (!NotDefaultedProperties.IsEmpty)
             {
                 lines.Add("Properties that are not defaulted by the SDK:");
-                lines.AddRange(DefaultedProperties.Select(prop => $"+ {prop.Name} = {prop.EvaluatedValue}"));
+                lines.AddRange(NotDefaultedProperties.Select(prop => $"+ {prop.Name} = {prop.EvaluatedValue}"));
                 lines.Add("");
             }
             if (!ChangedProperties.IsEmpty)
@@ -40,7 +40,7 @@ namespace MSBuildSdkDiffer
                     new[]
                     {
                         $"- {diff.oldProp.Name} = {diff.oldProp.EvaluatedValue}",
-                        $"- {diff.newProp.Name} = {diff.newProp.EvaluatedValue}"
+                        $"+ {diff.newProp.Name} = {diff.newProp.EvaluatedValue}"
                     }
                 );
                 lines.AddRange(changedProps);

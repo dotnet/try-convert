@@ -47,14 +47,22 @@ namespace MSBuildSdkDiffer.Tests.Mocks
             {
                 if (projectProperties.ContainsKey(prop))
                 {
-                    var projectProperty = new Mock<IProjectProperty>();
-                    projectProperty.SetupGet(pp => pp.Name).Returns(prop);
-                    projectProperty.SetupGet(pp => pp.EvaluatedValue).Returns(projectProperties[prop]);
-                    return projectProperty.Object;
+                    return MockProperty(prop, projectProperties[prop]);
                 }
                 return null;
             });
+
+            mock.SetupGet(m => m.Properties).Returns(projectProperties.Select(kvp => MockProperty(kvp.Key, kvp.Value)).ToArray());
+
             return mock.Object;
+        }
+
+        private static IProjectProperty MockProperty(string propName, string propValue)
+        {
+            var projectProperty = new Mock<IProjectProperty>();
+            projectProperty.SetupGet(pp => pp.Name).Returns(propName);
+            projectProperty.SetupGet(pp => pp.EvaluatedValue).Returns(propValue);
+            return projectProperty.Object;
         }
     }
 }

@@ -63,6 +63,8 @@ namespace MSBuildSdkDiffer
                     differ.GenerateReport(opt.DiffReportPath);
                     break;
                 case ConvertOptions opt:
+                    var converter = new Converter(project, propertiesInFile, sdkBaselineProject, rootElement);
+                    converter.GenerateProjectFile(opt.OutputProjectPath);
                     break;
             }
             

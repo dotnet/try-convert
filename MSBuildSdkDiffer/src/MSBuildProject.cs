@@ -23,6 +23,7 @@ namespace MSBuildSdkDiffer
     {
         string Name { get; }
         string EvaluatedValue { get; }
+        string UnevaluatedValue { get; }
     }
 
     public interface IProjectItem
@@ -43,6 +44,8 @@ namespace MSBuildSdkDiffer
         public string Name => _property.Name;
 
         public string EvaluatedValue => _property.EvaluatedValue;
+
+        public string UnevaluatedValue => _property.UnevaluatedValue;
     }
 
     internal class MSBuildProjectItem : IProjectItem

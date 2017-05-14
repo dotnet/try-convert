@@ -263,3 +263,4 @@ __pycache__/
 report.diff
 currentProject.log
 sdkBaseLineProject.log
+out.csproj

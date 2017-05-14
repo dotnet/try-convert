@@ -1,8 +1,16 @@
 {
   "profiles": {
-    "MSBuildDiffer": {
+    "Diff": {
       "commandName": "Project",
       "commandLineArgs": "diff \"C:\\Users\\srivatsn\\Documents\\Visual Studio 2017\\Projects\\ConsoleApp24\\ConsoleApp24\\ConsoleApp24.csproj\" -r \"C:\\Program Files\\dotnet\\sdk\\1.0.0\\Roslyn\"",
+      "environmentVariables": {
+        "RoslynTargetsPath": "C:\\Program Files\\dotnet\\sdk\\1.0.0\\Roslyn",
+        "MSBuildSdksPath": "C:\\Program Files\\dotnet\\sdk\\1.0.0\\Sdks\\"
+      }
+    },
+    "Convert": {
+      "commandName": "Project",
+      "commandLineArgs": "convert \"C:\\Users\\srivatsn\\Documents\\Visual Studio 2017\\Projects\\ConsoleApp24\\ConsoleApp24\\ConsoleApp24.csproj\" -r \"C:\\Program Files\\dotnet\\sdk\\1.0.0\\Roslyn\" -o out.csproj",
       "environmentVariables": {
         "RoslynTargetsPath": "C:\\Program Files\\dotnet\\sdk\\1.0.0\\Roslyn",
         "MSBuildSdksPath": "C:\\Program Files\\dotnet\\sdk\\1.0.0\\Sdks\\"

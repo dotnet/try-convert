@@ -35,6 +35,30 @@ namespace MSBuildSdkDiffer
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
         }
 
+        public static ProjectStyle GetProjectStyle(ProjectRootElement project)
+        {
+            if (project.ImportGroups.Any())
+            {
+                return ProjectStyle.Custom;
+            }
+
+            if (project.Imports.Count == 2)
+            {
+                var firstImport = project.Imports.First();
+                var lastImport = project.Imports.Last();
+
+                if (firstImport.Project.EndsWith("Microsoft.Common.props") && 
+                    lastImport.Project.EndsWith("Microsoft.CSharp.targets"))
+                {
+                    return ProjectStyle.Default;
+                }
+
+                return ProjectStyle.DefaultWithCustomTargets;
+            }
+
+            return ProjectStyle.Custom;
+        }
+
         private static Dictionary<string, string> InitializeGlobalProperties(Options options)
         {
             var globalProperties = new Dictionary<string, string>();

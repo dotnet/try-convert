@@ -32,10 +32,10 @@ namespace MSBuildSdkDiffer
             {
                 case LogOptions opt:
                     projectLoader.Project.LogProjectProperties(opt.CurrentProjectLogPath);
-                    projectLoader.SdkBaselineProject.LogProjectProperties(opt.SdkBaseLineProjectLogPath);
+                    projectLoader.SdkBaselineProject.Project.LogProjectProperties(opt.SdkBaseLineProjectLogPath);
                     break;
                 case DiffOptions opt:
-                    var differ = new Differ(projectLoader.Project, projectLoader.SdkBaselineProject);
+                    var differ = new Differ(projectLoader.Project, projectLoader.SdkBaselineProject.Project);
                     differ.GenerateReport(opt.DiffReportPath);
                     break;
                 case ConvertOptions opt:

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.Build.Construction;
 
@@ -6,18 +7,18 @@ namespace MSBuildSdkDiffer
 {
     internal class Converter
     {
-        private readonly MSBuildProject _project;
-        private readonly MSBuildProject _sdkBaselineProject;
+        private readonly IProject _project;
+        private readonly BaselineProject _sdkBaselineProject;
         private readonly ProjectRootElement _projectRootElement;
         private readonly Differ _differ;
         private readonly string [] PropertiesNotNeededInCPS = new[] { "ProjectGuid", "ProjectTypeGuid" };
 
-        public Converter(MSBuildProject project, MSBuildProject sdkBaselineProject, ProjectRootElement projectRootElement)
+        public Converter(IProject project, BaselineProject sdkBaselineProject, ProjectRootElement projectRootElement)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
-            _sdkBaselineProject = sdkBaselineProject ?? throw new ArgumentNullException(nameof(sdkBaselineProject));
+            _sdkBaselineProject = sdkBaselineProject;
             _projectRootElement = projectRootElement ?? throw new ArgumentNullException(nameof(projectRootElement));
-            _differ = new Differ(_project, _sdkBaselineProject);
+            _differ = new Differ(_project, _sdkBaselineProject.Project);
         }
 
         internal void GenerateProjectFile(string outputProjectPath)
@@ -25,7 +26,20 @@ namespace MSBuildSdkDiffer
             var propDiff = _differ.GetPropertiesDiff();
             var itemsDiff = _differ.GetItemsDiff();
 
-            var projectStyle = ProjectLoader.GetProjectStyle(_projectRootElement);
+            ChangeImports();
+
+            RemoveDefaultedProperties(propDiff);
+            AddTargetFrameworkProperty();
+
+            RemoveDefaultedItems(itemsDiff);
+
+            _projectRootElement.ToolsVersion = null;
+            _projectRootElement.Save(outputProjectPath);
+        }
+
+        private void ChangeImports()
+        {
+            var projectStyle = _sdkBaselineProject.ProjectStyle;
 
             switch (projectStyle)
             {
@@ -41,7 +55,10 @@ namespace MSBuildSdkDiffer
                 case ProjectStyle.Custom:
                     throw new NotSupportedException("Projects with more than 2 imports of custom targets are not supported");
             }
+        }
 
+        private void RemoveDefaultedProperties(PropertiesDiff propDiff)
+        {
             foreach (var propGroup in _projectRootElement.PropertyGroups)
             {
                 // TODO: Handle prop groups with conditions - esp configurations.
@@ -52,12 +69,9 @@ namespace MSBuildSdkDiffer
 
                 foreach (var prop in propGroup.Properties)
                 {
-                    if (prop.Name == "OutputType")
+                    // These properties were added to the baseline - so don't treat them as defaulted proeprties.
+                    if (_sdkBaselineProject.GlobalProperties.Contains(prop.Name))
                     {
-                        var targetFrameworkElement = _projectRootElement.CreatePropertyElement("TargetFramework");
-                        targetFrameworkElement.Value = _sdkBaselineProject.GetProperty("TargetFramework").EvaluatedValue;
-                        propGroup.InsertBeforeChild(targetFrameworkElement, prop);
-                        // Output path was added to the baseline - so it'll be defaulted but don't remove it.
                         continue;
                     }
 
@@ -73,7 +87,10 @@ namespace MSBuildSdkDiffer
                     _projectRootElement.RemoveChild(propGroup);
                 }
             }
+        }
 
+        private void RemoveDefaultedItems(ImmutableArray<ItemsDiff> itemsDiff)
+        {
             foreach (var itemGroup in _projectRootElement.ItemGroups)
             {
                 foreach (var item in itemGroup.Items)
@@ -94,9 +111,19 @@ namespace MSBuildSdkDiffer
                     _projectRootElement.RemoveChild(itemGroup);
                 }
             }
+        }
 
-            _projectRootElement.ToolsVersion = null;
-            _projectRootElement.Save(outputProjectPath);
+        private void AddTargetFrameworkProperty()
+        {
+            var propGroup = _projectRootElement.PropertyGroups.FirstOrDefault(pg => pg.Condition == "");
+            if (propGroup == null)
+            {
+                propGroup = _projectRootElement.AddPropertyGroup();
+            }
+
+            var targetFrameworkElement = _projectRootElement.CreatePropertyElement("TargetFramework");
+            targetFrameworkElement.Value = _sdkBaselineProject.Project.GetProperty("TargetFramework").EvaluatedValue;
+            propGroup.PrependChild(targetFrameworkElement);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Microsoft.Build.Construction;
@@ -10,7 +11,7 @@ namespace MSBuildSdkDiffer
     internal class ProjectLoader
     {
         public MSBuildProject Project { get; private set; }
-        public MSBuildProject SdkBaselineProject { get; private set; }
+        public BaselineProject SdkBaselineProject { get; private set; }
         public ProjectRootElement ProjectRootElement { get; private set; }
 
         public void LoadProjects(Options options)
@@ -80,7 +81,7 @@ namespace MSBuildSdkDiffer
         /// We need to use the same name as the original csproj and same path so that all the default that derive
         /// from name\path get the right values (there are a lot of them).
         /// </summary>
-        private static MSBuildProject CreateSdkBaselineProject(MSBuildProject project, IDictionary<string, string> globalProperties)
+        private BaselineProject CreateSdkBaselineProject(MSBuildProject project, IDictionary<string, string> globalProperties)
         {
             var rootElement = ProjectRootElement.Open(project.FullPath);
             rootElement.RemoveAllChildren();
@@ -92,7 +93,7 @@ namespace MSBuildSdkDiffer
             // Create a new collection because a project with this name has already been loaded into the global collection.
             var pc = new ProjectCollection(globalProperties);
             var newProjectModel = new MSBuildProject(new Project(rootElement, null, "15.0", pc));
-            return newProjectModel;
+            return new BaselineProject(newProjectModel, ImmutableArray.Create("OutputType"), GetProjectStyle(ProjectRootElement));
         }
 
     }

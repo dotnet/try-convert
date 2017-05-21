@@ -11,6 +11,7 @@ namespace MSBuildSdkDiffer
     {
         public MSBuildProject Project { get; private set; }
         public MSBuildProject SdkBaselineProject { get; private set; }
+        public ProjectRootElement ProjectRootElement { get; private set; }
 
         public void LoadProjects(Options options)
         {
@@ -29,6 +30,7 @@ namespace MSBuildSdkDiffer
             Console.WriteLine($"Successfully loaded project file '{projectPath}'.");
 
             //Stash away names of properties in the file since to create the sdk baseline, we'll modify the project in memory.
+            ProjectRootElement = ProjectRootElement.Open(Project.FullPath).DeepClone();
             SdkBaselineProject = CreateSdkBaselineProject(Project, globalProperties);
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
         }

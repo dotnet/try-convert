@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Build.Construction;
 
 namespace MSBuildSdkDiffer
@@ -8,35 +9,56 @@ namespace MSBuildSdkDiffer
     {
         private readonly MSBuildProject _project;
         private readonly MSBuildProject _sdkBaselineProject;
+        private readonly ProjectRootElement _projectRootElement;
         private readonly Differ _differ;
 
-        public Converter(MSBuildProject project, MSBuildProject sdkBaselineProject)
+        public Converter(MSBuildProject project, MSBuildProject sdkBaselineProject, ProjectRootElement projectRootElement)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _sdkBaselineProject = sdkBaselineProject ?? throw new ArgumentNullException(nameof(sdkBaselineProject));
-
+            _projectRootElement = projectRootElement ?? throw new ArgumentNullException(nameof(projectRootElement));
             _differ = new Differ(_project, _sdkBaselineProject);
         }
 
         internal void GenerateProjectFile(string outputProjectPath)
         {
-            var rootElement = ProjectRootElement.Open(_project.FullPath);
-            var propGroup = rootElement.AddPropertyGroup();
-
             var propDiff = _differ.GetPropertiesDiff();
-            foreach (var prop in propDiff.NotDefaultedProperties)
+            var itemsDiff = _differ.GetItemsDiff();
+            
+            foreach (var propGroup in _projectRootElement.PropertyGroups)
             {
-                propGroup.AddProperty(prop.Name, prop.UnevaluatedValue);
+                // TODO: Handle prop groups with conditions - esp configurations.
+                if (propGroup.Condition != "")
+                {
+                    continue;
+                }
+
+                foreach (var prop in propGroup.Properties)
+                {
+                    if (propDiff.DefaultedProperties.Select(p => p.Name).Contains(prop.Name))
+                    {
+                        propGroup.RemoveChild(prop);
+                    }
+                }
             }
 
-            foreach (var prop in propDiff.ChangedProperties)
+            foreach (var itemGroup in _projectRootElement.ItemGroups)
             {
-                propGroup.AddProperty(prop.oldProp.Name, prop.oldProp.UnevaluatedValue);
+                foreach (var item in itemGroup.Items)
+                {
+                    ItemsDiff itemTypeDiff = itemsDiff.FirstOrDefault(id => id.ItemType == item.ItemType);
+                    if (!itemTypeDiff.DefaultedItems.IsDefault)
+                    {
+                        var defaultedItems = itemTypeDiff.DefaultedItems.Select(i => i.EvaluatedInclude);
+                        if (defaultedItems.Contains(item.Include))
+                        {
+                            itemGroup.RemoveChild(item);
+                        }
+                    }
+                }
             }
 
-            var itemGroup = rootElement.AddItemGroup();
-
-            rootElement.Save(outputProjectPath);
+            _projectRootElement.Save(outputProjectPath);
         }
     }
 }

@@ -7,18 +7,18 @@ namespace MSBuildSdkDiffer
 {
     internal class Converter
     {
-        private readonly IProject _project;
+        private readonly UnconfiguredProject _project;
         private readonly BaselineProject _sdkBaselineProject;
         private readonly ProjectRootElement _projectRootElement;
         private readonly Differ _differ;
         private readonly string [] PropertiesNotNeededInCPS = new[] { "ProjectGuid", "ProjectTypeGuid" };
 
-        public Converter(IProject project, BaselineProject sdkBaselineProject, ProjectRootElement projectRootElement)
+        public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, ProjectRootElement projectRootElement)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _sdkBaselineProject = sdkBaselineProject;
             _projectRootElement = projectRootElement ?? throw new ArgumentNullException(nameof(projectRootElement));
-            _differ = new Differ(_project, _sdkBaselineProject.Project);
+            _differ = new Differ(_project.FirstConfiguredProject, _sdkBaselineProject.Project.FirstConfiguredProject);
         }
 
         internal void GenerateProjectFile(string outputProjectPath)
@@ -122,7 +122,7 @@ namespace MSBuildSdkDiffer
             }
 
             var targetFrameworkElement = _projectRootElement.CreatePropertyElement("TargetFramework");
-            targetFrameworkElement.Value = _sdkBaselineProject.Project.GetProperty("TargetFramework").EvaluatedValue;
+            targetFrameworkElement.Value = _sdkBaselineProject.Project.FirstConfiguredProject.GetProperty("TargetFramework").EvaluatedValue;
             propGroup.PrependChild(targetFrameworkElement);
         }
     }

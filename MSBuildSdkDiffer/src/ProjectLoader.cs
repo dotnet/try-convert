@@ -10,7 +10,7 @@ namespace MSBuildSdkDiffer
 {
     internal class ProjectLoader
     {
-        public MSBuildProject Project { get; private set; }
+        public UnconfiguredProject Project { get; private set; }
         public BaselineProject SdkBaselineProject { get; private set; }
         public ProjectRootElement ProjectRootElement { get; private set; }
 
@@ -24,16 +24,33 @@ namespace MSBuildSdkDiffer
                 return;
             }
 
-            Dictionary<string, string> globalProperties = InitializeGlobalProperties(options);
-
+            ImmutableDictionary<string, string> globalProperties = InitializeGlobalProperties(options);
             var collection = new ProjectCollection(globalProperties);
-            Project = new MSBuildProject(collection.LoadProject(projectPath));
+
+            ProjectRootElement = ProjectRootElement.Open(projectPath).DeepClone();
+            var configurations = DetermineConfigurations(ProjectRootElement);
+
+            Project = new UnconfiguredProject(projectPath, configurations);
+            Project.LoadProjects(collection, globalProperties);
             Console.WriteLine($"Successfully loaded project file '{projectPath}'.");
 
-            //Stash away names of properties in the file since to create the sdk baseline, we'll modify the project in memory.
-            ProjectRootElement = ProjectRootElement.Open(Project.FullPath).DeepClone();
-            SdkBaselineProject = CreateSdkBaselineProject(Project, globalProperties);
+            SdkBaselineProject = CreateSdkBaselineProject(projectPath, Project.FirstConfiguredProject, globalProperties, configurations);
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
+        }
+
+        private ImmutableDictionary<string, ImmutableDictionary<string, string>> DetermineConfigurations(ProjectRootElement projectRootElement)
+        {
+            var builder = ImmutableDictionary.CreateBuilder<string, ImmutableDictionary<string, string>>();
+            foreach (var propertyGroup in projectRootElement.PropertyGroups)
+            {
+                if (MSBuildUtilities.ConditionToDimensionValues(propertyGroup.Condition, out var dimensionValues))
+                {
+                    var name = MSBuildUtilities.GetDimensionName(dimensionValues);
+                    builder.Add(name, dimensionValues.ToImmutableDictionary());
+                }
+            }
+
+            return builder.ToImmutable();
         }
 
         public static ProjectStyle GetProjectStyle(ProjectRootElement project)
@@ -60,9 +77,9 @@ namespace MSBuildSdkDiffer
             return ProjectStyle.Custom;
         }
 
-        private static Dictionary<string, string> InitializeGlobalProperties(Options options)
+        private static ImmutableDictionary<string, string> InitializeGlobalProperties(Options options)
         {
-            var globalProperties = new Dictionary<string, string>();
+            var globalProperties = ImmutableDictionary.CreateBuilder<string, string>();
             if (!string.IsNullOrEmpty(options.RoslynTargetsPath))
             {
                 globalProperties.Add("RoslynTargetsPath", options.RoslynTargetsPath);
@@ -73,7 +90,7 @@ namespace MSBuildSdkDiffer
                 globalProperties.Add("MSBuildSDKsPath", options.MSBuildSdksPath);
             }
 
-            return globalProperties;
+            return globalProperties.ToImmutable();
         }
 
         /// <summary>
@@ -81,9 +98,9 @@ namespace MSBuildSdkDiffer
         /// We need to use the same name as the original csproj and same path so that all the default that derive
         /// from name\path get the right values (there are a lot of them).
         /// </summary>
-        private BaselineProject CreateSdkBaselineProject(MSBuildProject project, IDictionary<string, string> globalProperties)
+        private BaselineProject CreateSdkBaselineProject(string projectFilePath, IProject project, ImmutableDictionary<string, string> globalProperties, ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations)
         {
-            var rootElement = ProjectRootElement.Open(project.FullPath);
+            var rootElement = ProjectRootElement.Open(projectFilePath);
             rootElement.RemoveAllChildren();
             rootElement.Sdk = "Microsoft.NET.Sdk";
             var propGroup = rootElement.AddPropertyGroup();
@@ -92,8 +109,9 @@ namespace MSBuildSdkDiffer
 
             // Create a new collection because a project with this name has already been loaded into the global collection.
             var pc = new ProjectCollection(globalProperties);
-            var newProjectModel = new MSBuildProject(new Project(rootElement, null, "15.0", pc));
-            return new BaselineProject(newProjectModel, ImmutableArray.Create("OutputType"), GetProjectStyle(ProjectRootElement));
+            var newProject = new UnconfiguredProject(projectFilePath, configurations);
+            newProject.LoadProjects(pc, globalProperties);
+            return new BaselineProject(newProject, ImmutableArray.Create("OutputType"), GetProjectStyle(ProjectRootElement));
         }
 
     }

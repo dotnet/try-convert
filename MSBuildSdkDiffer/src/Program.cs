@@ -31,11 +31,11 @@ namespace MSBuildSdkDiffer
             switch (options)
             {
                 case LogOptions opt:
-                    projectLoader.Project.LogProjectProperties(opt.CurrentProjectLogPath);
-                    projectLoader.SdkBaselineProject.Project.LogProjectProperties(opt.SdkBaseLineProjectLogPath);
+                    projectLoader.Project.FirstConfiguredProject.LogProjectProperties(opt.CurrentProjectLogPath);
+                    projectLoader.SdkBaselineProject.Project.FirstConfiguredProject.LogProjectProperties(opt.SdkBaseLineProjectLogPath);
                     break;
                 case DiffOptions opt:
-                    var differ = new Differ(projectLoader.Project, projectLoader.SdkBaselineProject.Project);
+                    var differ = new Differ(projectLoader.Project.FirstConfiguredProject, projectLoader.SdkBaselineProject.Project.FirstConfiguredProject);
                     differ.GenerateReport(opt.DiffReportPath);
                     break;
                 case ConvertOptions opt:

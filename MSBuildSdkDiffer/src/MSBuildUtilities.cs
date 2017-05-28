@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -19,7 +20,7 @@ namespace MSBuildSdkDiffer
         /// </summary>
         /// <param name="dimensionalValues">vector of configuration dimensional properties</param>
         /// <returns>msbuild condition representation</returns>
-        internal static string DimensionalValuePairsToCondition(IReadOnlyDictionary<string, string> dimensionalValues)
+        internal static string DimensionalValuePairsToCondition(ImmutableDictionary<string, string> dimensionalValues)
         {
             if (null == dimensionalValues || 0 == dimensionalValues.Count)
             {
@@ -48,7 +49,7 @@ namespace MSBuildSdkDiffer
         /// <summary>
         /// Returns a name of a dimension like Debug|AnyCPU
         /// </summary>
-        internal static string GetDimensionName(IReadOnlyDictionary<string, string> dimensionValues) => dimensionValues.Values.Aggregate((x, y) => $"{x}|{y}");
+        internal static string GetDimensionName(ImmutableDictionary<string, string> dimensionValues) => dimensionValues.IsEmpty ? "" : dimensionValues.Values.Aggregate((x, y) => $"{x}|{y}");
 
         /// <summary>
         /// Tries to parse an MSBuild condition to a dimensional vector
@@ -58,11 +59,11 @@ namespace MSBuildSdkDiffer
         /// <param name="condition">msbuild condition string</param>
         /// <param name="dimensionalValues">configuration dimensions vector (output)</param>
         /// <returns>true on success</returns>
-        internal static bool ConditionToDimensionValues(string condition, out IReadOnlyDictionary<string, string> dimensionalValues)
+        internal static bool ConditionToDimensionValues(string condition, out ImmutableDictionary<string, string> dimensionalValues)
         {
             string left;
             string right;
-            dimensionalValues = null;
+            dimensionalValues = ImmutableDictionary<string, string>.Empty;
 
             if (string.IsNullOrEmpty(condition))
             {
@@ -114,7 +115,7 @@ namespace MSBuildSdkDiffer
                 parsedDimensionalValues[dimensionName] = dimensionValuesInCondition[i];
             }
 
-            dimensionalValues = parsedDimensionalValues;
+            dimensionalValues = parsedDimensionalValues.ToImmutableDictionary();
             return true;
         }
 

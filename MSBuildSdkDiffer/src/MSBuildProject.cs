@@ -17,8 +17,6 @@ namespace MSBuildSdkDiffer
         IProjectProperty GetProperty(string name);
 
         string GetPropertyValue(string name);
-
-        string FullPath { get; }
     }
 
     public interface IProjectProperty
@@ -79,8 +77,6 @@ namespace MSBuildSdkDiffer
         public ICollection<IProjectProperty> Properties => _project.Properties.Select(p => new MSBuildProjectProperty(p)).ToArray();
 
         public ICollection<IProjectItem> Items => _project.Items.Select(i => new MSBuildProjectItem(i)).ToArray();
-
-        public string FullPath => _project.FullPath;
 
         public IProjectProperty GetProperty(string name) => _project.GetProperty(name) != null ? new MSBuildProjectProperty(_project.GetProperty(name)) : null;
 

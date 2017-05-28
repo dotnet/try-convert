@@ -16,25 +16,25 @@ namespace MSBuildSdkDiffer
 
         public void LoadProjects(Options options)
         {
-            string projectPath = Path.GetFullPath(options.ProjectFilePath);
+            string projectFilePath = Path.GetFullPath(options.ProjectFilePath);
 
-            if (!File.Exists(projectPath))
+            if (!File.Exists(projectFilePath))
             {
-                Console.Error.WriteLine($"The project file '{projectPath}' does not exist or is inaccessible.");
+                Console.Error.WriteLine($"The project file '{projectFilePath}' does not exist or is inaccessible.");
                 return;
             }
 
             ImmutableDictionary<string, string> globalProperties = InitializeGlobalProperties(options);
             var collection = new ProjectCollection(globalProperties);
 
-            ProjectRootElement = ProjectRootElement.Open(projectPath).DeepClone();
+            ProjectRootElement = ProjectRootElement.Open(projectFilePath).DeepClone();
             var configurations = DetermineConfigurations(ProjectRootElement);
 
-            Project = new UnconfiguredProject(projectPath, configurations);
-            Project.LoadProjects(collection, globalProperties);
-            Console.WriteLine($"Successfully loaded project file '{projectPath}'.");
+            Project = new UnconfiguredProject(configurations);
+            Project.LoadProjects(collection, globalProperties, projectFilePath);
+            Console.WriteLine($"Successfully loaded project file '{projectFilePath}'.");
 
-            SdkBaselineProject = CreateSdkBaselineProject(projectPath, Project.FirstConfiguredProject, globalProperties, configurations);
+            SdkBaselineProject = CreateSdkBaselineProject(projectFilePath, Project.FirstConfiguredProject, globalProperties, configurations);
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
         }
 
@@ -109,8 +109,8 @@ namespace MSBuildSdkDiffer
 
             // Create a new collection because a project with this name has already been loaded into the global collection.
             var pc = new ProjectCollection(globalProperties);
-            var newProject = new UnconfiguredProject(projectFilePath, configurations);
-            newProject.LoadProjects(pc, globalProperties);
+            var newProject = new UnconfiguredProject(configurations);
+            newProject.LoadProjects(pc, globalProperties, rootElement);
             return new BaselineProject(newProject, ImmutableArray.Create("OutputType"), GetProjectStyle(ProjectRootElement));
         }
 

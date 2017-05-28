@@ -58,9 +58,10 @@ namespace MSBuildSdkDiffer
                                      where og.Key == ng.Key
                                      select new {
                                                  ItemType = og.Key,
-                                                 DefaultedItems = ng.Intersect(og, ProjectItemComparer.Instance),
-                                                 IntroducedItems = ng.Except(og, ProjectItemComparer.Instance),
-                                                 NotDefaultedItems = og.Except(ng, ProjectItemComparer.Instance),
+                                                 DefaultedItems = ng.Intersect(og, ProjectItemComparer.MetadataComparer),
+                                                 IntroducedItems = ng.Except(og, ProjectItemComparer.IncludeComparer),
+                                                 NotDefaultedItems = og.Except(ng, ProjectItemComparer.IncludeComparer),
+                                                 ChangedItems = GetChangedItems(og, ng),
                                                 };
 
             var builder = ImmutableArray.CreateBuilder<ItemsDiff>();
@@ -70,12 +71,21 @@ namespace MSBuildSdkDiffer
                 var defaultedItems = group.DefaultedItems.ToImmutableArray();
                 var notDefaultedItems = group.NotDefaultedItems.ToImmutableArray();
                 var introducedItems = group.IntroducedItems.ToImmutableArray();
+                var changedItems = group.ChangedItems.ToImmutableArray();
 
-                var diff = new ItemsDiff(group.ItemType, defaultedItems, notDefaultedItems, introducedItems, ImmutableArray<(IProjectItem, IProjectItem)>.Empty);
+                var diff = new ItemsDiff(group.ItemType, defaultedItems, notDefaultedItems, introducedItems, changedItems);
                 builder.Add(diff);
             }
 
             return builder.ToImmutable();
+        }
+
+        private IEnumerable<IProjectItem> GetChangedItems(IGrouping<string, IProjectItem> oldGroup, IGrouping<string, IProjectItem> newGroup)
+        {
+            var itemsWithSameInclude = oldGroup.Intersect(newGroup, ProjectItemComparer.IncludeComparer);
+            var itemsWithSameMetadata = oldGroup.Intersect(newGroup, ProjectItemComparer.MetadataComparer);
+
+            return itemsWithSameInclude.Except(itemsWithSameMetadata);
         }
 
         public void GenerateReport(string reportFilePath)

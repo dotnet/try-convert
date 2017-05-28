@@ -28,7 +28,7 @@ namespace MSBuildSdkDiffer
             RemoveDefaultedProperties();
             AddTargetFrameworkProperty();
 
-            RemoveDefaultedItems();
+            RemoveOrUpdateItems();
 
             _projectRootElement.ToolsVersion = null;
             _projectRootElement.Save(outputProjectPath);
@@ -83,7 +83,7 @@ namespace MSBuildSdkDiffer
             }
         }
 
-        private void RemoveDefaultedItems()
+        private void RemoveOrUpdateItems()
         {
             foreach (var itemGroup in _projectRootElement.ItemGroups)
             {
@@ -99,6 +99,17 @@ namespace MSBuildSdkDiffer
                         if (defaultedItems.Contains(item.Include))
                         {
                             itemGroup.RemoveChild(item);
+                        }
+                    }
+
+                    if(!itemTypeDiff.ChangedItems.IsDefault)
+                    {
+                        var changedItems = itemTypeDiff.ChangedItems.Select(i => i.EvaluatedInclude);
+                        if (changedItems.Contains(item.Include))
+                        {
+                            var path = item.Include;
+                            item.Include = null;
+                            item.Update = path;
                         }
                     }
                 }

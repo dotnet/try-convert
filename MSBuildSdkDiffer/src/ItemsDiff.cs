@@ -10,9 +10,9 @@ namespace MSBuildSdkDiffer
         public readonly ImmutableArray<IProjectItem> DefaultedItems;
         public readonly ImmutableArray<IProjectItem> NotDefaultedItems;
         public readonly ImmutableArray<IProjectItem> IntroducedItems;
-        public readonly ImmutableArray<(IProjectItem oldProp, IProjectItem newProp)> ChangedItems;
+        public readonly ImmutableArray<IProjectItem> ChangedItems;
 
-        public ItemsDiff(string itemType, ImmutableArray<IProjectItem> defaultedItems, ImmutableArray<IProjectItem> notDefaultedItems, ImmutableArray<IProjectItem> introducedItems, ImmutableArray<(IProjectItem, IProjectItem)> changedItems) : this()
+        public ItemsDiff(string itemType, ImmutableArray<IProjectItem> defaultedItems, ImmutableArray<IProjectItem> notDefaultedItems, ImmutableArray<IProjectItem> introducedItems, ImmutableArray<IProjectItem> changedItems) : this()
         {
             ItemType = itemType;
             DefaultedItems = defaultedItems;

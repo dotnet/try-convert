@@ -31,6 +31,7 @@ namespace MSBuildSdkDiffer
     {
         string ItemType { get; }
         string EvaluatedInclude { get; }
+        IEnumerable<ProjectMetadata> DirectMetadata { get; }
     }
 
     internal class MSBuildProjectProperty : IProjectProperty
@@ -66,6 +67,8 @@ namespace MSBuildSdkDiffer
         public string ItemType => _item.ItemType;
 
         public string EvaluatedInclude => _item.EvaluatedInclude;
+
+        public IEnumerable<ProjectMetadata> DirectMetadata => _item.DirectMetadata;
     }
 
     internal class MSBuildProject : IProject

@@ -1,16 +1,25 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace MSBuildSdkDiffer
 {
     public class ProjectItemComparer : IEqualityComparer<IProjectItem>
     {
-        private ProjectItemComparer() { }
+        private readonly bool _compareMetadata;
+        
+        public static ProjectItemComparer IncludeComparer = new ProjectItemComparer(compareMetadata: false);
+        public static ProjectItemComparer MetadataComparer = new ProjectItemComparer(compareMetadata: true);
 
-        public static ProjectItemComparer Instance = new ProjectItemComparer();
+        private ProjectItemComparer(bool compareMetadata)
+        {
+            _compareMetadata = compareMetadata;
+        }
 
         public bool Equals(IProjectItem x, IProjectItem y)
         {
-            return x.ItemType == y.ItemType && x.EvaluatedInclude == y.EvaluatedInclude;
+            var metadataEqual = _compareMetadata ? x.DirectMetadata.SequenceEqual(y.DirectMetadata) : true;
+
+            return x.ItemType == y.ItemType && x.EvaluatedInclude == y.EvaluatedInclude && metadataEqual;
         }
 
         public int GetHashCode(IProjectItem obj)

@@ -45,7 +45,7 @@ namespace MSBuildSdkDiffer
             {
                 if (MSBuildUtilities.ConditionToDimensionValues(propertyGroup.Condition, out var dimensionValues))
                 {
-                    var name = MSBuildUtilities.GetDimensionName(dimensionValues);
+                    var name = MSBuildUtilities.GetConfigurationName(dimensionValues);
                     builder.Add(name, dimensionValues.ToImmutableDictionary());
                 }
             }

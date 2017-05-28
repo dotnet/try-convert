@@ -10,7 +10,7 @@ namespace MSBuildSdkDiffer
         private readonly UnconfiguredProject _project;
         private readonly BaselineProject _sdkBaselineProject;
         private readonly ProjectRootElement _projectRootElement;
-        private readonly Differ _differ;
+        private readonly ImmutableDictionary<string, Differ> _differs;
         private readonly string [] PropertiesNotNeededInCPS = new[] { "ProjectGuid", "ProjectTypeGuid" };
 
         public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, ProjectRootElement projectRootElement)
@@ -18,20 +18,17 @@ namespace MSBuildSdkDiffer
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _sdkBaselineProject = sdkBaselineProject;
             _projectRootElement = projectRootElement ?? throw new ArgumentNullException(nameof(projectRootElement));
-            _differ = new Differ(_project.FirstConfiguredProject, _sdkBaselineProject.Project.FirstConfiguredProject);
+            _differs = _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Item1, kvp => kvp.Item2);
         }
 
         internal void GenerateProjectFile(string outputProjectPath)
         {
-            var propDiff = _differ.GetPropertiesDiff();
-            var itemsDiff = _differ.GetItemsDiff();
-
             ChangeImports();
 
-            RemoveDefaultedProperties(propDiff);
+            RemoveDefaultedProperties();
             AddTargetFrameworkProperty();
 
-            RemoveDefaultedItems(itemsDiff);
+            RemoveDefaultedItems();
 
             _projectRootElement.ToolsVersion = null;
             _projectRootElement.Save(outputProjectPath);
@@ -57,15 +54,12 @@ namespace MSBuildSdkDiffer
             }
         }
 
-        private void RemoveDefaultedProperties(PropertiesDiff propDiff)
+        private void RemoveDefaultedProperties()
         {
             foreach (var propGroup in _projectRootElement.PropertyGroups)
             {
-                // TODO: Handle prop groups with conditions - esp configurations.
-                if (propGroup.Condition != "")
-                {
-                    continue;
-                }
+                var configurationName = MSBuildUtilities.GetConfigurationName(propGroup.Condition);
+                var propDiff = _differs[configurationName].GetPropertiesDiff();
 
                 foreach (var prop in propGroup.Properties)
                 {
@@ -89,10 +83,13 @@ namespace MSBuildSdkDiffer
             }
         }
 
-        private void RemoveDefaultedItems(ImmutableArray<ItemsDiff> itemsDiff)
+        private void RemoveDefaultedItems()
         {
             foreach (var itemGroup in _projectRootElement.ItemGroups)
             {
+                var configurationName = MSBuildUtilities.GetConfigurationName(itemGroup.Condition);
+                var itemsDiff = _differs[configurationName].GetItemsDiff();
+
                 foreach (var item in itemGroup.Items)
                 {
                     ItemsDiff itemTypeDiff = itemsDiff.FirstOrDefault(id => id.ItemType == item.ItemType);

@@ -47,9 +47,22 @@ namespace MSBuildSdkDiffer
         }
 
         /// <summary>
-        /// Returns a name of a dimension like Debug|AnyCPU
+        /// Returns a name of a configuration like Debug|AnyCPU
         /// </summary>
-        internal static string GetDimensionName(ImmutableDictionary<string, string> dimensionValues) => dimensionValues.IsEmpty ? "" : dimensionValues.Values.Aggregate((x, y) => $"{x}|{y}");
+        internal static string GetConfigurationName(ImmutableDictionary<string, string> dimensionValues) => dimensionValues.IsEmpty ? "" : dimensionValues.Values.Aggregate((x, y) => $"{x}|{y}");
+
+        /// <summary>
+        /// Returns a name of a configuration like Debug|AnyCPU
+        /// </summary>
+        internal static string GetConfigurationName(string condition)
+        {
+            if (ConditionToDimensionValues(condition, out var dimensionValues))
+            {
+                return GetConfigurationName(dimensionValues);
+            }
+
+            return "";
+        }
 
         /// <summary>
         /// Tries to parse an MSBuild condition to a dimensional vector

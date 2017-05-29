@@ -11,7 +11,7 @@ namespace MSBuildSdkDiffer
         private readonly BaselineProject _sdkBaselineProject;
         private readonly ProjectRootElement _projectRootElement;
         private readonly ImmutableDictionary<string, Differ> _differs;
-        private readonly string [] PropertiesNotNeededInCPS = new[] { "ProjectGuid", "ProjectTypeGuid" };
+        private readonly string [] PropertiesNotNeededInCPS = new[] { "ProjectGuid", "ProjectTypeGuids" };
 
         public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, ProjectRootElement projectRootElement)
         {

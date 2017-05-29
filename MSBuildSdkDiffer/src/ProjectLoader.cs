@@ -60,7 +60,9 @@ namespace MSBuildSdkDiffer
                 return ProjectStyle.Custom;
             }
 
-            if (project.Imports.Count == 2)
+            // Exclude shared project references since they show up as imports.
+            var imports = project.Imports.Where(i => i.Label != "Shared");
+            if (imports.Count() == 2)
             {
                 var firstImport = project.Imports.First();
                 var lastImport = project.Imports.Last();

@@ -9,13 +9,16 @@ namespace MSBuildSdkDiffer.Tests
     public class ItemsDiffTests
     {
         [Theory]
-        [InlineData("Compile:a.cs,b.cs", "Compile:a.cs", "Compile:a.cs", "Compile:b.cs", null)]
-        [InlineData("Compile:a.cs,b.cs", "Compile:e.cs,d.cs", null, "Compile:a.cs,b.cs", "Compile:e.cs,d.cs")]
-        [InlineData("Compile:a.cs,b.cs", "Compile:a.cs,b.cs,e.cs", "Compile:a.cs,b.cs", null, "Compile:e.cs")]
-        [InlineData("Compile:a.cs,b.cs", "Compile:a.cs,d.cs", "Compile:a.cs", "Compile:b.cs", "Compile:d.cs")]
-        [InlineData("Compile:a.cs,b.cs;None:a.xml", "Compile:a.cs", "Compile:a.cs", "Compile:b.cs;None:a.xml", null)]
-        [InlineData("Compile:a.cs,b.cs;None:a.cs", "Compile:a.cs", "Compile:a.cs", "Compile:b.cs;None:a.cs", null)]
-        public void ItemsDiff(string projectItems, string sdkBaselineItems, string expectedDefaultedItems, string expectedNotDefaultedItems, string expectedIntroducedItems)
+        [InlineData("Compile:a.cs,b.cs", "Compile:a.cs", "Compile:a.cs", "Compile:b.cs", null, null)]
+        [InlineData("Compile:a.cs,b.cs", "Compile:e.cs,d.cs", null, "Compile:a.cs,b.cs", "Compile:e.cs,d.cs", null)]
+        [InlineData("Compile:a.cs,b.cs", "Compile:a.cs,b.cs,e.cs", "Compile:a.cs,b.cs", null, "Compile:e.cs", null)]
+        [InlineData("Compile:a.cs,b.cs", "Compile:a.cs,d.cs", "Compile:a.cs", "Compile:b.cs", "Compile:d.cs", null)]
+        [InlineData("Compile:a.cs,b.cs;None:a.xml", "Compile:a.cs", "Compile:a.cs", "Compile:b.cs;None:a.xml", null, null)]
+        [InlineData("Compile:a.cs,b.cs;None:a.cs", "Compile:a.cs", "Compile:a.cs", "Compile:b.cs;None:a.cs", null, null)]
+        [InlineData("Compile:a.cs|x=y,b.cs|x=y", "Compile:a.cs", null, "Compile:b.cs", null, "Compile:a.cs")]
+        [InlineData("Compile:a.cs|x=y|z=z,b.cs|x=y", "Compile:a.cs|x=y", null, "Compile:b.cs", null, "Compile:a.cs")]
+        [InlineData("Compile:a.cs|x=y,b.cs|x=y", "Compile:a.cs|x=z", null, "Compile:b.cs", null, "Compile:a.cs")]
+        public void ItemsDiff(string projectItems, string sdkBaselineItems, string expectedDefaultedItems, string expectedNotDefaultedItems, string expectedIntroducedItems, string expectedChangedItems)
         {
             var project = IProjectFactory.Create(GetItems(projectItems));
             var sdkBaselineProject = IProjectFactory.Create(GetItems(sdkBaselineItems));
@@ -48,12 +51,23 @@ namespace MSBuildSdkDiffer.Tests
 
             if (expectedIntroducedItems == null)
             {
-                Assert.All(diffs, diff => Assert.Empty(diff.ChangedItems));
+                Assert.All(diffs, diff => Assert.Empty(diff.IntroducedItems));
             }
             else
             {
                 var expectedDiffItems = GetItems(expectedIntroducedItems);
                 var matchingItems = diffs.Select(diff => (diff.IntroducedItems.Select(i => i.EvaluatedInclude), expectedDiffItems.SingleOrDefault(d => d.ItemType == diff.ItemType).Items));
+                Assert.All(matchingItems, diff => Assert.Equal(diff.Item1, diff.Item2));
+            }
+
+            if (expectedChangedItems == null)
+            {
+                Assert.All(diffs, diff => Assert.Empty(diff.ChangedItems));
+            }
+            else
+            {
+                var expectedDiffItems = GetItems(expectedChangedItems);
+                var matchingItems = diffs.Select(diff => (diff.ChangedItems.Select(i => i.EvaluatedInclude), expectedDiffItems.SingleOrDefault(d => d.ItemType == diff.ItemType).Items));
                 Assert.All(matchingItems, diff => Assert.Equal(diff.Item1, diff.Item2));
             }
         }

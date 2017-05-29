@@ -31,7 +31,14 @@ namespace MSBuildSdkDiffer
     {
         string ItemType { get; }
         string EvaluatedInclude { get; }
-        IEnumerable<ProjectMetadata> DirectMetadata { get; }
+        IEnumerable<IProjectMetadata> DirectMetadata { get; }
+    }
+
+    public interface IProjectMetadata : IEquatable<IProjectMetadata>
+    {
+        string Name { get; }
+        string UnevaluatedValue { get; }
+        string EvaluatedValue { get; }
     }
 
     internal class MSBuildProjectProperty : IProjectProperty
@@ -68,7 +75,30 @@ namespace MSBuildSdkDiffer
 
         public string EvaluatedInclude => _item.EvaluatedInclude;
 
-        public IEnumerable<ProjectMetadata> DirectMetadata => _item.DirectMetadata;
+        public IEnumerable<IProjectMetadata> DirectMetadata => _item.DirectMetadata.Select(md => new MSBuildProjectMetadata(md));
+    }
+
+    internal class MSBuildProjectMetadata : IProjectMetadata
+    {
+        private readonly ProjectMetadata _projectMetadata;
+
+        public MSBuildProjectMetadata(ProjectMetadata projectMetadata)
+        {
+            _projectMetadata = projectMetadata;
+        }
+        
+        public string Name => _projectMetadata.Name;
+
+        public string UnevaluatedValue => _projectMetadata.UnevaluatedValue;
+
+        public string EvaluatedValue => _projectMetadata.EvaluatedValue;
+
+        public bool Equals(IProjectMetadata other)
+        {
+            return _projectMetadata.Name.Equals(other.Name) &&
+                   _projectMetadata.UnevaluatedValue.Equals(other.UnevaluatedValue) &&
+                   _projectMetadata.EvaluatedValue.Equals(other.EvaluatedValue);
+        }
     }
 
     internal class MSBuildProject : IProject

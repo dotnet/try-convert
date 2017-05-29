@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Build.Evaluation;
 using Moq;
 
 namespace MSBuildSdkDiffer.Tests.Mocks
@@ -25,9 +26,22 @@ namespace MSBuildSdkDiffer.Tests.Mocks
             {
                 foreach (var item in itemGroup.Items)
                 {
+                    var itemSplit = item.Split('|');
+                    var itemInclude = itemSplit.First();
+                    var metadata = itemSplit.Length > 1 ? itemSplit.Skip(1).Select(p => p.Split('=')).ToDictionary(a => a[0], a => a[1]) : new Dictionary<string, string>();
+                    var metadataMocks = metadata?.Select(kvp =>
+                    {
+                        var metadataMock = new Mock<IProjectMetadata>();
+                        metadataMock.SetupGet(md => md.Name).Returns(kvp.Key);
+                        metadataMock.SetupGet(md => md.EvaluatedValue).Returns(kvp.Value);
+                        metadataMock.SetupGet(md => md.UnevaluatedValue).Returns(kvp.Value);
+                        return metadataMock.Object;
+                    });
+
                     var projectItemMock = new Mock<IProjectItem>();
                     projectItemMock.SetupGet(pi => pi.ItemType).Returns(itemGroup.ItemType);
-                    projectItemMock.SetupGet(pi => pi.EvaluatedInclude).Returns(item);
+                    projectItemMock.SetupGet(pi => pi.EvaluatedInclude).Returns(itemInclude);
+                    projectItemMock.SetupGet(pi => pi.DirectMetadata).Returns(metadataMocks);
                     projectItems.Add(projectItemMock.Object);
                 }
             }

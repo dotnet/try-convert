@@ -35,7 +35,7 @@ namespace MSBuildSdkDiffer.Tests
             {
                 var expectedDiffItems = GetItems(expectedDefaultedItems);
                 var matchingItems = diffs.Select(diff => (diff.DefaultedItems.Select(i => i.EvaluatedInclude), expectedDiffItems.SingleOrDefault(d => d.ItemType == diff.ItemType).Items));
-                Assert.All(matchingItems, diff => Assert.Equal(diff.Item1, diff.Item2));
+                Assert.All(matchingItems, diff => Assert.Equal(diff.Item1, diff.Items));
             }
 
             if (expectedNotDefaultedItems == null)
@@ -46,7 +46,7 @@ namespace MSBuildSdkDiffer.Tests
             {
                 var expectedDiffItems = GetItems(expectedNotDefaultedItems);
                 var matchingItems = diffs.Select(diff => (diff.NotDefaultedItems.Select(i => i.EvaluatedInclude), expectedDiffItems.SingleOrDefault(d => d.ItemType == diff.ItemType).Items));
-                Assert.All(matchingItems, diff => Assert.Equal(diff.Item1, diff.Item2));
+                Assert.All(matchingItems, diff => Assert.Equal(diff.Item1, diff.Items));
             }
 
             if (expectedIntroducedItems == null)
@@ -57,7 +57,7 @@ namespace MSBuildSdkDiffer.Tests
             {
                 var expectedDiffItems = GetItems(expectedIntroducedItems);
                 var matchingItems = diffs.Select(diff => (diff.IntroducedItems.Select(i => i.EvaluatedInclude), expectedDiffItems.SingleOrDefault(d => d.ItemType == diff.ItemType).Items));
-                Assert.All(matchingItems, diff => Assert.Equal(diff.Item1, diff.Item2));
+                Assert.All(matchingItems, diff => Assert.Equal(diff.Item1, diff.Items));
             }
 
             if (expectedChangedItems == null)
@@ -68,7 +68,7 @@ namespace MSBuildSdkDiffer.Tests
             {
                 var expectedDiffItems = GetItems(expectedChangedItems);
                 var matchingItems = diffs.Select(diff => (diff.ChangedItems.Select(i => i.EvaluatedInclude), expectedDiffItems.SingleOrDefault(d => d.ItemType == diff.ItemType).Items));
-                Assert.All(matchingItems, diff => Assert.Equal(diff.Item1, diff.Item2));
+                Assert.All(matchingItems, diff => Assert.Equal(diff.Item1, diff.Items));
             }
         }
 

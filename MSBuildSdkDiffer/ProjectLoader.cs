@@ -25,7 +25,7 @@ namespace MSBuildSdkDiffer
             }
 
             ImmutableDictionary<string, string> globalProperties = InitializeGlobalProperties(options);
-            var collection = new ProjectCollection(globalProperties);
+            var collection = new ProjectCollection(globalProperties, loggers: null, toolsetDefinitionLocations: ToolsetDefinitionLocations.Local);
 
             ProjectRootElement = ProjectRootElement.Open(projectFilePath).DeepClone();
             var configurations = DetermineConfigurations(ProjectRootElement);

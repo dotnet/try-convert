@@ -14,6 +14,10 @@ namespace MSBuildSdkDiffer
         [Option('s', "msbuildsdkdspath",
                 HelpText = "Path to the MSBuild SDKs")]
         public string MSBuildSdksPath { get; set; }
+
+        [Option('m', "msbuildpath",
+        HelpText = "Path to the MSBuild.exe")]
+        public string MSBuildPath { get; set; }
     }
 
     [Verb("log", HelpText = "Log properties and items in the project and in a SDK-based baseline")]

@@ -24,7 +24,7 @@ namespace MSBuildSdkDiffer
             foreach (var config in Configurations)
             {
                 var globalPropertiesWithDimensions = globalProperties.AddRange(config.Value);
-                var project = new MSBuildProject(collection.LoadProject(projectFilePath, globalPropertiesWithDimensions, null));
+                var project = new MSBuildProject(collection.LoadProject(projectFilePath, globalPropertiesWithDimensions, toolsVersion: null));
                 projectBuilder.Add(config.Key, project);
 
             }

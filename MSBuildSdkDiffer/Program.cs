@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
 using CommandLine;
 
 namespace MSBuildSdkDiffer
@@ -11,7 +13,13 @@ namespace MSBuildSdkDiffer
             switch (options)
             {
                 case Parsed<object> command:
-                    return Run(command.Value as Options);
+                    var optionsValue = command.Value as Options;
+                    var msbuildPath = HookAssemblyResolveForMSBuild(optionsValue);
+                    if (msbuildPath != null)
+                    {
+                        return Run(optionsValue);
+                    }
+                    return -1;
 
                 case NotParsed<object> notParsed:
                     foreach(var error in notParsed.Errors)
@@ -21,6 +29,24 @@ namespace MSBuildSdkDiffer
                     return 1;
             }
             return 1;
+        }
+
+        private static string HookAssemblyResolveForMSBuild(Options options)
+        {
+            var msbuildPath = GetMSBuildPath(options);
+            if (msbuildPath == null)
+            {
+                Console.WriteLine("Cannot find MSBuild. Please pass in a path to msbuild using -m or run from a developer command prompt.");
+                return null;
+            }
+
+            AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) =>
+            {
+                var targetAssembly = Path.Combine(msbuildPath, new AssemblyName(eventArgs.Name).Name + ".dll");
+                return File.Exists(targetAssembly) ? Assembly.LoadFrom(targetAssembly) : null;
+            };
+
+            return msbuildPath;
         }
 
         private static int Run(Options options)
@@ -45,6 +71,26 @@ namespace MSBuildSdkDiffer
             }
 
             return 0;
+        }
+
+        private static string GetMSBuildPath(Options options)
+        {
+            // If the user specified a msbuild path use that.
+            if (!string.IsNullOrEmpty(options.MSBuildPath))
+            {
+                return options.MSBuildPath;
+            }
+
+            // If the user is running from a developer command prompt use the MSBuild of that VS
+            var vsinstalldir = Environment.GetEnvironmentVariable("VSINSTALLDIR");
+            if (!string.IsNullOrEmpty(vsinstalldir))
+            {
+                var path = Path.Combine(vsinstalldir, "MSBuild", "15.0", "Bin");
+                Console.WriteLine($"Found VS from VSINSTALLDIR (Dev Console): {path}");
+                return path;
+            }
+
+            return null;
         }
     }
 }

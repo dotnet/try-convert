@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26504.1
+VisualStudioVersion = 15.0.26606.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuildSdkDiffer", "MSBuildSdkDiffer\MSBuildSdkDiffer.csproj", "{AAC442C6-A00F-4EA5-A992-2F1E9CEEB6F7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectSimplifier", "ProjectSimplifier\ProjectSimplifier.csproj", "{AAC442C6-A00F-4EA5-A992-2F1E9CEEB6F7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSBuildSdkDiffer.Tests", "MSBuildSdkDiffer.Tests\MSBuildSdkDiffer.Tests.csproj", "{1E4BD1E1-C0F6-4216-AB17-F7EA8C461FC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectSimplifier.Tests", "ProjectSimplifier.Tests\ProjectSimplifier.Tests.csproj", "{1E4BD1E1-C0F6-4216-AB17-F7EA8C461FC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

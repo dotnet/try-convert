@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MSBuildSdkDiffer\MSBuildSdkDiffer.csproj" />
+    <ProjectReference Include="..\ProjectSimplifier\ProjectSimplifier.csproj" />
   </ItemGroup>
 
   <ItemGroup>

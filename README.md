@@ -12,7 +12,7 @@ It does the second evaluation in the same project folder so that items that are 
 - Items that need to be changed to the Update syntax because although they're brought by the SDK, there is extra metadata being added.
 - Items that need to be kept because theyr are not implicit in the SDK.
 
-#Usage:
+# Usage:
 
 From a VS 2017 Developer command prompt
     ProjectSimplifier convert a.csproj -out:b.csproj

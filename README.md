@@ -1,5 +1,5 @@
-# MSBuildSdkDiffer
-Diff a given msbuild-based project with the default values that come from the .NET SDK
+# ProjectSimplifier
+Simplify a msbuild-based project by making it use the .NET SDK and removing defaulted properties and items.
 
 This is a tool that can be used to help with the conversion of old-style csprojs to ones based on the .NET SDK. 
 

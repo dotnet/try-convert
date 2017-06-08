@@ -13,7 +13,7 @@ namespace ProjectSimplifier
         public UnconfiguredProject Project { get; private set; }
         public BaselineProject SdkBaselineProject { get; private set; }
         public ProjectRootElement ProjectRootElement { get; private set; }
-
+        
         public void LoadProjects(Options options)
         {
             string projectFilePath = Path.GetFullPath(options.ProjectFilePath);
@@ -67,8 +67,11 @@ namespace ProjectSimplifier
                 var firstImport = project.Imports.First();
                 var lastImport = project.Imports.Last();
 
-                if (firstImport.Project.EndsWith("Microsoft.Common.props") && 
-                    lastImport.Project.EndsWith("Microsoft.CSharp.targets"))
+                var firstImportFileName = Path.GetFileName(firstImport.Project);
+                var lastImportFileName = Path.GetFileName(lastImport.Project);
+
+                if (Facts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) && 
+                    Facts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
                 {
                     return ProjectStyle.Default;
                 }

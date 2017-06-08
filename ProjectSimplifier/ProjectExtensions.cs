@@ -42,17 +42,29 @@ namespace ProjectSimplifier
                 case ".NETCoreApp":
                     tf = "netcoreapp";
                     break;
+                case ".NETPortable":
+                    tf = "netstandard";
+                    break;
                 default:
                     throw new InvalidOperationException($"Unknown TargetFrameworkIdentifier {tfi}");
             }
 
-            var tfv = project.GetPropertyValue("TargetFrameworkVersion");
-            if (tfv == "")
+            if (tfi == ".NETPortable")
             {
-                throw new InvalidOperationException("TargetFrameworkVersion is not set!");
+                var profile = project.GetPropertyValue("TargetFrameworkProfile");
+                var netstandardVersion = Facts.PCLToNetStandardVersionMapping[profile];
+                tf += netstandardVersion;
             }
+            else
+            {
+                var tfv = project.GetPropertyValue("TargetFrameworkVersion");
+                if (tfv == "")
+                {
+                    throw new InvalidOperationException("TargetFrameworkVersion is not set!");
+                }
 
-            tf += tfv.TrimStart('v');
+                tf += tfv.TrimStart('v');
+            }
 
             return tf;
         }

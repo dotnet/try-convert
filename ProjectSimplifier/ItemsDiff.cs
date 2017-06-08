@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace MSBuildSdkDiffer
+namespace ProjectSimplifier
 {
     internal struct ItemsDiff
     {

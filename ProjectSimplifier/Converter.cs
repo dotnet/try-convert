@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.Build.Construction;
 
-namespace MSBuildSdkDiffer
+namespace ProjectSimplifier
 {
     internal class Converter
     {

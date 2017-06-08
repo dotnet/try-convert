@@ -1,4 +1,4 @@
-﻿namespace MSBuildSdkDiffer
+﻿namespace ProjectSimplifier
 {
     internal enum ProjectStyle
     {

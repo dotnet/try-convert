@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using CommandLine;
 
-namespace MSBuildSdkDiffer
+namespace ProjectSimplifier
 {
     class Program
     {

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using MSBuildSdkDiffer.Tests.Mocks;
+using ProjectSimplifier.Tests.Mocks;
 using Xunit;
 
-namespace MSBuildSdkDiffer.Tests
+namespace ProjectSimplifier.Tests
 {
     public class ItemsDiffTests
     {

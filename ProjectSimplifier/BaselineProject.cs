@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 
-namespace MSBuildSdkDiffer
+namespace ProjectSimplifier
 {
     internal struct BaselineProject
     {

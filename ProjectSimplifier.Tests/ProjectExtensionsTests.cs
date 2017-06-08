@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MSBuildSdkDiffer;
-using MSBuildSdkDiffer.Tests.Mocks;
+using ProjectSimplifier;
+using ProjectSimplifier.Tests.Mocks;
 using Xunit;
 
-namespace MSBuildSdkDiffer.Tests
+namespace ProjectSimplifier.Tests
 {
     public class ProjectExtensionsTests
     {

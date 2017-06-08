@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace MSBuildSdkDiffer
+namespace ProjectSimplifier
 {
     internal class Options
     {

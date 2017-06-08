@@ -15,9 +15,11 @@ It does the second evaluation in the same project folder so that items that are 
 # Usage:
 
 From a VS 2017 Developer command prompt
+
     ProjectSimplifier convert a.csproj -out:b.csproj
 
 From a regular command prompt
+
     ProjectSimplifier convert a.csproj -out:b.csproj -m:`<path to msbuild.exe>`
 
 

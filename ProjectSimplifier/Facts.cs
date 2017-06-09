@@ -37,5 +37,13 @@ namespace ProjectSimplifier
             { "Profile259",      "1.0"  },
         });
 
+        public static ImmutableArray<string> PropertiesNotNeededInCPS => ImmutableArray.Create(
+            "ProjectGuid", // Guids are in-memory in CPS
+            "ProjectTypeGuids", // Not used - capabilities are used instead
+            "TargetFrameworkIdentifier", // Inferred from TargetFramework
+            "TargetFrameworkVersion", // Inferred from TargetFramework
+            "TargetFrameworkProfile" // Inferred from TargetFramework
+            );
+
     }
 }

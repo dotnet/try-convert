@@ -11,7 +11,6 @@ namespace ProjectSimplifier
         private readonly BaselineProject _sdkBaselineProject;
         private readonly ProjectRootElement _projectRootElement;
         private readonly ImmutableDictionary<string, Differ> _differs;
-        private readonly string [] PropertiesNotNeededInCPS = new[] { "ProjectGuid", "ProjectTypeGuids" };
 
         public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, ProjectRootElement projectRootElement)
         {
@@ -70,7 +69,7 @@ namespace ProjectSimplifier
                     }
 
                     if (propDiff.DefaultedProperties.Select(p => p.Name).Contains(prop.Name) ||
-                        PropertiesNotNeededInCPS.Contains(prop.Name))
+                        Facts.PropertiesNotNeededInCPS.Contains(prop.Name))
                     {
                         propGroup.RemoveChild(prop);
                     }

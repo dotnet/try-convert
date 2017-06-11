@@ -9,10 +9,10 @@ namespace ProjectSimplifier
     {
         private readonly UnconfiguredProject _project;
         private readonly BaselineProject _sdkBaselineProject;
-        private readonly ProjectRootElement _projectRootElement;
+        private readonly IProjectRootElement _projectRootElement;
         private readonly ImmutableDictionary<string, Differ> _differs;
 
-        public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, ProjectRootElement projectRootElement)
+        public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, IProjectRootElement projectRootElement)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _sdkBaselineProject = sdkBaselineProject;

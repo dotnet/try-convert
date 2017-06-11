@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 
 namespace ProjectSimplifier
@@ -12,7 +11,7 @@ namespace ProjectSimplifier
     {
         public UnconfiguredProject Project { get; private set; }
         public BaselineProject SdkBaselineProject { get; private set; }
-        public ProjectRootElement ProjectRootElement { get; private set; }
+        public IProjectRootElement ProjectRootElement { get; private set; }
         
         public void LoadProjects(Options options)
         {
@@ -27,7 +26,7 @@ namespace ProjectSimplifier
             ImmutableDictionary<string, string> globalProperties = InitializeGlobalProperties(options);
             var collection = new ProjectCollection(globalProperties, loggers: null, toolsetDefinitionLocations: ToolsetDefinitionLocations.Local);
 
-            ProjectRootElement = ProjectRootElement.Open(projectFilePath).DeepClone();
+            ProjectRootElement = new MSBuildProjectRootElement(Microsoft.Build.Construction.ProjectRootElement.Open(projectFilePath).DeepClone());
             var configurations = DetermineConfigurations(ProjectRootElement);
 
             Project = new UnconfiguredProject(configurations);
@@ -38,7 +37,7 @@ namespace ProjectSimplifier
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
         }
 
-        private ImmutableDictionary<string, ImmutableDictionary<string, string>> DetermineConfigurations(ProjectRootElement projectRootElement)
+        private ImmutableDictionary<string, ImmutableDictionary<string, string>> DetermineConfigurations(IProjectRootElement projectRootElement)
         {
             var builder = ImmutableDictionary.CreateBuilder<string, ImmutableDictionary<string, string>>();
             foreach (var propertyGroup in projectRootElement.PropertyGroups)
@@ -53,7 +52,7 @@ namespace ProjectSimplifier
             return builder.ToImmutable();
         }
 
-        public static ProjectStyle GetProjectStyle(ProjectRootElement project)
+        public static ProjectStyle GetProjectStyle(IProjectRootElement project)
         {
             if (project.ImportGroups.Any())
             {
@@ -105,7 +104,7 @@ namespace ProjectSimplifier
         /// </summary>
         private BaselineProject CreateSdkBaselineProject(string projectFilePath, IProject project, ImmutableDictionary<string, string> globalProperties, ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations)
         {
-            var rootElement = ProjectRootElement.Open(projectFilePath);
+            var rootElement = Microsoft.Build.Construction.ProjectRootElement.Open(projectFilePath);
             rootElement.RemoveAllChildren();
             rootElement.Sdk = "Microsoft.NET.Sdk";
             var propGroup = rootElement.AddPropertyGroup();

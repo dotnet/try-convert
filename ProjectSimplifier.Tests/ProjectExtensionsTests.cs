@@ -10,11 +10,12 @@ namespace ProjectSimplifier.Tests
     public class ProjectExtensionsTests
     {
         [Theory]
-        [InlineData("net46", null, null, "net46")]
-        [InlineData(null, ".NETFramework", "v4.6", "net4.6")]
-        [InlineData(null, ".NETCoreApp", "v1.0", "netcoreapp1.0")]
-        [InlineData(null, ".NETStandard", "v1.0", "netstandard1.0")]
-        public void GetTargetFramework(string targetFramework, string targetFrameworkIdentifier, string targetFrameworkVersion, string expectedTargetFramework)
+        [InlineData("net46", null, null, null, "net46")]
+        [InlineData(null, ".NETFramework", "v4.6", null, "net4.6")]
+        [InlineData(null, ".NETCoreApp", "v1.0", null, "netcoreapp1.0")]
+        [InlineData(null, ".NETStandard", "v1.0", null, "netstandard1.0")]
+        [InlineData(null, ".NETPortable", "v5.0", "Profile7", "netstandard1.1")]
+        public void GetTargetFramework(string targetFramework, string targetFrameworkIdentifier, string targetFrameworkVersion, string targetFrameworkProfile, string expectedTargetFramework)
         {
             var properties = new Dictionary<string, string>();
             if (targetFramework != null)
@@ -23,6 +24,8 @@ namespace ProjectSimplifier.Tests
                 properties.Add("TargetFrameworkIdentifier", targetFrameworkIdentifier);
             if (targetFrameworkVersion != null)
                 properties.Add("TargetFrameworkVersion", targetFrameworkVersion);
+            if (targetFrameworkProfile != null)
+                properties.Add("TargetFrameworkProfile", targetFrameworkProfile);
 
             var project = IProjectFactory.Create(properties);
             var actualTargetFramework = ProjectExtensions.GetTargetFramework(project);
@@ -33,6 +36,7 @@ namespace ProjectSimplifier.Tests
         [Theory]
         [InlineData(null, null, "v4.6")]
         [InlineData(null, ".NETCoreApp", null)]
+        [InlineData(null, "Unknown", null)]
         public void GetTargetFramework_Throws(string targetFramework, string targetFrameworkIdentifier, string targetFrameworkVersion)
         {
             var properties = new Dictionary<string, string>();

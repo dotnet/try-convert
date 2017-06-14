@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,6 +32,8 @@ namespace ProjectSimplifier
                 throw new InvalidOperationException("TargetFrameworkIdentifier is not set!");
             }
 
+            var tfv = project.GetPropertyValue("TargetFrameworkVersion");
+
             switch (tfi)
             {
                 case ".NETFramework":
@@ -52,12 +55,19 @@ namespace ProjectSimplifier
             if (tfi == ".NETPortable")
             {
                 var profile = project.GetPropertyValue("TargetFrameworkProfile");
-                var netstandardVersion = Facts.PCLToNetStandardVersionMapping[profile];
-                tf += netstandardVersion;
+
+                if (profile == string.Empty && tfv == "v5.0")
+                {
+                    tf = GetTargetFrameworkFromProjectJson(project);
+                }
+                else
+                {
+                    var netstandardVersion = Facts.PCLToNetStandardVersionMapping[profile];
+                    tf += netstandardVersion;
+                }
             }
             else
             {
-                var tfv = project.GetPropertyValue("TargetFrameworkVersion");
                 if (tfv == "")
                 {
                     throw new InvalidOperationException("TargetFrameworkVersion is not set!");
@@ -66,6 +76,20 @@ namespace ProjectSimplifier
                 tf += tfv.TrimStart('v');
             }
 
+            return tf;
+        }
+
+        private static string GetTargetFrameworkFromProjectJson(IProject project)
+        {
+            string projectFolder = project.GetPropertyValue("MSBuildProjectDirectory");
+            string projectJsonPath = Path.Combine(projectFolder, "project.json");
+
+            string projectJsonContents = File.ReadAllText(projectJsonPath);
+
+            JObject json = JObject.Parse(projectJsonContents);
+
+            var frameworks = json["frameworks"];
+            string tf = ((JProperty)frameworks.Single()).Name;
             return tf;
         }
     }

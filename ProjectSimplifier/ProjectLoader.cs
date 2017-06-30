@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 
 namespace ProjectSimplifier
@@ -24,16 +24,18 @@ namespace ProjectSimplifier
             }
 
             ImmutableDictionary<string, string> globalProperties = InitializeGlobalProperties(options);
-            var collection = new ProjectCollection(globalProperties, loggers: null, toolsetDefinitionLocations: ToolsetDefinitionLocations.Local);
+            var collection = new ProjectCollection(globalProperties);
 
-            ProjectRootElement = new MSBuildProjectRootElement(Microsoft.Build.Construction.ProjectRootElement.Open(projectFilePath).DeepClone());
+            ProjectRootElement = new MSBuildProjectRootElement(Microsoft.Build.Construction.ProjectRootElement.Open(projectFilePath, collection, preserveFormatting: true));
             var configurations = DetermineConfigurations(ProjectRootElement);
 
             Project = new UnconfiguredProject(configurations);
             Project.LoadProjects(collection, globalProperties, projectFilePath);
             Console.WriteLine($"Successfully loaded project file '{projectFilePath}'.");
 
-            SdkBaselineProject = CreateSdkBaselineProject(projectFilePath, Project.FirstConfiguredProject, globalProperties, configurations);
+            var targetProjectProperties = options.TargetProjectProperties.ToImmutableDictionary(p => p.Split('=')[0], p => p.Split('=')[1]);
+            SdkBaselineProject = CreateSdkBaselineProject(projectFilePath, Project.FirstConfiguredProject, globalProperties, configurations, targetProjectProperties);
+            ProjectRootElement.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
         }
 
@@ -102,21 +104,53 @@ namespace ProjectSimplifier
         /// We need to use the same name as the original csproj and same path so that all the default that derive
         /// from name\path get the right values (there are a lot of them).
         /// </summary>
-        private BaselineProject CreateSdkBaselineProject(string projectFilePath, IProject project, ImmutableDictionary<string, string> globalProperties, ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations)
+        private BaselineProject CreateSdkBaselineProject(string projectFilePath, 
+                                                         IProject project, 
+                                                         ImmutableDictionary<string, string> globalProperties, 
+                                                         ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations, 
+                                                         ImmutableDictionary<string, string> targetProjectProperties)
         {
+            var projectStyle = GetProjectStyle(ProjectRootElement);
             var rootElement = Microsoft.Build.Construction.ProjectRootElement.Open(projectFilePath);
+
             rootElement.RemoveAllChildren();
-            rootElement.Sdk = "Microsoft.NET.Sdk";
+            switch (projectStyle)
+            {
+                case ProjectStyle.Default:
+                    rootElement.Sdk = "Microsoft.NET.Sdk";
+                    break;
+                case ProjectStyle.DefaultWithCustomTargets:
+                    var imports = ProjectRootElement.Imports;
+
+                    void CopyImport(ProjectImportElement import)
+                    {
+                        var newImport = rootElement.AddImport(import.Project);
+                        newImport.Condition = import.Condition;
+                    }
+                    CopyImport(imports.First());
+                    CopyImport(imports.Last());
+                    break;
+                default:
+                    throw new NotSupportedException("This project has custom imports in a manner that's not supported.");
+            }
+
             var propGroup = rootElement.AddPropertyGroup();
             propGroup.AddProperty("TargetFramework", project.GetTargetFramework());
             propGroup.AddProperty("OutputType", project.GetPropertyValue("OutputType") ?? throw new InvalidOperationException("OutputType is not set!"));
 
+            var newGlobalProperties = globalProperties.AddRange(targetProjectProperties);
             // Create a new collection because a project with this name has already been loaded into the global collection.
-            var pc = new ProjectCollection(globalProperties);
+            var pc = new ProjectCollection(newGlobalProperties);
             var newProject = new UnconfiguredProject(configurations);
-            newProject.LoadProjects(pc, globalProperties, rootElement);
-            return new BaselineProject(newProject, ImmutableArray.Create("OutputType"), GetProjectStyle(ProjectRootElement));
-        }
+            newProject.LoadProjects(pc, newGlobalProperties, rootElement);
 
+            // If the original project had the TargetFramework property don't touch it during conversion.
+            var propertiesInTheBaseline = ImmutableArray.Create("OutputType").AddRange(targetProjectProperties.Keys);
+            if (project.GetProperty("TargetFramework") != null)
+            {
+                propertiesInTheBaseline = propertiesInTheBaseline.Add("TargetFramework");
+            }
+            return new BaselineProject(newProject, propertiesInTheBaseline, projectStyle);
+        }
     }
 }

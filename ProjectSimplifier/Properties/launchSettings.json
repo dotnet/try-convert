@@ -10,7 +10,7 @@
     },
     "Convert": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"C:\\Users\\srivatsn\\Documents\\Visual Studio 2017\\Projects\\ClassLibrary25\\ClassLibrary25\\ClassLibrary25.csproj\" -m \"C:\\Program Files (x86)\\Microsoft Visual Studio\\D15PreRel\\MSBuild\\15.0\\Bin\" -o out.csproj"
+      "commandLineArgs": "convert C:\\roslyn\\src\\Compilers\\Core\\Portable\\CodeAnalysis.csproj -m \"C:\\Program Files (x86)\\Microsoft Visual Studio\\Preview\\Enterprise\\MSBuild\\15.0\\Bin\" "
     }
   }
 }

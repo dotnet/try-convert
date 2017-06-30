@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using System.Collections.Generic;
+using CommandLine;
 
 namespace ProjectSimplifier
 {
@@ -18,6 +19,10 @@ namespace ProjectSimplifier
         [Option('m', "msbuildpath",
         HelpText = "Path to the MSBuild.exe")]
         public string MSBuildPath { get; set; }
+
+        [Option('p', "properties",
+        HelpText = "Properties to set in the target project before converting")]
+        public IEnumerable<string> TargetProjectProperties { get; set; }
     }
 
     [Verb("log", HelpText = "Log properties and items in the project and in a SDK-based baseline")]
@@ -48,7 +53,7 @@ namespace ProjectSimplifier
     {
         [Option('o', "outputProjectPath",
                 HelpText = "Location to output the converted project",
-                Required = true)]
+                Required = false)]
         public string OutputProjectPath { get; set; }
     }
 }

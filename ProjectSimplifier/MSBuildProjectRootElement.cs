@@ -16,6 +16,7 @@ namespace ProjectSimplifier
         void RemoveChild(ProjectElement child);
         ProjectPropertyElement CreatePropertyElement(string propertyName);
         ProjectPropertyGroupElement AddPropertyGroup();
+        void Reload(bool throwIfUnsavedChanges = true, bool? preserveFormatting = null);
     }
 
 
@@ -38,6 +39,8 @@ namespace ProjectSimplifier
 
         public ProjectPropertyGroupElement AddPropertyGroup() => _rootElement.AddPropertyGroup();
         public ProjectPropertyElement CreatePropertyElement(string name) => _rootElement.CreatePropertyElement(name);
+
+        public void Reload(bool throwIfUnsavedChanges = true, bool? preserveFormatting = null) => _rootElement.Reload(throwIfUnsavedChanges, preserveFormatting);
         public void RemoveChild(ProjectElement child) => _rootElement.RemoveChild(child);
         public void Save(string path) => _rootElement.Save(path);
     }

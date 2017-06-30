@@ -66,7 +66,7 @@ namespace ProjectSimplifier
                     break;
                 case ConvertOptions opt:
                     var converter = new Converter(projectLoader.Project, projectLoader.SdkBaselineProject, projectLoader.ProjectRootElement);
-                    converter.GenerateProjectFile(opt.OutputProjectPath);
+                    converter.GenerateProjectFile(opt.OutputProjectPath ?? opt.ProjectFilePath);
                     break;
             }
 

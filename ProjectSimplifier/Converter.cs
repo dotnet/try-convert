@@ -62,7 +62,7 @@ namespace ProjectSimplifier
 
                 foreach (var prop in propGroup.Properties)
                 {
-                    // These properties were added to the baseline - so don't treat them as defaulted proeprties.
+                    // These properties were added to the baseline - so don't treat them as defaulted properties.
                     if (_sdkBaselineProject.GlobalProperties.Contains(prop.Name))
                     {
                         continue;
@@ -75,7 +75,8 @@ namespace ProjectSimplifier
                     }
                 }
 
-                if (propGroup.Properties.Count == 0)
+                // If a propertyGroup is empty we can remove it unless it had a condition from which a configuration is inferred.
+                if (propGroup.Properties.Count == 0 && string.IsNullOrEmpty(configurationName))
                 {
                     _projectRootElement.RemoveChild(propGroup);
                 }
@@ -122,6 +123,12 @@ namespace ProjectSimplifier
 
         private void AddTargetFrameworkProperty()
         {
+            if (_sdkBaselineProject.GlobalProperties.Contains("TargetFramework"))
+            {
+                // The original project had a TargetFramework property. No need to add it again.
+                return;
+            }
+
             var propGroup = _projectRootElement.PropertyGroups.FirstOrDefault(pg => pg.Condition == "");
             if (propGroup == null)
             {

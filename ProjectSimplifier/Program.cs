@@ -51,23 +51,31 @@ namespace ProjectSimplifier
 
         private static int Run(Options options)
         {
-            var projectLoader = new ProjectLoader();
-            projectLoader.LoadProjects(options);
-
-            switch (options)
+            try
             {
-                case LogOptions opt:
-                    projectLoader.Project.FirstConfiguredProject.LogProjectProperties(opt.CurrentProjectLogPath);
-                    projectLoader.SdkBaselineProject.Project.FirstConfiguredProject.LogProjectProperties(opt.SdkBaseLineProjectLogPath);
-                    break;
-                case DiffOptions opt:
-                    var differ = new Differ(projectLoader.Project.FirstConfiguredProject, projectLoader.SdkBaselineProject.Project.FirstConfiguredProject);
-                    differ.GenerateReport(opt.DiffReportPath);
-                    break;
-                case ConvertOptions opt:
-                    var converter = new Converter(projectLoader.Project, projectLoader.SdkBaselineProject, projectLoader.ProjectRootElement);
-                    converter.GenerateProjectFile(opt.OutputProjectPath ?? opt.ProjectFilePath);
-                    break;
+                var projectLoader = new ProjectLoader();
+                projectLoader.LoadProjects(options);
+
+                switch (options)
+                {
+                    case LogOptions opt:
+                        projectLoader.Project.FirstConfiguredProject.LogProjectProperties(opt.CurrentProjectLogPath);
+                        projectLoader.SdkBaselineProject.Project.FirstConfiguredProject.LogProjectProperties(opt.SdkBaseLineProjectLogPath);
+                        break;
+                    case DiffOptions opt:
+                        var differ = new Differ(projectLoader.Project.FirstConfiguredProject, projectLoader.SdkBaselineProject.Project.FirstConfiguredProject);
+                        differ.GenerateReport(opt.DiffReportPath);
+                        break;
+                    case ConvertOptions opt:
+                        var converter = new Converter(projectLoader.Project, projectLoader.SdkBaselineProject, projectLoader.ProjectRootElement);
+                        converter.GenerateProjectFile(opt.OutputProjectPath ?? opt.ProjectFilePath);
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                return -1;
             }
 
             return 0;

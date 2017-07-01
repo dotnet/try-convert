@@ -33,6 +33,7 @@ namespace ProjectSimplifier
 
             _projectRootElement.ToolsVersion = null;
             _projectRootElement.Save(outputProjectPath);
+            Console.WriteLine($"Successfully converted project to {outputProjectPath}");
         }
 
         private void ChangeImports()
@@ -161,7 +162,18 @@ namespace ProjectSimplifier
 
         private ProjectPropertyGroupElement GetOrCreateEmptyPropertyGroup()
         {
-            return _projectRootElement.PropertyGroups.FirstOrDefault(pg => pg.Condition == "") ??_projectRootElement.AddPropertyGroup();
+            bool IsAfterFirstImport(ProjectPropertyGroupElement propertyGroup)
+            {
+                if (_sdkBaselineProject.ProjectStyle == ProjectStyle.Default)
+                    return true;
+
+                var firstImport = _projectRootElement.Imports.First();
+                return propertyGroup.Location.Line > firstImport.Location.Line;
+            }
+
+            return _projectRootElement.PropertyGroups.FirstOrDefault(pg => pg.Condition == "" && 
+                                                                     IsAfterFirstImport(pg))
+                    ?? _projectRootElement.AddPropertyGroup();
         }
 
         private void AddTargetProjectProperties()

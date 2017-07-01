@@ -19,12 +19,12 @@ namespace ProjectSimplifier
         {
             var metadataEqual = _compareMetadata ? x.DirectMetadata.SequenceEqual(y.DirectMetadata) : true;
 
-            return x.ItemType == y.ItemType && x.EvaluatedInclude == y.EvaluatedInclude && metadataEqual;
+            return x.ItemType == y.ItemType && x.EvaluatedInclude.Equals(y.EvaluatedInclude, System.StringComparison.OrdinalIgnoreCase) && metadataEqual;
         }
 
         public int GetHashCode(IProjectItem obj)
         {
-            return (obj.EvaluatedInclude + obj.ItemType).GetHashCode();
+            return (obj.EvaluatedInclude.ToLowerInvariant() + obj.ItemType).GetHashCode();
         }
     }
 }

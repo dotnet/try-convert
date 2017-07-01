@@ -66,13 +66,13 @@ namespace ProjectSimplifier
                 foreach (var prop in propGroup.Properties)
                 {
                     // These properties were added to the baseline - so don't treat them as defaulted properties.
-                    if (_sdkBaselineProject.GlobalProperties.Contains(prop.Name))
+                    if (_sdkBaselineProject.GlobalProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
                         continue;
                     }
 
-                    if (propDiff.DefaultedProperties.Select(p => p.Name).Contains(prop.Name) ||
-                        Facts.PropertiesNotNeededInCPS.Contains(prop.Name))
+                    if (propDiff.DefaultedProperties.Select(p => p.Name).Contains(prop.Name, StringComparer.OrdinalIgnoreCase) ||
+                        Facts.PropertiesNotNeededInCPS.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
                         propGroup.RemoveChild(prop);
                     }
@@ -95,11 +95,11 @@ namespace ProjectSimplifier
 
                 foreach (var item in itemGroup.Items)
                 {
-                    ItemsDiff itemTypeDiff = itemsDiff.FirstOrDefault(id => id.ItemType == item.ItemType);
+                    ItemsDiff itemTypeDiff = itemsDiff.FirstOrDefault(id => id.ItemType.Equals(item.ItemType, StringComparison.OrdinalIgnoreCase));
                     if (!itemTypeDiff.DefaultedItems.IsDefault)
                     {
                         var defaultedItems = itemTypeDiff.DefaultedItems.Select(i => i.EvaluatedInclude);
-                        if (defaultedItems.Contains(item.Include))
+                        if (defaultedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
                         {
                             itemGroup.RemoveChild(item);
                         }
@@ -108,7 +108,7 @@ namespace ProjectSimplifier
                     if(!itemTypeDiff.ChangedItems.IsDefault)
                     {
                         var changedItems = itemTypeDiff.ChangedItems.Select(i => i.EvaluatedInclude);
-                        if (changedItems.Contains(item.Include))
+                        if (changedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
                         {
                             var path = item.Include;
                             item.Include = null;
@@ -129,7 +129,7 @@ namespace ProjectSimplifier
             var introducedItems = _differs.Values
                                           .SelectMany(
                                                 differ => differ.GetItemsDiff()
-                                                                .Where(diff => Facts.GlobbedItemTypes.Contains(diff.ItemType))
+                                                                .Where(diff => Facts.GlobbedItemTypes.Contains(diff.ItemType, StringComparer.OrdinalIgnoreCase))
                                                                 .SelectMany(diff => diff.IntroducedItems))
                                           .Distinct(ProjectItemComparer.IncludeComparer);
 
@@ -147,7 +147,7 @@ namespace ProjectSimplifier
 
         private void AddTargetFrameworkProperty()
         {
-            if (_sdkBaselineProject.GlobalProperties.Contains("TargetFramework"))
+            if (_sdkBaselineProject.GlobalProperties.Contains("TargetFramework", StringComparer.OrdinalIgnoreCase))
             {
                 // The original project had a TargetFramework property. No need to add it again.
                 return;

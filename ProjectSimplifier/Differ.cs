@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace ProjectSimplifier
                 var newEvaluatedProp = _sdkBaselineProject.GetProperty(propInFile);
                 if (newEvaluatedProp != null)
                 {
-                    if (originalEvaluatedProp.EvaluatedValue != newEvaluatedProp.EvaluatedValue)
+                    if (!originalEvaluatedProp.EvaluatedValue.Equals(newEvaluatedProp.EvaluatedValue, StringComparison.OrdinalIgnoreCase))
                     {
                         changedProps.Add((originalEvaluatedProp, newEvaluatedProp));
                     }
@@ -55,7 +56,7 @@ namespace ProjectSimplifier
 
             var addedRemovedGroups = from og in oldItemGroups
                                      from ng in newItemGroups
-                                     where og.Key == ng.Key
+                                     where og.Key.Equals(ng.Key, StringComparison.OrdinalIgnoreCase)
                                      select new {
                                                  ItemType = og.Key,
                                                  DefaultedItems = ng.Intersect(og, ProjectItemComparer.MetadataComparer),

@@ -45,5 +45,10 @@ namespace ProjectSimplifier
             "TargetFrameworkProfile" // Inferred from TargetFramework
             );
 
+        public static ImmutableArray<string> GlobbedItemTypes => ImmutableArray.Create(
+            "Compile",
+            "EmbeddedResource",
+            "None"
+            );
     }
 }

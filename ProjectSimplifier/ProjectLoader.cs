@@ -145,12 +145,12 @@ namespace ProjectSimplifier
             newProject.LoadProjects(pc, newGlobalProperties, rootElement);
 
             // If the original project had the TargetFramework property don't touch it during conversion.
-            var propertiesInTheBaseline = ImmutableArray.Create("OutputType").AddRange(targetProjectProperties.Keys);
+            var propertiesInTheBaseline = ImmutableArray.Create("OutputType");
             if (project.GetProperty("TargetFramework") != null)
             {
                 propertiesInTheBaseline = propertiesInTheBaseline.Add("TargetFramework");
             }
-            return new BaselineProject(newProject, propertiesInTheBaseline, projectStyle);
+            return new BaselineProject(newProject, propertiesInTheBaseline, targetProjectProperties, projectStyle);
         }
     }
 }

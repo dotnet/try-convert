@@ -12,10 +12,12 @@ namespace ProjectSimplifier
         ICollection<ProjectPropertyGroupElement> PropertyGroups { get; }
         ICollection<ProjectItemGroupElement> ItemGroups { get; }
 
-        void Save(string path);
-        void RemoveChild(ProjectElement child);
         ProjectPropertyElement CreatePropertyElement(string propertyName);
         ProjectPropertyGroupElement AddPropertyGroup();
+        ProjectItemGroupElement AddItemGroup();
+
+        void Save(string path);
+        void RemoveChild(ProjectElement child);
         void Reload(bool throwIfUnsavedChanges = true, bool? preserveFormatting = null);
     }
 
@@ -36,6 +38,7 @@ namespace ProjectSimplifier
         public ICollection<ProjectPropertyGroupElement> PropertyGroups => _rootElement.PropertyGroups;
         public ICollection<ProjectItemGroupElement> ItemGroups => _rootElement.ItemGroups;
 
+        public ProjectItemGroupElement AddItemGroup() => _rootElement.AddItemGroup();
 
         public ProjectPropertyGroupElement AddPropertyGroup() => _rootElement.AddPropertyGroup();
         public ProjectPropertyElement CreatePropertyElement(string name) => _rootElement.CreatePropertyElement(name);

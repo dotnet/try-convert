@@ -26,8 +26,10 @@ namespace ProjectSimplifier
 
             RemoveDefaultedProperties();
             AddTargetFrameworkProperty();
+            AddTargetProjectProperties();
 
             RemoveOrUpdateItems();
+            AddItemRemovesForIntroducedItems();
 
             _projectRootElement.ToolsVersion = null;
             _projectRootElement.Save(outputProjectPath);
@@ -121,6 +123,27 @@ namespace ProjectSimplifier
             }
         }
 
+        private void AddItemRemovesForIntroducedItems()
+        {
+            var introducedItems = _differs.Values
+                                          .SelectMany(
+                                                differ => differ.GetItemsDiff()
+                                                                .Where(diff => Facts.GlobbedItemTypes.Contains(diff.ItemType))
+                                                                .SelectMany(diff => diff.IntroducedItems))
+                                          .Distinct(ProjectItemComparer.IncludeComparer);
+
+            if (introducedItems.Any())
+            {
+                var itemGroup = _projectRootElement.AddItemGroup();
+                foreach (var introducedItem in introducedItems)
+                {
+                    var item = itemGroup.AddItem(introducedItem.ItemType, introducedItem.EvaluatedInclude);
+                    item.Include = null;
+                    item.Remove = introducedItem.EvaluatedInclude;
+                }
+            }
+        }
+
         private void AddTargetFrameworkProperty()
         {
             if (_sdkBaselineProject.GlobalProperties.Contains("TargetFramework"))
@@ -129,15 +152,31 @@ namespace ProjectSimplifier
                 return;
             }
 
-            var propGroup = _projectRootElement.PropertyGroups.FirstOrDefault(pg => pg.Condition == "");
-            if (propGroup == null)
-            {
-                propGroup = _projectRootElement.AddPropertyGroup();
-            }
+            var propGroup = GetOrCreateEmptyPropertyGroup();
 
             var targetFrameworkElement = _projectRootElement.CreatePropertyElement("TargetFramework");
             targetFrameworkElement.Value = _sdkBaselineProject.Project.FirstConfiguredProject.GetProperty("TargetFramework").EvaluatedValue;
             propGroup.PrependChild(targetFrameworkElement);
+        }
+
+        private ProjectPropertyGroupElement GetOrCreateEmptyPropertyGroup()
+        {
+            return _projectRootElement.PropertyGroups.FirstOrDefault(pg => pg.Condition == "") ??_projectRootElement.AddPropertyGroup();
+        }
+
+        private void AddTargetProjectProperties()
+        {
+            if (_sdkBaselineProject.TargetProjectProperties.IsEmpty)
+            {
+                return;
+            }
+
+            var propGroup = GetOrCreateEmptyPropertyGroup();
+
+            foreach (var prop in _sdkBaselineProject.TargetProjectProperties)
+            {
+                propGroup.AddProperty(prop.Key, prop.Value);
+            }
         }
     }
 }

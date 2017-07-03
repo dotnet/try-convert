@@ -40,19 +40,13 @@ namespace ProjectSimplifier
         {
             var projectStyle = _sdkBaselineProject.ProjectStyle;
 
-            switch (projectStyle)
+            if (projectStyle == ProjectStyle.Default)
             {
-                case ProjectStyle.Default:
-                    foreach (var import in _projectRootElement.Imports)
-                    {
-                        _projectRootElement.RemoveChild(import);
-                    }
-                    _projectRootElement.Sdk = "Microsoft.NET.Sdk";
-                    break;
-                case ProjectStyle.DefaultWithCustomTargets:
-                    break;
-                case ProjectStyle.Custom:
-                    throw new NotSupportedException("Projects with more than 2 imports of custom targets are not supported");
+                foreach (var import in _projectRootElement.Imports)
+                {
+                    _projectRootElement.RemoveChild(import);
+                }
+                _projectRootElement.Sdk = "Microsoft.NET.Sdk";
             }
         }
 
@@ -167,7 +161,7 @@ namespace ProjectSimplifier
                 if (_sdkBaselineProject.ProjectStyle == ProjectStyle.Default)
                     return true;
 
-                var firstImport = _projectRootElement.Imports.First();
+                var firstImport = _projectRootElement.Imports.Where(i => i.Label != Facts.SharedProjectsImportLabel).First();
                 return propertyGroup.Location.Line > firstImport.Location.Line;
             }
 

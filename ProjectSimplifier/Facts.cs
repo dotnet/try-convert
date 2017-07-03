@@ -50,5 +50,7 @@ namespace ProjectSimplifier
             "EmbeddedResource",
             "None"
             );
+
+        public const string SharedProjectsImportLabel = "Shared";
     }
 }

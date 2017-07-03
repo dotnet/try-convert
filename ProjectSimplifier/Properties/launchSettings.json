@@ -10,7 +10,7 @@
     },
     "Convert": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"c:\\users\\srivatsn\\documents\\visual studio 2017\\Projects\\ConsoleApp58\\ConsoleApp58\\ConsoleApp58.csproj\" -m \"C:\\Program Files (x86)\\Microsoft Visual Studio\\Preview\\Enterprise\\MSBuild\\15.0\\Bin\"  -p EnableDefaultItems=true"
+      "commandLineArgs": "convert C:\\roslyn\\src\\Compilers\\Core\\Portable\\CodeAnalysis.csproj -m \"C:\\Program Files (x86)\\Microsoft Visual Studio\\Preview\\Enterprise\\MSBuild\\15.0\\Bin\"  -p EnableDefaultItems=true"
     }
   }
 }

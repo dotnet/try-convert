@@ -8,7 +8,7 @@
         Default,
 
         /// <summary>
-        /// The project imports a props and a targets but not the default ones. 
+        /// The project imports props and targets but not the default ones. 
         /// </summary>
         DefaultWithCustomTargets,
 

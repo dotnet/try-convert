@@ -62,7 +62,7 @@ namespace ProjectSimplifier
             }
 
             // Exclude shared project references since they show up as imports.
-            var imports = project.Imports.Where(i => i.Label != "Shared");
+            var imports = project.Imports.Where(i => i.Label != Facts.SharedProjectsImportLabel);
             if (imports.Count() == 2)
             {
                 var firstImport = project.Imports.First();
@@ -77,10 +77,9 @@ namespace ProjectSimplifier
                     return ProjectStyle.Default;
                 }
 
-                return ProjectStyle.DefaultWithCustomTargets;
             }
 
-            return ProjectStyle.Custom;
+            return ProjectStyle.DefaultWithCustomTargets;
         }
 
         private static ImmutableDictionary<string, string> InitializeGlobalProperties(Options options)

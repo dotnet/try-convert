@@ -83,8 +83,8 @@ namespace ProjectSimplifier
 
         private IEnumerable<IProjectItem> GetChangedItems(IGrouping<string, IProjectItem> oldGroup, IGrouping<string, IProjectItem> newGroup)
         {
-            var itemsWithSameInclude = oldGroup.Intersect(newGroup, ProjectItemComparer.IncludeComparer);
-            var itemsWithSameMetadata = oldGroup.Intersect(newGroup, ProjectItemComparer.MetadataComparer);
+            var itemsWithSameInclude = newGroup.Intersect(oldGroup, ProjectItemComparer.IncludeComparer);
+            var itemsWithSameMetadata = newGroup.Intersect(oldGroup, ProjectItemComparer.MetadataComparer);
 
             return itemsWithSameInclude.Except(itemsWithSameMetadata);
         }

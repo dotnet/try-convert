@@ -17,7 +17,13 @@ namespace ProjectSimplifier
 
         public bool Equals(IProjectItem x, IProjectItem y)
         {
-            var metadataEqual = _compareMetadata ? x.DirectMetadata.SequenceEqual(y.DirectMetadata) : true;
+            // If y has all the metadata that x has then we declare them as equal. This is because
+            // the sdk can add new metadata but there's not reason to remove them during conversion.
+            var metadataEqual = _compareMetadata ?
+                                 x.DirectMetadata.All(xmd => y.DirectMetadata.Any(
+                                     ymd => xmd.Name.Equals(ymd.Name, System.StringComparison.OrdinalIgnoreCase) &&
+                                            xmd.EvaluatedValue.Equals(ymd.EvaluatedValue, System.StringComparison.OrdinalIgnoreCase)))
+                                 : true;
 
             return x.ItemType == y.ItemType && x.EvaluatedInclude.Equals(y.EvaluatedInclude, System.StringComparison.OrdinalIgnoreCase) && metadataEqual;
         }

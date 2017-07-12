@@ -2,16 +2,13 @@ language: csharp
 os: osx
 solution: solution-name.sln
 mono: beta
-dotnet: 1.0.3
 
 before_install:
-  - wget --retry-connrefused --waitretry=1 -O /tmp/dotnet2.pkg https://download.microsoft.com/download/7/C/3/7C310A63-13AC-49A4-9666-4CB26388F852/dotnet-runtime-2.0.0-preview2-25407-01-osx-x64.pkg
-  - sudo installer -package /tmp/dotnet2.pkg -target / -verboseR
-
+  - wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /tmp/nuget.exe
+  - mono /tmp/nuget.exe install xunit.runner.console -Version 2.2.0 -Output /tmp/packages/
 install:
   - msbuild /t:restore
 
 script:
   - msbuild
-  - cd ProjectSimplifier.Tests
-  - dotnet test
+  - mono /tmp/packages/xunit.runner.console.2.2.0/tools/xunit.console.exe ./ProjectSimplifier.Tests/bin/Debug/net461/ProjectSimplifier.Tests.dll 

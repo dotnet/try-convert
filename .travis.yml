@@ -1,0 +1,10 @@
+language: csharp
+os: osx
+solution: solution-name.sln
+mono: beta
+dotnet: 2.0.0-preview2-006497
+
+script:
+  - msbuild
+  - cd ProjectSimplifier.Tests
+  - dotnet test

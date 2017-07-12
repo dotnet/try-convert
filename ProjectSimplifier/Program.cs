@@ -99,9 +99,9 @@ namespace ProjectSimplifier
             }else{
                 //Second chance for mono 
                 var systemLibLocation = typeof(System.Object).Assembly.Location;
-                var monoMSBuildPath = Path.Combine(Path.GetDirectoryName(systemLibLocation),"..","MSBuild", "15.0", "Bin");
+                var monoMSBuildPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(systemLibLocation),"..","msbuild", "15.0", "bin"));
                 if(Directory.Exists(monoMSBuildPath)){
-                    return Path.GetFullPath(monoMSBuildPath);
+		    return Path.GetFullPath(monoMSBuildPath);
                 }
                 
             }

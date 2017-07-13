@@ -1,5 +1,7 @@
 language: csharp
-os: osx
+os:
+  - linux
+  - osx
 solution: solution-name.sln
 mono: beta
 

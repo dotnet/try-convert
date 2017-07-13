@@ -1,7 +1,12 @@
 language: csharp
-os:
-  - linux
-  - osx
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+    - os: osx
+
 solution: solution-name.sln
 mono: beta
 

@@ -1,0 +1,21 @@
+language: csharp
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+    - os: osx
+
+solution: solution-name.sln
+mono: beta
+
+before_install:
+  - wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -O /tmp/nuget.exe
+  - mono /tmp/nuget.exe install xunit.runner.console -Version 2.2.0 -Output /tmp/packages/
+install:
+  - msbuild /t:restore
+
+script:
+  - msbuild
+  - mono /tmp/packages/xunit.runner.console.2.2.0/tools/xunit.console.exe ./ProjectSimplifier.Tests/bin/Debug/net461/ProjectSimplifier.Tests.dll 

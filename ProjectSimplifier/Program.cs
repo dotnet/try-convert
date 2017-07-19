@@ -96,6 +96,14 @@ namespace ProjectSimplifier
                 var path = Path.Combine(vsinstalldir, "MSBuild", "15.0", "Bin");
                 Console.WriteLine($"Found VS from VSINSTALLDIR (Dev Console): {path}");
                 return path;
+            }else{
+                //Second chance for mono 
+                var systemLibLocation = typeof(System.Object).Assembly.Location;
+                var monoMSBuildPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(systemLibLocation),"..","msbuild", "15.0", "bin"));
+                if(Directory.Exists(monoMSBuildPath)){
+		    return Path.GetFullPath(monoMSBuildPath);
+                }
+                
             }
 
             return null;

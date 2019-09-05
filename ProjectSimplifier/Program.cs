@@ -22,7 +22,7 @@ namespace ProjectSimplifier
                     return -1;
 
                 case NotParsed<object> notParsed:
-                    foreach(var error in notParsed.Errors)
+                    foreach (var error in notParsed.Errors)
                     {
                         Console.WriteLine(error);
                     }
@@ -93,17 +93,25 @@ namespace ProjectSimplifier
             var vsinstalldir = Environment.GetEnvironmentVariable("VSINSTALLDIR");
             if (!string.IsNullOrEmpty(vsinstalldir))
             {
-                var path = Path.Combine(vsinstalldir, "MSBuild", "15.0", "Bin");
+                var path = Path.Combine(vsinstalldir, "MSBuild", "16.0", "Bin");
                 Console.WriteLine($"Found VS from VSINSTALLDIR (Dev Console): {path}");
                 return path;
-            }else{
-                //Second chance for mono 
-                var systemLibLocation = typeof(System.Object).Assembly.Location;
-                var monoMSBuildPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(systemLibLocation),"..","msbuild", "15.0", "bin"));
-                if(Directory.Exists(monoMSBuildPath)){
-		    return Path.GetFullPath(monoMSBuildPath);
-                }
-                
+            }
+
+            // herpty derp
+            var pathOnVS = Path.Combine(@"C:\Program Files (x86)\Microsoft Visual Studio", "2019", "Preview", "MSBuild", "Current", "Bin");
+            if (!string.IsNullOrEmpty(pathOnVS))
+            {
+                Console.WriteLine($"Found MSBuild from hardcoded location: {pathOnVS}");
+                return pathOnVS;
+            }
+
+            //Second chance for mono 
+            var systemLibLocation = typeof(object).Assembly.Location;
+            var monoMSBuildPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(systemLibLocation), "..", "msbuild", "16.0", "bin"));
+            if (Directory.Exists(monoMSBuildPath))
+            {
+                return Path.GetFullPath(monoMSBuildPath);
             }
 
             return null;

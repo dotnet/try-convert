@@ -141,6 +141,12 @@ namespace ProjectSimplifier
 
         private void AddTargetFrameworkProperty()
         {
+            string StripDecimals(string tfm)
+            {
+                var parts = tfm.Split('.');
+                return string.Join("", parts);
+            }
+
             if (_sdkBaselineProject.GlobalProperties.Contains("TargetFramework", StringComparer.OrdinalIgnoreCase))
             {
                 // The original project had a TargetFramework property. No need to add it again.
@@ -150,7 +156,13 @@ namespace ProjectSimplifier
             var propGroup = GetOrCreateEmptyPropertyGroup();
 
             var targetFrameworkElement = _projectRootElement.CreatePropertyElement("TargetFramework");
-            targetFrameworkElement.Value = _sdkBaselineProject.Project.FirstConfiguredProject.GetProperty("TargetFramework").EvaluatedValue;
+
+            var rawTFM = _sdkBaselineProject.Project.FirstConfiguredProject.GetProperty("TargetFramework").EvaluatedValue;
+
+            // We're assuming this is only ever run on .NET Framework projects, not existing .NET Standard or .NET Core projects
+            // This assumption will definitely be violated
+            targetFrameworkElement.Value = StripDecimals(rawTFM);
+
             propGroup.PrependChild(targetFrameworkElement);
         }
 

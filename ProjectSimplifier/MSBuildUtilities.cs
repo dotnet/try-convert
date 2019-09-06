@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Build.Construction;
+using Microsoft.Build.Framework;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -130,6 +132,23 @@ namespace ProjectSimplifier
 
             dimensionalValues = parsedDimensionalValues.ToImmutableDictionary();
             return true;
+        }
+
+        internal static bool FSharpDoesntNeedValueTupleReference(string tfm)
+        {
+            if (tfm is null
+                || tfm.ContainsIgnoreCase("netstandard", StringComparison.CurrentCultureIgnoreCase)
+                || tfm.ContainsIgnoreCase("netcore", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return false;
+            }
+
+            if (!tfm.StartsWith("net", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            return tfm.StartsWith(Facts.LowestFrameworkVersionWithSystemValueTuple);
         }
 
         /// <summary>

@@ -25,11 +25,14 @@ namespace ProjectSimplifier
             ChangeImports();
 
             RemoveDefaultedProperties();
-            RemoveUnecessaryProperties();
-            AddTargetFrameworkProperty();
+            RemoveUnnecessaryProperties();
+
+            var tfm = AddTargetFrameworkProperty();
+
             AddTargetProjectProperties();
 
             RemoveOrUpdateItems();
+            RemoveUnnecessaryReferences(tfm);
             AddItemRemovesForIntroducedItems();
 
             _projectRootElement.ToolsVersion = null;
@@ -72,15 +75,14 @@ namespace ProjectSimplifier
                     }
                 }
 
-                // If a propertyGroup is empty we can remove it unless it had a condition from which a configuration is inferred.
-                if (propGroup.Properties.Count == 0 && string.IsNullOrEmpty(configurationName))
+                if (propGroup.Properties.Count == 0)
                 {
                     _projectRootElement.RemoveChild(propGroup);
                 }
             }
         }
 
-        private void RemoveUnecessaryProperties()
+        private void RemoveUnnecessaryProperties()
         {
             foreach (var propGroup in _projectRootElement.PropertyGroups)
             {
@@ -88,12 +90,12 @@ namespace ProjectSimplifier
 
                 foreach (var prop in propGroup.Properties)
                 {
-                    if (Facts.UnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
+                    if (Facts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
                         propGroup.RemoveChild(prop);
                     }
 
-                    if (propGroup.Properties.Count == 0 && string.IsNullOrEmpty(configurationName))
+                    if (propGroup.Properties.Count == 0)
                     {
                         _projectRootElement.RemoveChild(propGroup);
                     }
@@ -139,6 +141,30 @@ namespace ProjectSimplifier
             }
         }
 
+        private void RemoveUnnecessaryReferences(string tfm)
+        {
+            foreach (var itemGroup in _projectRootElement.ItemGroups)
+            {
+                foreach (var item in itemGroup.Items.Where(item => item.ElementName.Equals("Reference", StringComparison.OrdinalIgnoreCase)))
+                {
+                    if (Facts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
+
+                    if (item.Include.Equals("System.ValueTuple", StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FSharpDoesntNeedValueTupleReference(tfm))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
+
+                    if (itemGroup.Count == 0)
+                    {
+                        _projectRootElement.RemoveChild(itemGroup);
+                    }
+                }
+            }
+        }
+
         private void AddItemRemovesForIntroducedItems()
         {
             var introducedItems = _differs.Values
@@ -160,7 +186,7 @@ namespace ProjectSimplifier
             }
         }
 
-        private void AddTargetFrameworkProperty()
+        private string AddTargetFrameworkProperty()
         {
             string StripDecimals(string tfm)
             {
@@ -171,7 +197,7 @@ namespace ProjectSimplifier
             if (_sdkBaselineProject.GlobalProperties.Contains("TargetFramework", StringComparer.OrdinalIgnoreCase))
             {
                 // The original project had a TargetFramework property. No need to add it again.
-                return;
+                return _sdkBaselineProject.GlobalProperties.First(p => p.Equals("TargetFramework", StringComparison.OrdinalIgnoreCase));
             }
 
             var propGroup = GetOrCreateEmptyPropertyGroup();
@@ -180,7 +206,8 @@ namespace ProjectSimplifier
 
             var rawTFM = _sdkBaselineProject.Project.FirstConfiguredProject.GetProperty("TargetFramework").EvaluatedValue;
 
-            if (!rawTFM.ContainsIgnoreCase("netstandard") && !rawTFM.ContainsIgnoreCase("netcoreapp"))
+            // This is pretty much never gonna happen, but it was cheap to write the code
+            if (!rawTFM.ContainsIgnoreCase("netstandard", StringComparison.OrdinalIgnoreCase) && !rawTFM.ContainsIgnoreCase("netcoreapp", StringComparison.OrdinalIgnoreCase))
             {
                 targetFrameworkElement.Value = StripDecimals(rawTFM);
             }
@@ -190,6 +217,8 @@ namespace ProjectSimplifier
             }
 
             propGroup.PrependChild(targetFrameworkElement);
+
+            return targetFrameworkElement.Value;
         }
 
         private ProjectPropertyGroupElement GetOrCreateEmptyPropertyGroup()

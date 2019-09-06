@@ -45,7 +45,7 @@ namespace ProjectSimplifier
             "None"
             );
 
-        public static ImmutableArray<string> UnecessaryProperties => ImmutableArray.Create(
+        public static ImmutableArray<string> UnnecessaryProperties => ImmutableArray.Create(
             // The following are unecessary in CPS and/or are already in the .NET SDK
             "ProjectGuid",
             "ProjectTypeGuids",
@@ -59,9 +59,27 @@ namespace ProjectSimplifier
             "MinimumVisualStudioVersion",
             "SchemaVersion",
             "Name",
-            "Prefer32Bit"
+            "Prefer32Bit",
+            "DocumentationFile",
+            "VSToolsPath",
+            "VisualStudioVersion",
+
+            // The following are  properties that are rarely, if ever touched.
+            "PlatformTarget",
+            "DebugType",
+            "OutputPath",
+            "DefineConstants"
         );
 
+        public static ImmutableArray<string> UnnecessaryItemIncludes => ImmutableArray.Create(
+            // FSharp.Core is referenced by default in the .NET SDK
+            "FSharp.Core",
+
+            // F# explicitly references this in old-style projects; it's not needed now
+            "mscorlib"
+        );
+
+        public const string LowestFrameworkVersionWithSystemValueTuple = "net47";
         public const string SharedProjectsImportLabel = "Shared";
         public const string FSharpTargetsPathVariableName = @"$(FSharpTargetsPath)";
         public const string FSharpTargetsPath = @"$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets";

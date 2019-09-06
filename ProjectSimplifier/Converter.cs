@@ -25,6 +25,7 @@ namespace ProjectSimplifier
             ChangeImports();
 
             RemoveDefaultedProperties();
+            RemoveUnecessaryProperties();
             AddTargetFrameworkProperty();
             AddTargetProjectProperties();
 
@@ -65,8 +66,7 @@ namespace ProjectSimplifier
                         continue;
                     }
 
-                    if (propDiff.DefaultedProperties.Select(p => p.Name).Contains(prop.Name, StringComparer.OrdinalIgnoreCase) ||
-                        Facts.PropertiesNotNeededInCPS.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
+                    if (propDiff.DefaultedProperties.Select(p => p.Name).Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
                         propGroup.RemoveChild(prop);
                     }
@@ -76,6 +76,27 @@ namespace ProjectSimplifier
                 if (propGroup.Properties.Count == 0 && string.IsNullOrEmpty(configurationName))
                 {
                     _projectRootElement.RemoveChild(propGroup);
+                }
+            }
+        }
+
+        private void RemoveUnecessaryProperties()
+        {
+            foreach (var propGroup in _projectRootElement.PropertyGroups)
+            {
+                var configurationName = MSBuildUtilities.GetConfigurationName(propGroup.Condition);
+
+                foreach (var prop in propGroup.Properties)
+                {
+                    if (Facts.UnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
+                    {
+                        propGroup.RemoveChild(prop);
+                    }
+
+                    if (propGroup.Properties.Count == 0 && string.IsNullOrEmpty(configurationName))
+                    {
+                        _projectRootElement.RemoveChild(propGroup);
+                    }
                 }
             }
         }
@@ -159,9 +180,14 @@ namespace ProjectSimplifier
 
             var rawTFM = _sdkBaselineProject.Project.FirstConfiguredProject.GetProperty("TargetFramework").EvaluatedValue;
 
-            // We're assuming this is only ever run on .NET Framework projects, not existing .NET Standard or .NET Core projects
-            // This assumption will definitely be violated
-            targetFrameworkElement.Value = StripDecimals(rawTFM);
+            if (!rawTFM.ContainsIgnoreCase("netstandard") && !rawTFM.ContainsIgnoreCase("netcoreapp"))
+            {
+                targetFrameworkElement.Value = StripDecimals(rawTFM);
+            }
+            else
+            {
+                targetFrameworkElement.Value = rawTFM;
+            }
 
             propGroup.PrependChild(targetFrameworkElement);
         }

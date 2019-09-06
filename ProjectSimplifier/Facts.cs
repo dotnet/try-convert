@@ -18,7 +18,8 @@ namespace ProjectSimplifier
             "Microsoft.VisualBasic.targets",
             "Microsoft.Portable.CSharp.targets",
             "Microsoft.Portable.VisualBasic.targets",
-            "Microsoft.FSharp.Targets");
+            "Microsoft.FSharp.Targets"
+        );
 
         /// <summary>
         /// Mapping of PCL profiles to netstandard versions.
@@ -38,22 +39,30 @@ namespace ProjectSimplifier
             { "Profile259",      "1.0"  },
         });
 
-        public static ImmutableArray<string> PropertiesNotNeededInCPS => ImmutableArray.Create(
-            "ProjectGuid", // Guids are in-memory in CPS
-            "ProjectTypeGuids", // Not used - capabilities are used instead
-            "TargetFrameworkIdentifier", // Inferred from TargetFramework
-            "TargetFrameworkVersion", // Inferred from TargetFramework
-            "TargetFrameworkProfile" // Inferred from TargetFramework
-            );
-
         public static ImmutableArray<string> GlobbedItemTypes => ImmutableArray.Create(
             "Compile",
             "EmbeddedResource",
             "None"
             );
 
-        public const string SharedProjectsImportLabel = "Shared";
+        public static ImmutableArray<string> UnecessaryProperties => ImmutableArray.Create(
+            // The following are unecessary in CPS and/or are already in the .NET SDK
+            "ProjectGuid",
+            "ProjectTypeGuids",
+            "TargetFrameworkIdentifier",
+            "TargetFrameworkVersion",
+            "TargetFrameworkProfile",
+            "FSharpTargetsPath",
 
+            // The following are rarely (if ever) set by users, but are defaulted in some templates,
+            // and are likely to have incorrect values for .NET SDK/VS interaction
+            "MinimumVisualStudioVersion",
+            "SchemaVersion",
+            "Name",
+            "Prefer32Bit"
+        );
+
+        public const string SharedProjectsImportLabel = "Shared";
         public const string FSharpTargetsPathVariableName = @"$(FSharpTargetsPath)";
         public const string FSharpTargetsPath = @"$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets";
     }

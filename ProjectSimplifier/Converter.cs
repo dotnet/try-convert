@@ -99,7 +99,7 @@ namespace ProjectSimplifier
                         }
                     }
 
-                    if(!itemTypeDiff.ChangedItems.IsDefault)
+                    if (!itemTypeDiff.ChangedItems.IsDefault)
                     {
                         var changedItems = itemTypeDiff.ChangedItems.Select(i => i.EvaluatedInclude);
                         if (changedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
@@ -177,7 +177,7 @@ namespace ProjectSimplifier
                 return propertyGroup.Location.Line > firstImport.Location.Line;
             }
 
-            return _projectRootElement.PropertyGroups.FirstOrDefault(pg => pg.Condition == "" && 
+            return _projectRootElement.PropertyGroups.FirstOrDefault(pg => pg.Condition == "" &&
                                                                      IsAfterFirstImport(pg))
                     ?? _projectRootElement.AddPropertyGroup();
         }

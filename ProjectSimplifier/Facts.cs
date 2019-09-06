@@ -17,7 +17,8 @@ namespace ProjectSimplifier
             "Microsoft.CSharp.targets",
             "Microsoft.VisualBasic.targets",
             "Microsoft.Portable.CSharp.targets",
-            "Microsoft.Portable.VisualBasic.targets");
+            "Microsoft.Portable.VisualBasic.targets",
+            "Microsoft.FSharp.Targets");
 
         /// <summary>
         /// Mapping of PCL profiles to netstandard versions.

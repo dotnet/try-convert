@@ -2,11 +2,11 @@
   "profiles": {
     "Diff": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"C:\\Users\\phcart\\source\\repos\\ConsoleApp127\\ConsoleApp127\\ConsoleApp127.csproj\""
+      "commandLineArgs": "convert \"C:\\Users\\phcart\\source\\repos\\ConsoleApp127\\ConsoleApp127\\ConsoleApplication1.fsproj\""
     },
     "Convert": {
       "commandName": "Project",
-      "commandLineArgs": "convert C:\\roslyn\\src\\Compilers\\Core\\Portable\\CodeAnalysis.csproj -m \"C:\\Program Files (x86)\\Microsoft Visual Studio\\Preview\\Enterprise\\MSBuild\\15.0\\Bin\"  -p EnableDefaultItems=true"
+      "commandLineArgs": "convert \"C:\\Users\\phcart\\source\\repos\\ConsoleApp127\\ConsoleApplication1\\ConsoleApplication1.fsproj\""
     }
   }
 }

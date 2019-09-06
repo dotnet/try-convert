@@ -79,6 +79,19 @@ namespace ProjectSimplifier
             "mscorlib"
         );
 
+        public static ImmutableArray<string> KnownWPFReferences => ImmutableArray.Create(
+            "System.Xaml",
+            "WindowsBase",
+            "PresentationCore",
+            "PresentationFramework"
+        );
+
+        public static ImmutableArray<string> KnownInFormsReferences => ImmutableArray.Create(
+            "System.Windows.Forms",
+            "System.Deployment",
+            "System.Drawing"
+        );
+
         public const string LowestFrameworkVersionWithSystemValueTuple = "net47";
         public const string SharedProjectsImportLabel = "Shared";
         public const string FSharpTargetsPathVariableName = @"$(FSharpTargetsPath)";

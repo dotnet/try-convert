@@ -6,7 +6,7 @@
     },
     "Convert": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"C:\\Users\\phcart\\source\\repos\\ConsoleApp127\\ConsoleApplication1\\ConsoleApplication1.fsproj\""
+      "commandLineArgs": "convert \"C:\\Users\\phcart\\source\\repos\\ConsoleApp127\\WpfCore\\WpfCore.csproj\""
     }
   }
 }

@@ -71,6 +71,16 @@ namespace ProjectSimplifier
                 var firstImportFileName = Path.GetFileName(firstImport.Project);
                 var lastImportFileName = Path.GetFileName(lastImport.Project);
 
+                if (firstImportFileName == Facts.FSharpTargetsPathVariableName)
+                {
+                    firstImportFileName = Path.GetFileName(Facts.FSharpTargetsPath);
+                }
+
+                if (lastImportFileName == Facts.FSharpTargetsPathVariableName)
+                {
+                    lastImportFileName = Path.GetFileName(Facts.FSharpTargetsPath);
+                }
+
                 if (Facts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) && 
                     Facts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
                 {

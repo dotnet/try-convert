@@ -53,5 +53,8 @@ namespace ProjectSimplifier
             );
 
         public const string SharedProjectsImportLabel = "Shared";
+
+        public const string FSharpTargetsPathVariableName = @"$(FSharpTargetsPath)";
+        public const string FSharpTargetsPath = @"$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets";
     }
 }

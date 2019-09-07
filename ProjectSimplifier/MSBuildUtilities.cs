@@ -151,6 +151,22 @@ namespace ProjectSimplifier
             return tfm.StartsWith(Facts.LowestFrameworkVersionWithSystemValueTuple);
         }
 
+        internal static IEnumerable<ProjectItemElement> GetAssemblyReferences(ProjectItemGroupElement itemGroup) =>
+            itemGroup.Items.Where(item => item.ElementName.Equals("Reference", StringComparison.OrdinalIgnoreCase));
+
+
+        internal static bool IsWPF(IProjectRootElement projectRoot)
+        {
+            var references = projectRoot.ItemGroups.SelectMany(GetAssemblyReferences)?.Select(elem => elem.Include);
+            return Facts.KnownWPFReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+        }
+
+        internal static bool IsWinForms(IProjectRootElement projectRoot)
+        {
+            var references = projectRoot.ItemGroups.SelectMany(GetAssemblyReferences)?.Select(elem => elem.Include);
+            return Facts.KnownWinFormsReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+        }
+
         /// <summary>
         /// Unquote string. It simply removes the starting and ending "'", and checks they are present before.
         /// </summary>

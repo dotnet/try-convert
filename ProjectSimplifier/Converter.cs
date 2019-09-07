@@ -44,13 +44,21 @@ namespace ProjectSimplifier
         {
             var projectStyle = _sdkBaselineProject.ProjectStyle;
 
-            if (projectStyle == ProjectStyle.Default)
+            if (projectStyle == ProjectStyle.Default || projectStyle == ProjectStyle.WindowsDesktop)
             {
                 foreach (var import in _projectRootElement.Imports)
                 {
                     _projectRootElement.RemoveChild(import);
                 }
-                _projectRootElement.Sdk = "Microsoft.NET.Sdk";
+
+                if (MSBuildUtilities.IsWinForms(_projectRootElement) || MSBuildUtilities.IsWinForms(_projectRootElement))
+                {
+                    _projectRootElement.Sdk = Facts.WinSDKAttribute;
+                }
+                else
+                {
+                    _projectRootElement.Sdk = Facts.WinSDKAttribute;
+                }
             }
         }
 
@@ -145,7 +153,7 @@ namespace ProjectSimplifier
         {
             foreach (var itemGroup in _projectRootElement.ItemGroups)
             {
-                foreach (var item in itemGroup.Items.Where(item => item.ElementName.Equals("Reference", StringComparison.OrdinalIgnoreCase)))
+                foreach (var item in MSBuildUtilities.GetAssemblyReferences(itemGroup))
                 {
                     if (Facts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
                     {
@@ -225,7 +233,7 @@ namespace ProjectSimplifier
         {
             bool IsAfterFirstImport(ProjectPropertyGroupElement propertyGroup)
             {
-                if (_sdkBaselineProject.ProjectStyle == ProjectStyle.Default)
+                if (_sdkBaselineProject.ProjectStyle == ProjectStyle.Default || _sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop)
                     return true;
 
                 var firstImport = _projectRootElement.Imports.Where(i => i.Label != Facts.SharedProjectsImportLabel).First();

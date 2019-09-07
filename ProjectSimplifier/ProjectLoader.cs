@@ -84,9 +84,12 @@ namespace ProjectSimplifier
                 if (Facts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) && 
                     Facts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
                 {
+                    if (MSBuildUtilities.IsWPF(project) || MSBuildUtilities.IsWinForms(project))
+                    {
+                        return ProjectStyle.WindowsDesktop;
+                    }
                     return ProjectStyle.Default;
                 }
-
             }
 
             return ProjectStyle.DefaultWithCustomTargets;
@@ -126,7 +129,10 @@ namespace ProjectSimplifier
             switch (projectStyle)
             {
                 case ProjectStyle.Default:
-                    rootElement.Sdk = "Microsoft.NET.Sdk";
+                    rootElement.Sdk = Facts.DefaultSDKAttribute;
+                    break;
+                case ProjectStyle.WindowsDesktop:
+                    rootElement.Sdk = Facts.WinSDKAttribute;
                     break;
                 case ProjectStyle.DefaultWithCustomTargets:
                     var imports = ProjectRootElement.Imports;
@@ -146,6 +152,19 @@ namespace ProjectSimplifier
             var propGroup = rootElement.AddPropertyGroup();
             propGroup.AddProperty("TargetFramework", project.GetTargetFramework());
             propGroup.AddProperty("OutputType", project.GetPropertyValue("OutputType") ?? throw new InvalidOperationException("OutputType is not set!"));
+
+            if (projectStyle == ProjectStyle.WindowsDesktop)
+            {
+                if (MSBuildUtilities.IsWinForms(ProjectRootElement))
+                {
+                    propGroup.AddProperty("UseWinForms", "true");
+                }
+
+                if (MSBuildUtilities.IsWPF(ProjectRootElement))
+                {
+                    propGroup.AddProperty("UseWPF", "true");
+                }
+            }
 
             var newGlobalProperties = globalProperties.AddRange(targetProjectProperties);
             // Create a new collection because a project with this name has already been loaded into the global collection.

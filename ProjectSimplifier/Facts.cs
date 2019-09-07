@@ -64,11 +64,12 @@ namespace ProjectSimplifier
             "VSToolsPath",
             "VisualStudioVersion",
 
-            // The following are  properties that are rarely, if ever touched.
+            // The following are debugging (usually) properties that are rarely, if ever touched.
             "PlatformTarget",
             "DebugType",
             "OutputPath",
             "DefineConstants"
+            //"FileAlignment"
         );
 
         public static ImmutableArray<string> UnnecessaryItemIncludes => ImmutableArray.Create(
@@ -86,7 +87,7 @@ namespace ProjectSimplifier
             "PresentationFramework"
         );
 
-        public static ImmutableArray<string> KnownInFormsReferences => ImmutableArray.Create(
+        public static ImmutableArray<string> KnownWinFormsReferences => ImmutableArray.Create(
             "System.Windows.Forms",
             "System.Deployment",
             "System.Drawing"
@@ -96,5 +97,7 @@ namespace ProjectSimplifier
         public const string SharedProjectsImportLabel = "Shared";
         public const string FSharpTargetsPathVariableName = @"$(FSharpTargetsPath)";
         public const string FSharpTargetsPath = @"$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets";
+        public const string WinSDKAttribute = "Microsoft.NET.Sdk.WindowsDesktop";
+        public const string DefaultSDKAttribute = "Microsoft.NET.Sdk";
     }
 }

@@ -15,6 +15,11 @@
         /// <summary>
         /// Has more imports and the shape is unknown.
         /// </summary>
-        Custom
+        Custom,
+
+        /// <summary>
+        /// The project is WPF or WinForms, and will use the WinDesktop framework reference
+        /// </summary>
+        WindowsDesktop
     }
 }

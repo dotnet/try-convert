@@ -28,6 +28,7 @@ namespace ProjectSimplifier
             RemoveUnnecessaryProperties();
 
             var tfm = AddTargetFrameworkProperty();
+            AddDesktopProperties();
 
             AddTargetProjectProperties();
 
@@ -227,6 +228,31 @@ namespace ProjectSimplifier
             propGroup.PrependChild(targetFrameworkElement);
 
             return targetFrameworkElement.Value;
+        }
+
+        private void AddDesktopProperties()
+        {
+            if (_sdkBaselineProject.ProjectStyle != ProjectStyle.WindowsDesktop)
+            {
+                return;
+            }
+
+            // Don't create a new prop group; put the desktop properties in the same group as where TFM is located
+            var propGroup = _projectRootElement.PropertyGroups.Single(pg => pg.Children.Any(p => p.ElementName == "TargetFramework"));
+
+            if (!_sdkBaselineProject.GlobalProperties.Contains(Facts.UseWinFormsPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildUtilities.IsWinForms(_projectRootElement))
+            {
+                var useWinForms = _projectRootElement.CreatePropertyElement(Facts.UseWinFormsPropertyName);
+                useWinForms.Value = "true";
+                propGroup.PrependChild(useWinForms);
+            }
+
+            if (!_sdkBaselineProject.GlobalProperties.Contains(Facts.UseWPFPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildUtilities.IsWPF(_projectRootElement))
+            {
+                var useWPF = _projectRootElement.CreatePropertyElement(Facts.UseWPFPropertyName);
+                useWPF.Value = "true";
+                propGroup.PrependChild(useWPF);
+            }
         }
 
         private ProjectPropertyGroupElement GetOrCreateEmptyPropertyGroup()

@@ -12,7 +12,7 @@ namespace ProjectSimplifier
         public UnconfiguredProject Project { get; private set; }
         public BaselineProject SdkBaselineProject { get; private set; }
         public IProjectRootElement ProjectRootElement { get; private set; }
-        
+
         public void LoadProjects(Options options)
         {
             string projectFilePath = Path.GetFullPath(options.ProjectFilePath);
@@ -81,7 +81,7 @@ namespace ProjectSimplifier
                     lastImportFileName = Path.GetFileName(Facts.FSharpTargetsPath);
                 }
 
-                if (Facts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) && 
+                if (Facts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
                     Facts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
                 {
                     if (MSBuildUtilities.IsWPF(project) || MSBuildUtilities.IsWinForms(project))
@@ -116,10 +116,10 @@ namespace ProjectSimplifier
         /// We need to use the same name as the original csproj and same path so that all the default that derive
         /// from name\path get the right values (there are a lot of them).
         /// </summary>
-        private BaselineProject CreateSdkBaselineProject(string projectFilePath, 
-                                                         IProject project, 
-                                                         ImmutableDictionary<string, string> globalProperties, 
-                                                         ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations, 
+        private BaselineProject CreateSdkBaselineProject(string projectFilePath,
+                                                         IProject project,
+                                                         ImmutableDictionary<string, string> globalProperties,
+                                                         ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations,
                                                          ImmutableDictionary<string, string> targetProjectProperties)
         {
             var projectStyle = GetProjectStyle(ProjectRootElement);
@@ -157,12 +157,12 @@ namespace ProjectSimplifier
             {
                 if (MSBuildUtilities.IsWinForms(ProjectRootElement))
                 {
-                    propGroup.AddProperty("UseWinForms", "true");
+                    propGroup.AddProperty(Facts.UseWinFormsPropertyName, "true");
                 }
 
                 if (MSBuildUtilities.IsWPF(ProjectRootElement))
                 {
-                    propGroup.AddProperty("UseWPF", "true");
+                    propGroup.AddProperty(Facts.UseWPFPropertyName, "true");
                 }
             }
 
@@ -174,10 +174,22 @@ namespace ProjectSimplifier
 
             // If the original project had the TargetFramework property don't touch it during conversion.
             var propertiesInTheBaseline = ImmutableArray.Create("OutputType");
+
             if (project.GetProperty("TargetFramework") != null)
             {
                 propertiesInTheBaseline = propertiesInTheBaseline.Add("TargetFramework");
             }
+
+            if (!(project.GetProperty(Facts.UseWinFormsPropertyName) is null))
+            {
+                propertiesInTheBaseline = propertiesInTheBaseline.Add(Facts.UseWinFormsPropertyName);
+            }
+
+            if (!(project.GetProperty(Facts.UseWPFPropertyName) is null))
+            {
+                propertiesInTheBaseline = propertiesInTheBaseline.Add(Facts.UseWPFPropertyName);
+            }
+
             return new BaselineProject(newProject, propertiesInTheBaseline, targetProjectProperties, projectStyle);
         }
     }

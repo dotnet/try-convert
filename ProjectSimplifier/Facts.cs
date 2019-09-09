@@ -99,5 +99,7 @@ namespace ProjectSimplifier
         public const string FSharpTargetsPath = @"$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets";
         public const string WinSDKAttribute = "Microsoft.NET.Sdk.WindowsDesktop";
         public const string DefaultSDKAttribute = "Microsoft.NET.Sdk";
+        public const string UseWPFPropertyName = "UseWPF";
+        public const string UseWinFormsPropertyName = "UseWindowsForms";
     }
 }

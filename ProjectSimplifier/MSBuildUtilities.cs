@@ -134,7 +134,7 @@ namespace ProjectSimplifier
             return true;
         }
 
-        internal static bool FSharpDoesntNeedValueTupleReference(string tfm)
+        internal static bool FrameworkHasAValueTuple(string tfm)
         {
             if (tfm is null
                 || tfm.ContainsIgnoreCase("netstandard", StringComparison.CurrentCultureIgnoreCase)

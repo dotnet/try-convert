@@ -161,7 +161,7 @@ namespace ProjectSimplifier
                         itemGroup.RemoveChild(item);
                     }
 
-                    if (item.Include.Equals("System.ValueTuple", StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FSharpDoesntNeedValueTupleReference(tfm))
+                    if (item.Include.Equals("System.ValueTuple", StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm))
                     {
                         itemGroup.RemoveChild(item);
                     }

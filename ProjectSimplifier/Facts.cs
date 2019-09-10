@@ -62,14 +62,26 @@ namespace ProjectSimplifier
             "Prefer32Bit",
             "DocumentationFile",
             "VSToolsPath",
-            "VisualStudioVersion",
+            "VisualStudioVersion"
+        );
 
-            // The following are debugging (usually) properties that are rarely, if ever touched.
-            "PlatformTarget",
-            "DebugType",
-            "OutputPath",
-            "DefineConstants"
-            //"FileAlignment"
+        public static ImmutableArray<string> DefaultDefineConstants => ImmutableArray.Create(
+            "DEBUG",
+            "TRACE"
+        );
+
+        public static ImmutableArray<string> DefaultOutputPaths => ImmutableArray.Create(
+            @"bin\Release\",
+            @"bin\Debug\"
+        );
+
+        public static ImmutableArray<string> DefaultPlatformTargets => ImmutableArray.Create(
+            "AnyCPU"
+        );
+
+        public static ImmutableArray<string> DefaultDebugTypes => ImmutableArray.Create(
+            "full",
+            "pdbonly"
         );
 
         public static ImmutableArray<string> UnnecessaryItemIncludes => ImmutableArray.Create(
@@ -128,5 +140,13 @@ namespace ProjectSimplifier
         public const string DesignerEndString = ".Designer.cs";
         public const string SettingsDesignerFileName = "Settings.Designer.cs";
         public const string ResourcesDesignerFileName = "Resources.Designer.cs";
+        public const string SystemValueTupleName = "System.ValueTuple";
+        public const string DefineConstantsName = "DefineConstants";
+        public const string OutputPathName = "OutputPath";
+        public const string DebugTypeName = "DebugType";
+        public const string PlatformTargetName = "PlatformTarget";
+        public const string NetcoreappPrelude = "netcoreapp";
+        public const string NetstandardPrelude = "netstandard";
+        public const string MSBuildReferenceName = "Reference";
     }
 }

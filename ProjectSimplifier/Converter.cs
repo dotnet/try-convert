@@ -25,7 +25,7 @@ namespace ProjectSimplifier
             ChangeImports();
 
             RemoveDefaultedProperties();
-            RemoveUnnecessaryProperties();
+            RemoveUnnecessaryPropertiesNotInSDKByDefault();
 
             var tfm = AddTargetFrameworkProperty();
             AddDesktopProperties();
@@ -91,29 +91,67 @@ namespace ProjectSimplifier
             }
         }
 
-        private void RemoveUnnecessaryProperties()
+        private void RemoveUnnecessaryPropertiesNotInSDKByDefault()
         {
             foreach (var propGroup in _projectRootElement.PropertyGroups)
             {
-                var configurationName = MSBuildUtilities.GetConfigurationName(propGroup.Condition);
-
                 foreach (var prop in propGroup.Properties)
                 {
                     if (Facts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
                         propGroup.RemoveChild(prop);
                     }
-
-                    if (propGroup.Properties.Count == 0)
+                    else if (MSBuildUtilities.IsDefineConstantDefault(prop))
                     {
-                        _projectRootElement.RemoveChild(propGroup);
+                        propGroup.RemoveChild(prop);
                     }
+                    else if (MSBuildUtilities.IsDebugTypeDefault(prop))
+                    {
+                        propGroup.RemoveChild(prop);
+                    }
+                    else if (MSBuildUtilities.IsOutputPathDefault(prop))
+                    {
+                        propGroup.RemoveChild(prop);
+                    }
+                    else if (MSBuildUtilities.IsPlatformTargetDefault(prop))
+                    {
+                        propGroup.RemoveChild(prop);
+                    }
+                }
+
+                if (propGroup.Properties.Count == 0)
+                {
+                    _projectRootElement.RemoveChild(propGroup);
                 }
             }
         }
 
         private void RemoveOrUpdateItems(string tfm)
         {
+            void UpdateBasedOnDiff(ImmutableArray<ItemsDiff> itemsDiff, ProjectItemGroupElement itemGroup, ProjectItemElement item)
+            {
+                var itemTypeDiff = itemsDiff.FirstOrDefault(id => id.ItemType.Equals(item.ItemType, StringComparison.OrdinalIgnoreCase));
+                if (!itemTypeDiff.DefaultedItems.IsDefault)
+                {
+                    var defaultedItems = itemTypeDiff.DefaultedItems.Select(i => i.EvaluatedInclude);
+                    if (defaultedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
+                }
+
+                if (!itemTypeDiff.ChangedItems.IsDefault)
+                {
+                    var changedItems = itemTypeDiff.ChangedItems.Select(i => i.EvaluatedInclude);
+                    if (changedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                    {
+                        var path = item.Include;
+                        item.Include = null;
+                        item.Update = path;
+                    }
+                }
+            }
+
             foreach (var itemGroup in _projectRootElement.ItemGroups)
             {
                 var configurationName = MSBuildUtilities.GetConfigurationName(itemGroup.Condition);
@@ -141,26 +179,7 @@ namespace ProjectSimplifier
                     }
                     else
                     {
-                        ItemsDiff itemTypeDiff = itemsDiff.FirstOrDefault(id => id.ItemType.Equals(item.ItemType, StringComparison.OrdinalIgnoreCase));
-                        if (!itemTypeDiff.DefaultedItems.IsDefault)
-                        {
-                            var defaultedItems = itemTypeDiff.DefaultedItems.Select(i => i.EvaluatedInclude);
-                            if (defaultedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
-                            {
-                                itemGroup.RemoveChild(item);
-                            }
-                        }
-
-                        if (!itemTypeDiff.ChangedItems.IsDefault)
-                        {
-                            var changedItems = itemTypeDiff.ChangedItems.Select(i => i.EvaluatedInclude);
-                            if (changedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
-                            {
-                                var path = item.Include;
-                                item.Include = null;
-                                item.Update = path;
-                            }
-                        }
+                        UpdateBasedOnDiff(itemsDiff, itemGroup, item);
                     }
                 }
 

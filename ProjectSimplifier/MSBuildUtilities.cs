@@ -137,8 +137,8 @@ namespace ProjectSimplifier
         internal static bool FrameworkHasAValueTuple(string tfm)
         {
             if (tfm is null
-                || tfm.ContainsIgnoreCase("netstandard", StringComparison.CurrentCultureIgnoreCase)
-                || tfm.ContainsIgnoreCase("netcore", StringComparison.CurrentCultureIgnoreCase))
+                || tfm.ContainsIgnoreCase(Facts.NetstandardPrelude, StringComparison.CurrentCultureIgnoreCase)
+                || tfm.ContainsIgnoreCase(Facts.NetcoreappPrelude, StringComparison.CurrentCultureIgnoreCase))
             {
                 return false;
             }
@@ -152,11 +152,11 @@ namespace ProjectSimplifier
         }
 
         internal static IEnumerable<ProjectItemElement> GetCandidateItemsForRemoval(ProjectItemGroupElement itemGroup) =>
-            itemGroup.Items.Where(item => item.ElementName.Equals("Reference", StringComparison.OrdinalIgnoreCase)
+            itemGroup.Items.Where(item => item.ElementName.Equals(Facts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase)
                                           || Facts.GlobbedItemTypes.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase));
 
         internal static IEnumerable<ProjectItemElement> GetReferences(ProjectItemGroupElement itemGroup) =>
-            itemGroup.Items.Where(item => item.ElementName.Equals("Reference", StringComparison.OrdinalIgnoreCase));
+            itemGroup.Items.Where(item => item.ElementName.Equals(Facts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase));
 
         internal static bool IsWPF(IProjectRootElement projectRoot)
         {
@@ -171,8 +171,8 @@ namespace ProjectSimplifier
         }
 
         internal static bool IsNotNetFramework(string tfm) => 
-            !tfm.ContainsIgnoreCase("netstandard", StringComparison.OrdinalIgnoreCase)
-            && !tfm.ContainsIgnoreCase("netcoreapp", StringComparison.OrdinalIgnoreCase);
+            !tfm.ContainsIgnoreCase(Facts.NetcoreappPrelude, StringComparison.OrdinalIgnoreCase)
+            && !tfm.ContainsIgnoreCase(Facts.NetstandardPrelude, StringComparison.OrdinalIgnoreCase);
 
 
         internal static bool DesktopReferencesNeedsRemoval(ProjectItemElement item) =>
@@ -180,7 +180,7 @@ namespace ProjectSimplifier
             || Facts.DesktopReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
 
         internal static bool IsExplicitValueTupleReferenceNeeded(ProjectItemElement item, string tfm) =>
-            item.Include.Equals("System.ValueTuple", StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm);
+            item.Include.Equals(Facts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm);
 
         /// <summary>
         /// Checks if the given item is a designer file that is not one of { Settings.Designer.cs, Resources.Designer.cs }.
@@ -191,6 +191,22 @@ namespace ProjectSimplifier
             item.Include.EndsWith(Facts.DesignerEndString, StringComparison.OrdinalIgnoreCase)
             && !item.Include.EndsWith(Facts.ResourcesDesignerFileName, StringComparison.OrdinalIgnoreCase)
             && !item.Include.EndsWith(Facts.SettingsDesignerFileName, StringComparison.OrdinalIgnoreCase);
+
+        internal static bool IsDefineConstantDefault(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(Facts.DefineConstantsName, StringComparison.OrdinalIgnoreCase)
+            && prop.Value.Split(';').All(constant => Facts.DefaultDefineConstants.Contains(constant, StringComparer.OrdinalIgnoreCase));
+
+        internal static bool IsDebugTypeDefault(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(Facts.DebugTypeName, StringComparison.OrdinalIgnoreCase)
+            && Facts.DefaultDebugTypes.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
+
+        internal static bool IsOutputPathDefault(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(Facts.OutputPathName, StringComparison.OrdinalIgnoreCase)
+            && Facts.DefaultOutputPaths.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
+
+        internal static bool IsPlatformTargetDefault(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(Facts.PlatformTargetName, StringComparison.OrdinalIgnoreCase)
+            && Facts.DefaultPlatformTargets.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Unquote string. It simply removes the starting and ending "'", and checks they are present before.

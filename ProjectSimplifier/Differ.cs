@@ -29,7 +29,7 @@ namespace ProjectSimplifier
             {
                 var originalEvaluatedProp = _project.GetProperty(propInFile);
                 var newEvaluatedProp = _sdkBaselineProject.GetProperty(propInFile);
-                if (newEvaluatedProp != null)
+                if (newEvaluatedProp is object)
                 {
                     if (!originalEvaluatedProp.EvaluatedValue.Equals(newEvaluatedProp.EvaluatedValue, StringComparison.OrdinalIgnoreCase))
                     {

@@ -15,7 +15,7 @@ namespace ProjectSimplifier
                 case Parsed<object> command:
                     var optionsValue = command.Value as Options;
                     var msbuildPath = HookAssemblyResolveForMSBuild(optionsValue);
-                    if (msbuildPath != null)
+                    if (msbuildPath is object)
                     {
                         return Run(optionsValue);
                     }

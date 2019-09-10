@@ -175,17 +175,17 @@ namespace ProjectSimplifier
             // If the original project had the TargetFramework property don't touch it during conversion.
             var propertiesInTheBaseline = ImmutableArray.Create("OutputType");
 
-            if (project.GetProperty("TargetFramework") != null)
+            if (project.GetProperty("TargetFramework") is object)
             {
                 propertiesInTheBaseline = propertiesInTheBaseline.Add("TargetFramework");
             }
 
-            if (!(project.GetProperty(Facts.UseWinFormsPropertyName) is null))
+            if (project.GetProperty(Facts.UseWinFormsPropertyName) is object)
             {
                 propertiesInTheBaseline = propertiesInTheBaseline.Add(Facts.UseWinFormsPropertyName);
             }
 
-            if (!(project.GetProperty(Facts.UseWPFPropertyName) is null))
+            if (project.GetProperty(Facts.UseWPFPropertyName) is object)
             {
                 propertiesInTheBaseline = propertiesInTheBaseline.Add(Facts.UseWPFPropertyName);
             }

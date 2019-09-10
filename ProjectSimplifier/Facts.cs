@@ -80,7 +80,27 @@ namespace ProjectSimplifier
             "mscorlib",
 
             // Microsoft.CSharp is already shipped as a part of the .NET SDK
-            "Microsoft.CSharp"
+            "Microsoft.CSharp",
+
+            // App.config is now deprecated, user needs to use to appsettings.json
+            "App.config",
+
+            // packages.config is now deprecated, user needs to move to PackageReference
+            "packages.config",
+
+            // System.Net.Http is a part of the .NET SDK now
+            "System.Net.Http"
+        );
+
+        public static ImmutableArray<string> ItemsWithPackagesThatWorkOnNETCore => ImmutableArray.Create(
+            "System.Data.DataSetExtensions"
+        );
+
+        /// <summary>
+        /// For use with conversion of WinForms and WPF projects only.
+        /// </summary>
+        public static ImmutableArray<string> DesktopReferencesThatNeedRemoval => ImmutableArray.Create(
+            "System.Deployment"
         );
 
         public static ImmutableArray<string> KnownWPFReferences => ImmutableArray.Create(
@@ -104,5 +124,6 @@ namespace ProjectSimplifier
         public const string DefaultSDKAttribute = "Microsoft.NET.Sdk";
         public const string UseWPFPropertyName = "UseWPF";
         public const string UseWinFormsPropertyName = "UseWindowsForms";
+        public const string NETCoreDesktopTFM = "netcoreapp3.0";
     }
 }

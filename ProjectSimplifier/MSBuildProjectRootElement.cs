@@ -7,6 +7,7 @@ namespace ProjectSimplifier
     {
         string ToolsVersion { get; set; }
         string Sdk { get; set; }
+        string DefaultTargets { get; set; }
         ICollection<ProjectImportElement> Imports { get; }
         ICollection<ProjectImportGroupElement> ImportGroups { get; }
         ICollection<ProjectPropertyGroupElement> PropertyGroups { get; }
@@ -33,6 +34,7 @@ namespace ProjectSimplifier
 
         public string ToolsVersion { get => _rootElement.ToolsVersion; set => _rootElement.ToolsVersion = value; }
         public string Sdk { get => _rootElement.Sdk; set => _rootElement.Sdk = value; }
+        public string DefaultTargets { get => _rootElement.DefaultTargets; set => _rootElement.DefaultTargets = value; }
         public ICollection<ProjectImportElement> Imports => _rootElement.Imports;
         public ICollection<ProjectImportGroupElement> ImportGroups => _rootElement.ImportGroups;
         public ICollection<ProjectPropertyGroupElement> PropertyGroups => _rootElement.PropertyGroups;

@@ -36,7 +36,8 @@ namespace ProjectSimplifier
             RemoveUnnecessaryReferences(tfm);
             AddItemRemovesForIntroducedItems();
 
-            _projectRootElement.ToolsVersion = null;
+            ModifyProjectElement();
+
             _projectRootElement.Save(outputProjectPath);
             Console.WriteLine($"Successfully converted project to {outputProjectPath}");
         }
@@ -152,9 +153,15 @@ namespace ProjectSimplifier
 
         private void RemoveUnnecessaryReferences(string tfm)
         {
+            bool DesktopItemNeedsRemoval(ProjectItemElement item)
+            {
+                return Facts.ItemsWithPackagesThatWorkOnNETCore.Contains(item.Include, StringComparer.OrdinalIgnoreCase) ||
+                       Facts.DesktopReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
+            }
+
             foreach (var itemGroup in _projectRootElement.ItemGroups)
             {
-                foreach (var item in MSBuildUtilities.GetAssemblyReferences(itemGroup))
+                foreach (var item in MSBuildUtilities.GetApplicableItems(itemGroup))
                 {
                     if (Facts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
                     {
@@ -162,6 +169,13 @@ namespace ProjectSimplifier
                     }
 
                     if (item.Include.Equals("System.ValueTuple", StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
+
+                    // Desktop projects will only convert to .NET Core, so any item includes that have .NET Core equivalents will be removed.
+                    // Users will have to ensure those packages are also added if they cannot do so with a tool.
+                    if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && DesktopItemNeedsRemoval(item))
                     {
                         itemGroup.RemoveChild(item);
                     }
@@ -213,16 +227,23 @@ namespace ProjectSimplifier
 
             var targetFrameworkElement = _projectRootElement.CreatePropertyElement("TargetFramework");
 
-            var rawTFM = _sdkBaselineProject.Project.FirstConfiguredProject.GetProperty("TargetFramework").EvaluatedValue;
-
-            // This is pretty much never gonna happen, but it was cheap to write the code
-            if (!rawTFM.ContainsIgnoreCase("netstandard", StringComparison.OrdinalIgnoreCase) && !rawTFM.ContainsIgnoreCase("netcoreapp", StringComparison.OrdinalIgnoreCase))
+            if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop)
             {
-                targetFrameworkElement.Value = StripDecimals(rawTFM);
+                targetFrameworkElement.Value = Facts.NETCoreDesktopTFM;
             }
             else
             {
-                targetFrameworkElement.Value = rawTFM;
+                var rawTFM = _sdkBaselineProject.Project.FirstConfiguredProject.GetProperty("TargetFramework").EvaluatedValue;
+
+                // This is pretty much never gonna happen, but it was cheap to write the code
+                if (!rawTFM.ContainsIgnoreCase("netstandard", StringComparison.OrdinalIgnoreCase) && !rawTFM.ContainsIgnoreCase("netcoreapp", StringComparison.OrdinalIgnoreCase))
+                {
+                    targetFrameworkElement.Value = StripDecimals(rawTFM);
+                }
+                else
+                {
+                    targetFrameworkElement.Value = rawTFM;
+                }
             }
 
             propGroup.PrependChild(targetFrameworkElement);
@@ -253,6 +274,12 @@ namespace ProjectSimplifier
                 useWPF.Value = "true";
                 propGroup.PrependChild(useWPF);
             }
+        }
+
+        private void ModifyProjectElement()
+        {
+            _projectRootElement.ToolsVersion = null;
+            _projectRootElement.DefaultTargets = null;
         }
 
         private ProjectPropertyGroupElement GetOrCreateEmptyPropertyGroup()

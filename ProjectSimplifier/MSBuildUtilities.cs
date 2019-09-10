@@ -151,19 +151,20 @@ namespace ProjectSimplifier
             return tfm.StartsWith(Facts.LowestFrameworkVersionWithSystemValueTuple);
         }
 
-        internal static IEnumerable<ProjectItemElement> GetAssemblyReferences(ProjectItemGroupElement itemGroup) =>
-            itemGroup.Items.Where(item => item.ElementName.Equals("Reference", StringComparison.OrdinalIgnoreCase));
-
+        internal static IEnumerable<ProjectItemElement> GetApplicableItems(ProjectItemGroupElement itemGroup) =>
+            itemGroup.Items.Where(item => item.ElementName.Equals("Reference", StringComparison.OrdinalIgnoreCase) ||
+                                          item.ElementName.Equals("None", StringComparison.OrdinalIgnoreCase) ||
+                                          item.ElementName.Equals("Content", StringComparison.OrdinalIgnoreCase));
 
         internal static bool IsWPF(IProjectRootElement projectRoot)
         {
-            var references = projectRoot.ItemGroups.SelectMany(GetAssemblyReferences)?.Select(elem => elem.Include);
+            var references = projectRoot.ItemGroups.SelectMany(GetApplicableItems)?.Select(elem => elem.Include);
             return Facts.KnownWPFReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
         internal static bool IsWinForms(IProjectRootElement projectRoot)
         {
-            var references = projectRoot.ItemGroups.SelectMany(GetAssemblyReferences)?.Select(elem => elem.Include);
+            var references = projectRoot.ItemGroups.SelectMany(GetApplicableItems)?.Select(elem => elem.Include);
             return Facts.KnownWinFormsReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 

@@ -32,8 +32,7 @@ namespace ProjectSimplifier
 
             AddTargetProjectProperties();
 
-            RemoveOrUpdateItems();
-            RemoveUnnecessaryReferences(tfm);
+            RemoveOrUpdateItems(tfm);
             AddItemRemovesForIntroducedItems();
 
             ModifyProjectElement();
@@ -113,7 +112,7 @@ namespace ProjectSimplifier
             }
         }
 
-        private void RemoveOrUpdateItems()
+        private void RemoveOrUpdateItems(string tfm)
         {
             foreach (var itemGroup in _projectRootElement.ItemGroups)
             {
@@ -122,24 +121,45 @@ namespace ProjectSimplifier
 
                 foreach (var item in itemGroup.Items)
                 {
-                    ItemsDiff itemTypeDiff = itemsDiff.FirstOrDefault(id => id.ItemType.Equals(item.ItemType, StringComparison.OrdinalIgnoreCase));
-                    if (!itemTypeDiff.DefaultedItems.IsDefault)
+                    if (Facts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
                     {
-                        var defaultedItems = itemTypeDiff.DefaultedItems.Select(i => i.EvaluatedInclude);
-                        if (defaultedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
-                        {
-                            itemGroup.RemoveChild(item);
-                        }
+                        itemGroup.RemoveChild(item);
                     }
-
-                    if (!itemTypeDiff.ChangedItems.IsDefault)
+                    else if (MSBuildUtilities.IsWinFormsUIDesignerFile(item))
                     {
-                        var changedItems = itemTypeDiff.ChangedItems.Select(i => i.EvaluatedInclude);
-                        if (changedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                        itemGroup.RemoveChild(item);
+                    }
+                    else if (MSBuildUtilities.IsExplicitValueTupleReferenceNeeded(item, tfm))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
+                    else if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && MSBuildUtilities.DesktopReferencesNeedsRemoval(item))
+                    {
+                        // Desktop projects will only convert to .NET Core, so any item includes that have .NET Core equivalents will be removed.
+                        // Users will have to ensure those packages are also added if they cannot do so with a tool.
+                        itemGroup.RemoveChild(item);
+                    }
+                    else
+                    {
+                        ItemsDiff itemTypeDiff = itemsDiff.FirstOrDefault(id => id.ItemType.Equals(item.ItemType, StringComparison.OrdinalIgnoreCase));
+                        if (!itemTypeDiff.DefaultedItems.IsDefault)
                         {
-                            var path = item.Include;
-                            item.Include = null;
-                            item.Update = path;
+                            var defaultedItems = itemTypeDiff.DefaultedItems.Select(i => i.EvaluatedInclude);
+                            if (defaultedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                            {
+                                itemGroup.RemoveChild(item);
+                            }
+                        }
+
+                        if (!itemTypeDiff.ChangedItems.IsDefault)
+                        {
+                            var changedItems = itemTypeDiff.ChangedItems.Select(i => i.EvaluatedInclude);
+                            if (changedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                            {
+                                var path = item.Include;
+                                item.Include = null;
+                                item.Update = path;
+                            }
                         }
                     }
                 }
@@ -147,43 +167,6 @@ namespace ProjectSimplifier
                 if (itemGroup.Items.Count == 0)
                 {
                     _projectRootElement.RemoveChild(itemGroup);
-                }
-            }
-        }
-
-        private void RemoveUnnecessaryReferences(string tfm)
-        {
-            bool DesktopItemNeedsRemoval(ProjectItemElement item)
-            {
-                return Facts.ItemsWithPackagesThatWorkOnNETCore.Contains(item.Include, StringComparer.OrdinalIgnoreCase) ||
-                       Facts.DesktopReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
-            }
-
-            foreach (var itemGroup in _projectRootElement.ItemGroups)
-            {
-                foreach (var item in MSBuildUtilities.GetApplicableItems(itemGroup))
-                {
-                    if (Facts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
-                    {
-                        itemGroup.RemoveChild(item);
-                    }
-
-                    if (item.Include.Equals("System.ValueTuple", StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm))
-                    {
-                        itemGroup.RemoveChild(item);
-                    }
-
-                    // Desktop projects will only convert to .NET Core, so any item includes that have .NET Core equivalents will be removed.
-                    // Users will have to ensure those packages are also added if they cannot do so with a tool.
-                    if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && DesktopItemNeedsRemoval(item))
-                    {
-                        itemGroup.RemoveChild(item);
-                    }
-
-                    if (itemGroup.Count == 0)
-                    {
-                        _projectRootElement.RemoveChild(itemGroup);
-                    }
                 }
             }
         }
@@ -236,14 +219,7 @@ namespace ProjectSimplifier
                 var rawTFM = _sdkBaselineProject.Project.FirstConfiguredProject.GetProperty("TargetFramework").EvaluatedValue;
 
                 // This is pretty much never gonna happen, but it was cheap to write the code
-                if (!rawTFM.ContainsIgnoreCase("netstandard", StringComparison.OrdinalIgnoreCase) && !rawTFM.ContainsIgnoreCase("netcoreapp", StringComparison.OrdinalIgnoreCase))
-                {
-                    targetFrameworkElement.Value = StripDecimals(rawTFM);
-                }
-                else
-                {
-                    targetFrameworkElement.Value = rawTFM;
-                }
+                targetFrameworkElement.Value = MSBuildUtilities.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
             }
 
             propGroup.PrependChild(targetFrameworkElement);

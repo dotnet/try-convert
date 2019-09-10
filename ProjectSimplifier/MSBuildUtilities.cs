@@ -151,27 +151,51 @@ namespace ProjectSimplifier
             return tfm.StartsWith(Facts.LowestFrameworkVersionWithSystemValueTuple);
         }
 
-        internal static IEnumerable<ProjectItemElement> GetApplicableItems(ProjectItemGroupElement itemGroup) =>
-            itemGroup.Items.Where(item => item.ElementName.Equals("Reference", StringComparison.OrdinalIgnoreCase) ||
-                                          item.ElementName.Equals("None", StringComparison.OrdinalIgnoreCase) ||
-                                          item.ElementName.Equals("Content", StringComparison.OrdinalIgnoreCase));
+        internal static IEnumerable<ProjectItemElement> GetCandidateItemsForRemoval(ProjectItemGroupElement itemGroup) =>
+            itemGroup.Items.Where(item => item.ElementName.Equals("Reference", StringComparison.OrdinalIgnoreCase)
+                                          || Facts.GlobbedItemTypes.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase));
+
+        internal static IEnumerable<ProjectItemElement> GetReferences(ProjectItemGroupElement itemGroup) =>
+            itemGroup.Items.Where(item => item.ElementName.Equals("Reference", StringComparison.OrdinalIgnoreCase));
 
         internal static bool IsWPF(IProjectRootElement projectRoot)
         {
-            var references = projectRoot.ItemGroups.SelectMany(GetApplicableItems)?.Select(elem => elem.Include);
+            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
             return Facts.KnownWPFReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
         internal static bool IsWinForms(IProjectRootElement projectRoot)
         {
-            var references = projectRoot.ItemGroups.SelectMany(GetApplicableItems)?.Select(elem => elem.Include);
+            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
             return Facts.KnownWinFormsReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
+
+        internal static bool IsNotNetFramework(string tfm) => 
+            !tfm.ContainsIgnoreCase("netstandard", StringComparison.OrdinalIgnoreCase)
+            && !tfm.ContainsIgnoreCase("netcoreapp", StringComparison.OrdinalIgnoreCase);
+
+
+        internal static bool DesktopReferencesNeedsRemoval(ProjectItemElement item) =>
+            Facts.ItemsWithPackagesThatWorkOnNETCore.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
+            || Facts.DesktopReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
+
+        internal static bool IsExplicitValueTupleReferenceNeeded(ProjectItemElement item, string tfm) =>
+            item.Include.Equals("System.ValueTuple", StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm);
+
+        /// <summary>
+        /// Checks if the given item is a designer file that is not one of { Settings.Designer.cs, Resources.Designer.cs }.
+        /// </summary>
+        /// <param name="item">The ProjectItemElement that might be a designer file.</param>
+        /// <returns>true if the given ProjectItemElement is a designer file that isn't a settings or resources file.</returns>
+        internal static bool IsWinFormsUIDesignerFile(ProjectItemElement item) =>
+            item.Include.EndsWith(Facts.DesignerEndString, StringComparison.OrdinalIgnoreCase)
+            && !item.Include.EndsWith(Facts.ResourcesDesignerFileName, StringComparison.OrdinalIgnoreCase)
+            && !item.Include.EndsWith(Facts.SettingsDesignerFileName, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Unquote string. It simply removes the starting and ending "'", and checks they are present before.
         /// </summary>
-        /// <param name="s">string tu unquote </param>
+        /// <param name="s">string to unquote </param>
         /// <returns>true if string is successfuly unquoted</returns>
         private static bool UnquoteString(ref string s)
         {

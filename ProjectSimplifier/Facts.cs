@@ -125,5 +125,8 @@ namespace ProjectSimplifier
         public const string UseWPFPropertyName = "UseWPF";
         public const string UseWinFormsPropertyName = "UseWindowsForms";
         public const string NETCoreDesktopTFM = "netcoreapp3.0";
+        public const string DesignerEndString = ".Designer.cs";
+        public const string SettingsDesignerFileName = "Settings.Designer.cs";
+        public const string ResourcesDesignerFileName = "Resources.Designer.cs";
     }
 }

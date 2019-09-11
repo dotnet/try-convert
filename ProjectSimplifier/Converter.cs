@@ -171,6 +171,14 @@ namespace ProjectSimplifier
                     {
                         itemGroup.RemoveChild(item);
                     }
+                    else if (MSBuildUtilities.IsLegacyXamlDesignerItem(item))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
+                    else if (MSBuildUtilities.IsDependentUponXamlDesignerItem(item))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
                     else if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && MSBuildUtilities.DesktopReferencesNeedsRemoval(item))
                     {
                         // Desktop projects will only convert to .NET Core, so any item includes that have .NET Core equivalents will be removed.

@@ -42,7 +42,9 @@ namespace ProjectSimplifier
         public static ImmutableArray<string> GlobbedItemTypes => ImmutableArray.Create(
             "Compile",
             "EmbeddedResource",
-            "None"
+            "None",
+            "Page",
+            "ApplicationDefinition"
             );
 
         public static ImmutableArray<string> UnnecessaryProperties => ImmutableArray.Create(
@@ -138,15 +140,20 @@ namespace ProjectSimplifier
         public const string UseWinFormsPropertyName = "UseWindowsForms";
         public const string NETCoreDesktopTFM = "netcoreapp3.0";
         public const string DesignerEndString = ".Designer.cs";
+        public const string XamlFileExtension = ".xaml";
         public const string SettingsDesignerFileName = "Settings.Designer.cs";
         public const string ResourcesDesignerFileName = "Resources.Designer.cs";
         public const string SystemValueTupleName = "System.ValueTuple";
         public const string DefineConstantsName = "DefineConstants";
         public const string OutputPathName = "OutputPath";
         public const string DebugTypeName = "DebugType";
+        public const string SubTypeName = "SubType";
+        public const string DependentUponName = "DependentUpon";
         public const string PlatformTargetName = "PlatformTarget";
         public const string NetcoreappPrelude = "netcoreapp";
         public const string NetstandardPrelude = "netstandard";
         public const string MSBuildReferenceName = "Reference";
+        public const string DesignerSubType = "Designer";
+        public const string CodeSubType = "Code";
     }
 }

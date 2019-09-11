@@ -208,6 +208,15 @@ namespace ProjectSimplifier
             prop.ElementName.Equals(Facts.PlatformTargetName, StringComparison.OrdinalIgnoreCase)
             && Facts.DefaultPlatformTargets.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
 
+        internal static bool IsLegacyXamlDesignerItem(ProjectItemElement item) =>
+            item.Include.EndsWith(Facts.XamlFileExtension, StringComparison.OrdinalIgnoreCase)
+            && item.Metadata.Any(pme => pme.Name.Equals(Facts.SubTypeName, StringComparison.OrdinalIgnoreCase)
+                                       && pme.Value.Equals(Facts.DesignerSubType, StringComparison.OrdinalIgnoreCase));
+
+        internal static bool IsDependentUponXamlDesignerItem(ProjectItemElement item) =>
+            item.Metadata.Any(pme => pme.Name.Equals(Facts.SubTypeName, StringComparison.OrdinalIgnoreCase) && pme.Value.Equals(Facts.CodeSubType, StringComparison.OrdinalIgnoreCase))
+            && item.Metadata.Any(pme => pme.Name.Equals(Facts.DependentUponName, StringComparison.OrdinalIgnoreCase) && pme.Value.EndsWith(Facts.XamlFileExtension, StringComparison.OrdinalIgnoreCase));
+
         /// <summary>
         /// Unquote string. It simply removes the starting and ending "'", and checks they are present before.
         /// </summary>

@@ -151,6 +151,8 @@ namespace ProjectSimplifier
             return tfm.StartsWith(Facts.LowestFrameworkVersionWithSystemValueTuple);
         }
 
+        internal static bool IsPackageReference(ProjectItemElement element) => element.ElementName.Equals(Facts.PackageReferenceItemType, StringComparison.OrdinalIgnoreCase);
+
         internal static IEnumerable<ProjectItemElement> GetCandidateItemsForRemoval(ProjectItemGroupElement itemGroup) =>
             itemGroup.Items.Where(item => item.ElementName.Equals(Facts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase)
                                           || Facts.GlobbedItemTypes.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase));
@@ -216,6 +218,12 @@ namespace ProjectSimplifier
         internal static bool IsDependentUponXamlDesignerItem(ProjectItemElement item) =>
             item.Metadata.Any(pme => pme.Name.Equals(Facts.SubTypeName, StringComparison.OrdinalIgnoreCase) && pme.Value.Equals(Facts.CodeSubType, StringComparison.OrdinalIgnoreCase))
             && item.Metadata.Any(pme => pme.Name.Equals(Facts.DependentUponName, StringComparison.OrdinalIgnoreCase) && pme.Value.EndsWith(Facts.XamlFileExtension, StringComparison.OrdinalIgnoreCase));
+
+        internal static ProjectItemGroupElement GetPackagesConfigItemGroup(IProjectRootElement root) =>
+            root.ItemGroups.Single(pige => pige.Items.Any(pe => pe.Include.Equals(Facts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));
+
+        internal static ProjectItemElement GetPackagesConfigItem(ProjectItemGroupElement packagesConfigItemGroup) =>
+            packagesConfigItemGroup.Items.Single(pe => pe.Include.Equals(Facts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
         /// Unquote string. It simply removes the starting and ending "'", and checks they are present before.

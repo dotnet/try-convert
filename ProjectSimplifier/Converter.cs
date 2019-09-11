@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using Microsoft.Build.Construction;
+using Microsoft.Build.Execution;
+using PackageConversion;
 
 namespace ProjectSimplifier
 {
@@ -11,12 +14,14 @@ namespace ProjectSimplifier
         private readonly BaselineProject _sdkBaselineProject;
         private readonly IProjectRootElement _projectRootElement;
         private readonly ImmutableDictionary<string, Differ> _differs;
+        private readonly DirectoryInfo _projectRootDirectory;
 
-        public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, IProjectRootElement projectRootElement)
+        public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, IProjectRootElement projectRootElement, DirectoryInfo projectRootDirectory)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _sdkBaselineProject = sdkBaselineProject;
             _projectRootElement = projectRootElement ?? throw new ArgumentNullException(nameof(projectRootElement));
+            _projectRootDirectory = projectRootDirectory;
             _differs = _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Item1, kvp => kvp.Item2);
         }
 
@@ -32,6 +37,7 @@ namespace ProjectSimplifier
 
             AddTargetProjectProperties();
 
+            AddConvertedPackages(tfm);
             RemoveOrUpdateItems(tfm);
             AddItemRemovesForIntroducedItems();
 
@@ -157,13 +163,9 @@ namespace ProjectSimplifier
                 var configurationName = MSBuildUtilities.GetConfigurationName(itemGroup.Condition);
                 var itemsDiff = _differs[configurationName].GetItemsDiff();
 
-                foreach (var item in itemGroup.Items)
+                foreach (var item in itemGroup.Items.Where(item => !MSBuildUtilities.IsPackageReference(item)))
                 {
                     if (Facts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
-                    {
-                        itemGroup.RemoveChild(item);
-                    }
-                    else if (MSBuildUtilities.IsWinFormsUIDesignerFile(item))
                     {
                         itemGroup.RemoveChild(item);
                     }
@@ -175,7 +177,11 @@ namespace ProjectSimplifier
                     {
                         itemGroup.RemoveChild(item);
                     }
-                    else if (MSBuildUtilities.IsDependentUponXamlDesignerItem(item))
+                    else if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && MSBuildUtilities.IsDependentUponXamlDesignerItem(item))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
+                    else if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && MSBuildUtilities.IsWinFormsUIDesignerFile(item))
                     {
                         itemGroup.RemoveChild(item);
                     }
@@ -217,6 +223,26 @@ namespace ProjectSimplifier
                     item.Remove = introducedItem.EvaluatedInclude;
                 }
             }
+        }
+
+        private void AddConvertedPackages(string tfm)
+        {
+            var packagesConfigItemGroup = MSBuildUtilities.GetPackagesConfigItemGroup(_projectRootElement);
+            var packagesConfigItem = MSBuildUtilities.GetPackagesConfigItem(packagesConfigItemGroup);
+            var path = Path.Combine(_projectRootDirectory.FullName, packagesConfigItem.Include);
+            
+            var packageReferences = PackagesConfigConverter.Convert(path);
+            if (packageReferences is object && packageReferences.Any())
+            {
+                var groupForPackageRefs = _projectRootElement.AddItemGroup();
+                foreach (var pkgref in packageReferences)
+                {
+                    //TODO: var metadata = 
+                    var item = groupForPackageRefs.AddItem(Facts.PackageReferenceItemType, pkgref.ID);
+                }
+            }
+
+            packagesConfigItemGroup.RemoveChild(packagesConfigItem);
         }
 
         private string AddTargetFrameworkProperty()

@@ -67,7 +67,7 @@ namespace ProjectSimplifier
                         differ.GenerateReport(opt.DiffReportPath);
                         break;
                     case ConvertOptions opt:
-                        var converter = new Converter(projectLoader.Project, projectLoader.SdkBaselineProject, projectLoader.ProjectRootElement);
+                        var converter = new Converter(projectLoader.Project, projectLoader.SdkBaselineProject, projectLoader.ProjectRootElement, projectLoader.ProjectRootDirectory);
                         converter.GenerateProjectFile(opt.OutputProjectPath ?? opt.ProjectFilePath);
                         break;
                 }

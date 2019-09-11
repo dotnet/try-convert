@@ -12,6 +12,7 @@ namespace ProjectSimplifier
         public UnconfiguredProject Project { get; private set; }
         public BaselineProject SdkBaselineProject { get; private set; }
         public IProjectRootElement ProjectRootElement { get; private set; }
+        public DirectoryInfo ProjectRootDirectory { get; private set; }
 
         public void LoadProjects(Options options)
         {
@@ -37,6 +38,8 @@ namespace ProjectSimplifier
             SdkBaselineProject = CreateSdkBaselineProject(projectFilePath, Project.FirstConfiguredProject, globalProperties, configurations, targetProjectProperties);
             ProjectRootElement.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
             Console.WriteLine($"Successfully loaded sdk baseline of project.");
+
+            ProjectRootDirectory = Directory.GetParent(projectFilePath);
         }
 
         private ImmutableDictionary<string, ImmutableDictionary<string, string>> DetermineConfigurations(IProjectRootElement projectRootElement)

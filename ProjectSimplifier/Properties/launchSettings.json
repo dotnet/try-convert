@@ -6,7 +6,7 @@
     },
     "Convert": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"C:\\Users\\phcart\\source\\repos\\ConsoleApp127\\WinFormsFramework\\WinFormsFramework.csproj\""
+      "commandLineArgs": "convert \"C:\\Users\\phcart\\source\\repos\\ConsoleApp127\\FSharpConsole\\FSharpConsole.fsproj\""
     }
   }
 }

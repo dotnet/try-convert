@@ -1,5 +1,6 @@
 ﻿using Microsoft.Build.Construction;
 using Microsoft.Build.Framework;
+using PackageConversion;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -181,8 +182,10 @@ namespace ProjectSimplifier
             Facts.ItemsWithPackagesThatWorkOnNETCore.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
             || Facts.DesktopReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
 
+        internal static bool IsExplicitValueTupleReferenceNeeded(string tfm) => FrameworkHasAValueTuple(tfm);
+
         internal static bool IsExplicitValueTupleReferenceNeeded(ProjectItemElement item, string tfm) =>
-            item.Include.Equals(Facts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm);
+            item.Include.Equals(Facts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && FrameworkHasAValueTuple(tfm);
 
         /// <summary>
         /// Checks if the given item is a designer file that is not one of { Settings.Designer.cs, Resources.Designer.cs }.

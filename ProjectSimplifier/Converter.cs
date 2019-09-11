@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -237,8 +238,30 @@ namespace ProjectSimplifier
                 var groupForPackageRefs = _projectRootElement.AddItemGroup();
                 foreach (var pkgref in packageReferences)
                 {
-                    //TODO: var metadata = 
-                    var item = groupForPackageRefs.AddItem(Facts.PackageReferenceItemType, pkgref.ID);
+                    if (pkgref.ID.Equals(Facts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm))
+                    {
+                        continue;
+                    }
+
+                    if (Facts.UnnecessaryItemIncludes.Contains(pkgref.ID, StringComparer.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    // TODO: more metadata
+                    var metadata = new List<KeyValuePair<string, string>>()
+                    {
+                        new KeyValuePair<string, string>("Version", pkgref.Version)
+                    };
+
+                    // TODO: some way to make Version not explicitly metadata
+                    var item = groupForPackageRefs.AddItem(Facts.PackageReferenceItemType, pkgref.ID, metadata);
+                }
+
+                // If the only references we had are already in the SDK, we're done.
+                if (!groupForPackageRefs.Items.Any())
+                {
+                    _projectRootElement.RemoveChild(groupForPackageRefs);
                 }
             }
 

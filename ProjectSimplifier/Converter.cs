@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using Facts;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Execution;
 using PackageConversion;
@@ -255,7 +256,7 @@ namespace ProjectSimplifier
                     };
 
                     // TODO: some way to make Version not explicitly metadata
-                    var item = groupForPackageRefs.AddItem(Facts.PackageReferenceItemType, pkgref.ID, metadata);
+                    var item = groupForPackageRefs.AddItem(PackageFacts.PackageReferenceItemType, pkgref.ID, metadata);
                 }
 
                 // If the only references we had are already in the SDK, we're done.

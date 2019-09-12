@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PackageConversion
+﻿namespace PackageConversion
 {
     public class PackagesConfigPackage
     {
@@ -28,11 +26,6 @@ namespace PackageConversion
         /// Optional flag for use only in development; the package will not be included when a consuming package is created.
         /// </summary>
         public bool DevelopmentDependency { get; set; } = false;
-
-        /// <summary>
-        /// If a version has "-preview" in its version string or not.
-        /// </summary>
-        public bool IsPreview { get; set; }
     }
 
     public class PackageReferencePackage
@@ -57,18 +50,12 @@ namespace PackageConversion
         /// </summary>
         public bool DevelopmentDependency { get; set; } = false;
 
-        /// <summary>
-        /// If a version has "-preview" in its version string or not.
-        /// </summary>
-        public bool IsPreview { get; set; }
-
         public PackageReferencePackage(PackagesConfigPackage pcp)
         {
             ID = pcp.ID;
             Version = string.IsNullOrWhiteSpace(pcp.AllowedVersions) ? pcp.Version : pcp.AllowedVersions;
             TargetFramework = pcp.TargetFramework;
             DevelopmentDependency = pcp.DevelopmentDependency;
-            IsPreview = pcp.IsPreview;
         }
     }
 }

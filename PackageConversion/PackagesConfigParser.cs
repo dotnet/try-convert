@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Facts;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -44,30 +45,31 @@ namespace PackageConversion
                 new PackagesConfigPackage
                 {
                     // Required
-                    ID = element.Attribute("id").Value,
+                    ID = element.Attribute(PackageFacts.PackageReferenceIDName).Value,
 
                     // Required
-                    Version = element.Attribute("version").Value,
+                    Version = element.Attribute(PackageFacts.PackageReferenceVersionName).Value,
 
                     // The rest are optional
                     TargetFramework = element.Attribute("targetFramework") is null ? string.Empty : element.Attribute("targetFramework").Value,
                     AllowedVersions = element.Attribute("allowedVersions") is null ? string.Empty : element.Attribute("allowedVersions").Value,
                     DevelopmentDependency = element.Attribute("allowedVersions") is null ? false : bool.Parse(element.Attribute("developmentDependency").Value),
-                    IsPreview = element.Attribute("version").Value.EndsWith("-preview")
                 };
 
+            string VersionWithoutSuffix(string nugetVersion) => nugetVersion.Split('-').First();
+
             bool ValidPackageNode(XElement pkgNode) =>
-                pkgNode.Element("id") is object
-                && !string.IsNullOrWhiteSpace(pkgNode.Element("id").Value)
-                && pkgNode.Element("version") is object
-                && string.IsNullOrWhiteSpace(pkgNode.Element("version").Value);
+                pkgNode.Attribute(PackageFacts.PackageReferenceIDName) is object
+                && !string.IsNullOrWhiteSpace(pkgNode.Attribute(PackageFacts.PackageReferenceIDName).Value)
+                && pkgNode.Attribute(PackageFacts.PackageReferenceVersionName) is object
+                && Version.TryParse(VersionWithoutSuffix(pkgNode.Attribute(PackageFacts.PackageReferenceVersionName).Value), out var version);
 
             var packagesNode =
                 from nd in doc.Nodes()
                 where nd.NodeType == XmlNodeType.Element
                 select nd as XElement;
 
-            if (packagesNode is null || !packagesNode.Any(node => node.Name == "packages"))
+            if (packagesNode is null || !packagesNode.Any(node => node.Name.LocalName.Equals(PackageFacts.PackageReferencePackagesNodeName)))
             {
                 throw new PackagesConfigHasNoPackagesException("Parsed XML document has no '<packages>' element.");
             }
@@ -79,7 +81,7 @@ namespace PackageConversion
 
             if (!packages.All(ValidPackageNode))
             {
-                throw new PackagesConfigHasInvalidPackageNodesException("Not all packages have a valid 'id' or 'version' field.");
+                throw new PackagesConfigHasInvalidPackageNodesException("Not all packages have a valid 'id' and 'version' field.");
             }
 
             return packages.Select(ParsePackageConfig);

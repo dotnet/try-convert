@@ -155,7 +155,5 @@ namespace ProjectSimplifier
         public const string MSBuildReferenceName = "Reference";
         public const string DesignerSubType = "Designer";
         public const string CodeSubType = "Code";
-        public const string PackagesConfigIncludeName = "packages.config";
-        public const string PackageReferenceItemType = "PackageReference";
     }
 }

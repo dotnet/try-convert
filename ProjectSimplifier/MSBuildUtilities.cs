@@ -1,4 +1,5 @@
-﻿using Microsoft.Build.Construction;
+﻿using Facts;
+using Microsoft.Build.Construction;
 using Microsoft.Build.Framework;
 using PackageConversion;
 using System;
@@ -152,7 +153,7 @@ namespace ProjectSimplifier
             return tfm.StartsWith(Facts.LowestFrameworkVersionWithSystemValueTuple);
         }
 
-        internal static bool IsPackageReference(ProjectItemElement element) => element.ElementName.Equals(Facts.PackageReferenceItemType, StringComparison.OrdinalIgnoreCase);
+        internal static bool IsPackageReference(ProjectItemElement element) => element.ElementName.Equals(PackageFacts.PackageReferenceItemType, StringComparison.OrdinalIgnoreCase);
 
         internal static IEnumerable<ProjectItemElement> GetCandidateItemsForRemoval(ProjectItemGroupElement itemGroup) =>
             itemGroup.Items.Where(item => item.ElementName.Equals(Facts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase)
@@ -225,10 +226,10 @@ namespace ProjectSimplifier
                                         && pme.Value.EndsWith(Facts.XamlFileExtension, StringComparison.OrdinalIgnoreCase));
 
         internal static ProjectItemGroupElement GetPackagesConfigItemGroup(IProjectRootElement root) =>
-            root.ItemGroups.Single(pige => pige.Items.Any(pe => pe.Include.Equals(Facts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));
+            root.ItemGroups.Single(pige => pige.Items.Any(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));
 
         internal static ProjectItemElement GetPackagesConfigItem(ProjectItemGroupElement packagesConfigItemGroup) =>
-            packagesConfigItemGroup.Items.Single(pe => pe.Include.Equals(Facts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase));
+            packagesConfigItemGroup.Items.Single(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
         /// Unquote string. It simply removes the starting and ending "'", and checks they are present before.

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Facts;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -62,7 +63,7 @@ namespace ProjectSimplifier
                 }
                 else
                 {
-                    var netstandardVersion = Facts.PCLToNetStandardVersionMapping[profile];
+                    var netstandardVersion = MSBuildFacts.PCLToNetStandardVersionMapping[profile];
                     tf += netstandardVersion;
                 }
             }

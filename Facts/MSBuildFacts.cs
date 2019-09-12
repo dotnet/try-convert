@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace ProjectSimplifier
+namespace Facts
 {
-    internal static class Facts
+    /// <summary>
+    /// A bunch of values regarding MSBuild project files.
+    /// </summary>
+    public static class MSBuildFacts
     {
         /// <summary>
         /// Props files which are known to be imported in standard projects created from templates that can be converted to use the SDK
@@ -110,39 +113,9 @@ namespace ProjectSimplifier
             "System.Data.DataSetExtensions"
         );
 
-        /// <summary>
-        /// For use with conversion of WinForms and WPF projects only.
-        /// </summary>
-        public static ImmutableArray<string> DesktopReferencesThatNeedRemoval => ImmutableArray.Create(
-            "System.Deployment"
-        );
-
-        public static ImmutableArray<string> KnownWPFReferences => ImmutableArray.Create(
-            "System.Xaml",
-            "WindowsBase",
-            "PresentationCore",
-            "PresentationFramework"
-        );
-
-        public static ImmutableArray<string> KnownWinFormsReferences => ImmutableArray.Create(
-            "System.Windows.Forms",
-            "System.Deployment",
-            "System.Drawing"
-        );
-
         public const string LowestFrameworkVersionWithSystemValueTuple = "net47";
         public const string SharedProjectsImportLabel = "Shared";
-        public const string FSharpTargetsPathVariableName = @"$(FSharpTargetsPath)";
-        public const string FSharpTargetsPath = @"$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets";
-        public const string WinSDKAttribute = "Microsoft.NET.Sdk.WindowsDesktop";
-        public const string DefaultSDKAttribute = "Microsoft.NET.Sdk";
-        public const string UseWPFPropertyName = "UseWPF";
-        public const string UseWinFormsPropertyName = "UseWindowsForms";
         public const string NETCoreDesktopTFM = "netcoreapp3.0";
-        public const string DesignerEndString = ".Designer.cs";
-        public const string XamlFileExtension = ".xaml";
-        public const string SettingsDesignerFileName = "Settings.Designer.cs";
-        public const string ResourcesDesignerFileName = "Resources.Designer.cs";
         public const string SystemValueTupleName = "System.ValueTuple";
         public const string DefineConstantsName = "DefineConstants";
         public const string OutputPathName = "OutputPath";

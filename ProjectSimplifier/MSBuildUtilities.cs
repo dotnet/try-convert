@@ -1,7 +1,5 @@
 ﻿using Facts;
 using Microsoft.Build.Construction;
-using Microsoft.Build.Framework;
-using PackageConversion;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -139,8 +137,8 @@ namespace ProjectSimplifier
         internal static bool FrameworkHasAValueTuple(string tfm)
         {
             if (tfm is null
-                || tfm.ContainsIgnoreCase(Facts.NetstandardPrelude, StringComparison.CurrentCultureIgnoreCase)
-                || tfm.ContainsIgnoreCase(Facts.NetcoreappPrelude, StringComparison.CurrentCultureIgnoreCase))
+                || tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetstandardPrelude, StringComparison.CurrentCultureIgnoreCase)
+                || tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetcoreappPrelude, StringComparison.CurrentCultureIgnoreCase))
             {
                 return false;
             }
@@ -150,43 +148,43 @@ namespace ProjectSimplifier
                 return false;
             }
 
-            return tfm.StartsWith(Facts.LowestFrameworkVersionWithSystemValueTuple);
+            return tfm.StartsWith(Facts.MSBuildFacts.LowestFrameworkVersionWithSystemValueTuple);
         }
 
         internal static bool IsPackageReference(ProjectItemElement element) => element.ElementName.Equals(PackageFacts.PackageReferenceItemType, StringComparison.OrdinalIgnoreCase);
 
         internal static IEnumerable<ProjectItemElement> GetCandidateItemsForRemoval(ProjectItemGroupElement itemGroup) =>
-            itemGroup.Items.Where(item => item.ElementName.Equals(Facts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase)
-                                          || Facts.GlobbedItemTypes.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase));
+            itemGroup.Items.Where(item => item.ElementName.Equals(Facts.MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase)
+                                          || Facts.MSBuildFacts.GlobbedItemTypes.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase));
 
         internal static IEnumerable<ProjectItemElement> GetReferences(ProjectItemGroupElement itemGroup) =>
-            itemGroup.Items.Where(item => item.ElementName.Equals(Facts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase));
+            itemGroup.Items.Where(item => item.ElementName.Equals(Facts.MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase));
 
         internal static bool IsWPF(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
-            return Facts.KnownWPFReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            return DesktopFacts.KnownWPFReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
         internal static bool IsWinForms(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
-            return Facts.KnownWinFormsReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            return DesktopFacts.KnownWinFormsReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
         internal static bool IsNotNetFramework(string tfm) => 
-            !tfm.ContainsIgnoreCase(Facts.NetcoreappPrelude, StringComparison.OrdinalIgnoreCase)
-            && !tfm.ContainsIgnoreCase(Facts.NetstandardPrelude, StringComparison.OrdinalIgnoreCase);
+            !tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetcoreappPrelude, StringComparison.OrdinalIgnoreCase)
+            && !tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetstandardPrelude, StringComparison.OrdinalIgnoreCase);
 
 
         internal static bool DesktopReferencesNeedsRemoval(ProjectItemElement item) =>
-            Facts.ItemsWithPackagesThatWorkOnNETCore.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
-            || Facts.DesktopReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
+            Facts.MSBuildFacts.ItemsWithPackagesThatWorkOnNETCore.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
+            || DesktopFacts.ReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
 
         internal static bool IsExplicitValueTupleReferenceNeeded(string tfm) => FrameworkHasAValueTuple(tfm);
 
         internal static bool IsExplicitValueTupleReferenceNeeded(ProjectItemElement item, string tfm) =>
-            item.Include.Equals(Facts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && FrameworkHasAValueTuple(tfm);
+            item.Include.Equals(Facts.MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && FrameworkHasAValueTuple(tfm);
 
         /// <summary>
         /// Checks if the given item is a designer file that is not one of { Settings.Designer.cs, Resources.Designer.cs }.
@@ -194,36 +192,36 @@ namespace ProjectSimplifier
         /// <param name="item">The ProjectItemElement that might be a designer file.</param>
         /// <returns>true if the given ProjectItemElement is a designer file that isn't a settings or resources file.</returns>
         internal static bool IsWinFormsUIDesignerFile(ProjectItemElement item) =>
-            item.Include.EndsWith(Facts.DesignerEndString, StringComparison.OrdinalIgnoreCase)
-            && !item.Include.EndsWith(Facts.ResourcesDesignerFileName, StringComparison.OrdinalIgnoreCase)
-            && !item.Include.EndsWith(Facts.SettingsDesignerFileName, StringComparison.OrdinalIgnoreCase);
+            item.Include.EndsWith(DesktopFacts.DesignerEndString, StringComparison.OrdinalIgnoreCase)
+            && !item.Include.EndsWith(DesktopFacts.ResourcesDesignerFileName, StringComparison.OrdinalIgnoreCase)
+            && !item.Include.EndsWith(DesktopFacts.SettingsDesignerFileName, StringComparison.OrdinalIgnoreCase);
 
         internal static bool IsDefineConstantDefault(ProjectPropertyElement prop) =>
-            prop.ElementName.Equals(Facts.DefineConstantsName, StringComparison.OrdinalIgnoreCase)
-            && prop.Value.Split(';').All(constant => Facts.DefaultDefineConstants.Contains(constant, StringComparer.OrdinalIgnoreCase));
+            prop.ElementName.Equals(Facts.MSBuildFacts.DefineConstantsName, StringComparison.OrdinalIgnoreCase)
+            && prop.Value.Split(';').All(constant => Facts.MSBuildFacts.DefaultDefineConstants.Contains(constant, StringComparer.OrdinalIgnoreCase));
 
         internal static bool IsDebugTypeDefault(ProjectPropertyElement prop) =>
-            prop.ElementName.Equals(Facts.DebugTypeName, StringComparison.OrdinalIgnoreCase)
-            && Facts.DefaultDebugTypes.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
+            prop.ElementName.Equals(Facts.MSBuildFacts.DebugTypeName, StringComparison.OrdinalIgnoreCase)
+            && Facts.MSBuildFacts.DefaultDebugTypes.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
 
         internal static bool IsOutputPathDefault(ProjectPropertyElement prop) =>
-            prop.ElementName.Equals(Facts.OutputPathName, StringComparison.OrdinalIgnoreCase)
-            && Facts.DefaultOutputPaths.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
+            prop.ElementName.Equals(Facts.MSBuildFacts.OutputPathName, StringComparison.OrdinalIgnoreCase)
+            && Facts.MSBuildFacts.DefaultOutputPaths.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
 
         internal static bool IsPlatformTargetDefault(ProjectPropertyElement prop) =>
-            prop.ElementName.Equals(Facts.PlatformTargetName, StringComparison.OrdinalIgnoreCase)
-            && Facts.DefaultPlatformTargets.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
+            prop.ElementName.Equals(Facts.MSBuildFacts.PlatformTargetName, StringComparison.OrdinalIgnoreCase)
+            && Facts.MSBuildFacts.DefaultPlatformTargets.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
 
         internal static bool IsLegacyXamlDesignerItem(ProjectItemElement item) =>
-            item.Include.EndsWith(Facts.XamlFileExtension, StringComparison.OrdinalIgnoreCase)
-            && item.Metadata.Any(pme => pme.Name.Equals(Facts.SubTypeName, StringComparison.OrdinalIgnoreCase)
-                                       && pme.Value.Equals(Facts.DesignerSubType, StringComparison.OrdinalIgnoreCase));
+            item.Include.EndsWith(DesktopFacts.XamlFileExtension, StringComparison.OrdinalIgnoreCase)
+            && item.Metadata.Any(pme => pme.Name.Equals(Facts.MSBuildFacts.SubTypeName, StringComparison.OrdinalIgnoreCase)
+                                       && pme.Value.Equals(Facts.MSBuildFacts.DesignerSubType, StringComparison.OrdinalIgnoreCase));
 
         internal static bool IsDependentUponXamlDesignerItem(ProjectItemElement item) =>
-            item.Metadata.Any(pme => pme.Name.Equals(Facts.SubTypeName, StringComparison.OrdinalIgnoreCase)
-                                     && pme.Value.Equals(Facts.CodeSubType, StringComparison.OrdinalIgnoreCase))
-            && item.Metadata.Any(pme => pme.Name.Equals(Facts.DependentUponName, StringComparison.OrdinalIgnoreCase)
-                                        && pme.Value.EndsWith(Facts.XamlFileExtension, StringComparison.OrdinalIgnoreCase));
+            item.Metadata.Any(pme => pme.Name.Equals(Facts.MSBuildFacts.SubTypeName, StringComparison.OrdinalIgnoreCase)
+                                     && pme.Value.Equals(Facts.MSBuildFacts.CodeSubType, StringComparison.OrdinalIgnoreCase))
+            && item.Metadata.Any(pme => pme.Name.Equals(Facts.MSBuildFacts.DependentUponName, StringComparison.OrdinalIgnoreCase)
+                                        && pme.Value.EndsWith(DesktopFacts.XamlFileExtension, StringComparison.OrdinalIgnoreCase));
 
         internal static ProjectItemGroupElement GetPackagesConfigItemGroup(IProjectRootElement root) =>
             root.ItemGroups.Single(pige => pige.Items.Any(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));

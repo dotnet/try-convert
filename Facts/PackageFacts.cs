@@ -2,6 +2,9 @@
 
 namespace Facts
 {
+    /// <summary>
+    /// A bunch of known values regarding NuGet.
+    /// </summary>
     public static class PackageFacts
     {
         public const string PackagesConfigIncludeName = "packages.config";

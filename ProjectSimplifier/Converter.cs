@@ -62,11 +62,11 @@ namespace ProjectSimplifier
 
                 if (MSBuildUtilities.IsWinForms(_projectRootElement) || MSBuildUtilities.IsWinForms(_projectRootElement))
                 {
-                    _projectRootElement.Sdk = Facts.WinSDKAttribute;
+                    _projectRootElement.Sdk = DesktopFacts.WinSDKAttribute;
                 }
                 else
                 {
-                    _projectRootElement.Sdk = Facts.WinSDKAttribute;
+                    _projectRootElement.Sdk = DesktopFacts.WinSDKAttribute;
                 }
             }
         }
@@ -105,7 +105,7 @@ namespace ProjectSimplifier
             {
                 foreach (var prop in propGroup.Properties)
                 {
-                    if (Facts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
+                    if (Facts.MSBuildFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
                         propGroup.RemoveChild(prop);
                     }
@@ -167,7 +167,7 @@ namespace ProjectSimplifier
 
                 foreach (var item in itemGroup.Items.Where(item => !MSBuildUtilities.IsPackageReference(item)))
                 {
-                    if (Facts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                    if (Facts.MSBuildFacts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
                     {
                         itemGroup.RemoveChild(item);
                     }
@@ -211,7 +211,7 @@ namespace ProjectSimplifier
             var introducedItems = _differs.Values
                                           .SelectMany(
                                                 differ => differ.GetItemsDiff()
-                                                                .Where(diff => Facts.GlobbedItemTypes.Contains(diff.ItemType, StringComparer.OrdinalIgnoreCase))
+                                                                .Where(diff => MSBuildFacts.GlobbedItemTypes.Contains(diff.ItemType, StringComparer.OrdinalIgnoreCase))
                                                                 .SelectMany(diff => diff.IntroducedItems))
                                           .Distinct(ProjectItemComparer.IncludeComparer);
 
@@ -239,12 +239,12 @@ namespace ProjectSimplifier
                 var groupForPackageRefs = _projectRootElement.AddItemGroup();
                 foreach (var pkgref in packageReferences)
                 {
-                    if (pkgref.ID.Equals(Facts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm))
+                    if (pkgref.ID.Equals(Facts.MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm))
                     {
                         continue;
                     }
 
-                    if (Facts.UnnecessaryItemIncludes.Contains(pkgref.ID, StringComparer.OrdinalIgnoreCase))
+                    if (Facts.MSBuildFacts.UnnecessaryItemIncludes.Contains(pkgref.ID, StringComparer.OrdinalIgnoreCase))
                     {
                         continue;
                     }
@@ -289,7 +289,7 @@ namespace ProjectSimplifier
 
             if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop)
             {
-                targetFrameworkElement.Value = Facts.NETCoreDesktopTFM;
+                targetFrameworkElement.Value = Facts.MSBuildFacts.NETCoreDesktopTFM;
             }
             else
             {
@@ -314,16 +314,16 @@ namespace ProjectSimplifier
             // Don't create a new prop group; put the desktop properties in the same group as where TFM is located
             var propGroup = _projectRootElement.PropertyGroups.Single(pg => pg.Children.Any(p => p.ElementName == "TargetFramework"));
 
-            if (!_sdkBaselineProject.GlobalProperties.Contains(Facts.UseWinFormsPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildUtilities.IsWinForms(_projectRootElement))
+            if (!_sdkBaselineProject.GlobalProperties.Contains(DesktopFacts.UseWinFormsPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildUtilities.IsWinForms(_projectRootElement))
             {
-                var useWinForms = _projectRootElement.CreatePropertyElement(Facts.UseWinFormsPropertyName);
+                var useWinForms = _projectRootElement.CreatePropertyElement(DesktopFacts.UseWinFormsPropertyName);
                 useWinForms.Value = "true";
                 propGroup.PrependChild(useWinForms);
             }
 
-            if (!_sdkBaselineProject.GlobalProperties.Contains(Facts.UseWPFPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildUtilities.IsWPF(_projectRootElement))
+            if (!_sdkBaselineProject.GlobalProperties.Contains(DesktopFacts.UseWPFPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildUtilities.IsWPF(_projectRootElement))
             {
-                var useWPF = _projectRootElement.CreatePropertyElement(Facts.UseWPFPropertyName);
+                var useWPF = _projectRootElement.CreatePropertyElement(DesktopFacts.UseWPFPropertyName);
                 useWPF.Value = "true";
                 propGroup.PrependChild(useWPF);
             }
@@ -342,7 +342,7 @@ namespace ProjectSimplifier
                 if (_sdkBaselineProject.ProjectStyle == ProjectStyle.Default || _sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop)
                     return true;
 
-                var firstImport = _projectRootElement.Imports.Where(i => i.Label != Facts.SharedProjectsImportLabel).First();
+                var firstImport = _projectRootElement.Imports.Where(i => i.Label != MSBuildFacts.SharedProjectsImportLabel).First();
                 return propertyGroup.Location.Line > firstImport.Location.Line;
             }
 

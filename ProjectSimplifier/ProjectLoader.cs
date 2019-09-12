@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
+using Facts;
 
 namespace ProjectSimplifier
 {
@@ -65,7 +66,7 @@ namespace ProjectSimplifier
             }
 
             // Exclude shared project references since they show up as imports.
-            var imports = project.Imports.Where(i => i.Label != Facts.SharedProjectsImportLabel);
+            var imports = project.Imports.Where(i => i.Label != MSBuildFacts.SharedProjectsImportLabel);
             if (imports.Count() == 2)
             {
                 var firstImport = project.Imports.First();
@@ -74,18 +75,18 @@ namespace ProjectSimplifier
                 var firstImportFileName = Path.GetFileName(firstImport.Project);
                 var lastImportFileName = Path.GetFileName(lastImport.Project);
 
-                if (firstImportFileName == Facts.FSharpTargetsPathVariableName)
+                if (firstImportFileName == FSharpFacts.FSharpTargetsPathVariableName)
                 {
-                    firstImportFileName = Path.GetFileName(Facts.FSharpTargetsPath);
+                    firstImportFileName = Path.GetFileName(FSharpFacts.FSharpTargetsPath);
                 }
 
-                if (lastImportFileName == Facts.FSharpTargetsPathVariableName)
+                if (lastImportFileName == FSharpFacts.FSharpTargetsPathVariableName)
                 {
-                    lastImportFileName = Path.GetFileName(Facts.FSharpTargetsPath);
+                    lastImportFileName = Path.GetFileName(FSharpFacts.FSharpTargetsPath);
                 }
 
-                if (Facts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
-                    Facts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
+                if (MSBuildFacts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
+                    MSBuildFacts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
                 {
                     if (MSBuildUtilities.IsWPF(project) || MSBuildUtilities.IsWinForms(project))
                     {
@@ -132,10 +133,10 @@ namespace ProjectSimplifier
             switch (projectStyle)
             {
                 case ProjectStyle.Default:
-                    rootElement.Sdk = Facts.DefaultSDKAttribute;
+                    rootElement.Sdk = DesktopFacts.DefaultSDKAttribute;
                     break;
                 case ProjectStyle.WindowsDesktop:
-                    rootElement.Sdk = Facts.WinSDKAttribute;
+                    rootElement.Sdk = DesktopFacts.WinSDKAttribute;
                     break;
                 case ProjectStyle.DefaultWithCustomTargets:
                     var imports = ProjectRootElement.Imports;
@@ -160,12 +161,12 @@ namespace ProjectSimplifier
             {
                 if (MSBuildUtilities.IsWinForms(ProjectRootElement))
                 {
-                    propGroup.AddProperty(Facts.UseWinFormsPropertyName, "true");
+                    propGroup.AddProperty(DesktopFacts.UseWinFormsPropertyName, "true");
                 }
 
                 if (MSBuildUtilities.IsWPF(ProjectRootElement))
                 {
-                    propGroup.AddProperty(Facts.UseWPFPropertyName, "true");
+                    propGroup.AddProperty(DesktopFacts.UseWPFPropertyName, "true");
                 }
             }
 
@@ -183,14 +184,14 @@ namespace ProjectSimplifier
                 propertiesInTheBaseline = propertiesInTheBaseline.Add("TargetFramework");
             }
 
-            if (project.GetProperty(Facts.UseWinFormsPropertyName) is object)
+            if (project.GetProperty(DesktopFacts.UseWinFormsPropertyName) is object)
             {
-                propertiesInTheBaseline = propertiesInTheBaseline.Add(Facts.UseWinFormsPropertyName);
+                propertiesInTheBaseline = propertiesInTheBaseline.Add(DesktopFacts.UseWinFormsPropertyName);
             }
 
-            if (project.GetProperty(Facts.UseWPFPropertyName) is object)
+            if (project.GetProperty(DesktopFacts.UseWPFPropertyName) is object)
             {
-                propertiesInTheBaseline = propertiesInTheBaseline.Add(Facts.UseWPFPropertyName);
+                propertiesInTheBaseline = propertiesInTheBaseline.Add(DesktopFacts.UseWPFPropertyName);
             }
 
             return new BaselineProject(newProject, propertiesInTheBaseline, targetProjectProperties, projectStyle);

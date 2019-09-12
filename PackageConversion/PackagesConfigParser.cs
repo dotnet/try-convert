@@ -6,8 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Xml;
 using System.Xml.Linq;
 
-[assembly: InternalsVisibleTo("PackageConversion.Tests")]
-
 namespace PackageConversion
 {
     internal static class PackagesConfigParser
@@ -21,7 +19,7 @@ namespace PackageConversion
 
             if (!path.EndsWith("packages.config", StringComparison.OrdinalIgnoreCase))
             {
-                throw new ArgumentException($"'{nameof(path)}' is not 'packages.config', which it should be.");
+                throw new ArgumentException($"'{nameof(path)}' is not a 'packages.config' file, which it should be.");
             }
 
             var text = File.ReadAllText(path);
@@ -58,21 +56,33 @@ namespace PackageConversion
                     IsPreview = element.Attribute("version").Value.EndsWith("-preview")
                 };
 
-            var packagesNode = from nd in doc.Nodes() where nd.NodeType == XmlNodeType.Element select nd as XElement;
-            if (packagesNode is null || !packagesNode.Any())
+            bool ValidPackageNode(XElement pkgNode) =>
+                pkgNode.Element("id") is object
+                && !string.IsNullOrWhiteSpace(pkgNode.Element("id").Value)
+                && pkgNode.Element("version") is object
+                && string.IsNullOrWhiteSpace(pkgNode.Element("version").Value);
+
+            var packagesNode =
+                from nd in doc.Nodes()
+                where nd.NodeType == XmlNodeType.Element
+                select nd as XElement;
+
+            if (packagesNode is null || !packagesNode.Any(node => node.Name == "packages"))
             {
                 throw new PackagesConfigHasNoPackagesException("Parsed XML document has no '<packages>' element.");
             }
 
-            if (packagesNode.Count() > 1)
+            var packages =
+                from nd in packagesNode.Single().Nodes()
+                where nd.NodeType == XmlNodeType.Element
+                select nd as XElement;
+
+            if (!packages.All(ValidPackageNode))
             {
-                // lol if this is actually allowed though
-                throw new PackagesConfigHasMultiplePackagesElements("Parsed XML document has multuple '<packages>' elements, which isn't allowed.");
+                throw new PackagesConfigHasInvalidPackageNodesException("Not all packages have a valid 'id' or 'version' field.");
             }
 
-            var packagesNodes = from nd in packagesNode.Single().Nodes() where nd.NodeType == XmlNodeType.Element select nd as XElement;
-
-            return from n in packagesNodes select ParsePackageConfig(n);
+            return packages.Select(ParsePackageConfig);
         }
     }
 }

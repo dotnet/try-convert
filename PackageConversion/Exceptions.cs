@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PackageConversion
 {
@@ -15,13 +13,13 @@ namespace PackageConversion
         }
     }
 
-    public class PackagesConfigHasMultiplePackagesElements : Exception
+    public class PackagesConfigHasInvalidPackageNodesException : Exception
     {
-        public PackagesConfigHasMultiplePackagesElements()
+        public PackagesConfigHasInvalidPackageNodesException()
         {
         }
 
-        public PackagesConfigHasMultiplePackagesElements(string message) : base(message)
+        public PackagesConfigHasInvalidPackageNodesException(string message) : base(message)
         {
         }
     }

@@ -219,8 +219,10 @@ namespace ProjectSimplifier
                                        && pme.Value.Equals(Facts.DesignerSubType, StringComparison.OrdinalIgnoreCase));
 
         internal static bool IsDependentUponXamlDesignerItem(ProjectItemElement item) =>
-            item.Metadata.Any(pme => pme.Name.Equals(Facts.SubTypeName, StringComparison.OrdinalIgnoreCase) && pme.Value.Equals(Facts.CodeSubType, StringComparison.OrdinalIgnoreCase))
-            && item.Metadata.Any(pme => pme.Name.Equals(Facts.DependentUponName, StringComparison.OrdinalIgnoreCase) && pme.Value.EndsWith(Facts.XamlFileExtension, StringComparison.OrdinalIgnoreCase));
+            item.Metadata.Any(pme => pme.Name.Equals(Facts.SubTypeName, StringComparison.OrdinalIgnoreCase)
+                                     && pme.Value.Equals(Facts.CodeSubType, StringComparison.OrdinalIgnoreCase))
+            && item.Metadata.Any(pme => pme.Name.Equals(Facts.DependentUponName, StringComparison.OrdinalIgnoreCase)
+                                        && pme.Value.EndsWith(Facts.XamlFileExtension, StringComparison.OrdinalIgnoreCase));
 
         internal static ProjectItemGroupElement GetPackagesConfigItemGroup(IProjectRootElement root) =>
             root.ItemGroups.Single(pige => pige.Items.Any(pe => pe.Include.Equals(Facts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));

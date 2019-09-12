@@ -8,7 +8,61 @@ namespace PackageConversion.Tests
     public class ParsingTests
     {
         [Fact]
-        public void ParseDefaultLegacyPacakgesConfigInFSharpTemplates()
+        public void FailsWithNullPath()
+        {
+            Assert.Throws<ArgumentException>(() => PackagesConfigConverter.Convert(null));
+        }
+
+        [Fact]
+        public void FailsWithNotBeingAPackagesConfigFile()
+        {
+            Assert.Throws<ArgumentException>(() => PackagesConfigConverter.Convert("/path/to/file.text"));
+        }
+
+        [Fact]
+        public void ParseNoPackagesNodeFails()
+        {
+            var packagesConfig = @"
+<?xml version=""1.0"" encoding=""utf-8""?>
+<doot>toot</doot>
+";
+
+            var doc = XDocument.Parse(packagesConfig.Trim());
+            Assert.Throws<PackagesConfigHasNoPackagesException>(() => PackagesConfigParser.ParseDocument(doc));
+        }
+
+        [Fact]
+        public void ParseNoValidIdFails()
+        {
+            var packagesConfig = @"
+<?xml version=""1.0"" encoding=""utf-8""?>
+<packages>
+  <package id=""FSharp.Core"" version=""4.6.2"" targetFramework=""net472"" />
+  <package id="""" version=""4.4.0"" targetFramework=""net472"" />
+</packages>
+";
+
+            var doc = XDocument.Parse(packagesConfig.Trim());
+            Assert.Throws<PackagesConfigHasInvalidPackageNodesException>(() => PackagesConfigParser.ParseDocument(doc));
+        }
+
+        [Fact]
+        public void ParseNoValidVersionFails()
+        {
+            var packagesConfig = @"
+<?xml version=""1.0"" encoding=""utf-8""?>
+<packages>
+  <package id=""FSharp.Core"" version="""" targetFramework=""net472"" />
+  <package id=""System.ValueTuple"" version=""4.4.0"" targetFramework=""net472"" />
+</packages>
+";
+
+            var doc = XDocument.Parse(packagesConfig.Trim());
+            Assert.Throws<PackagesConfigHasInvalidPackageNodesException>(() => PackagesConfigParser.ParseDocument(doc));
+        }
+
+        [Fact]
+        public void ParseDefaultLegacyPacakgesConfigInFSharpTemplatesSucceeds()
         {
             var packagesConfig = @"
 <?xml version=""1.0"" encoding=""utf-8""?>

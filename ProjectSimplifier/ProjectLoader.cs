@@ -152,19 +152,19 @@ namespace ProjectSimplifier
             }
 
             var propGroup = rootElement.AddPropertyGroup();
-            propGroup.AddProperty("TargetFramework", project.GetTargetFramework());
-            propGroup.AddProperty("OutputType", project.GetPropertyValue("OutputType") ?? throw new InvalidOperationException("OutputType is not set!"));
+            propGroup.AddProperty(MSBuildFacts.TargetFrameworkNodeName, project.GetTargetFramework());
+            propGroup.AddProperty(MSBuildFacts.OutputTypeNodeName, project.GetPropertyValue(MSBuildFacts.OutputTypeNodeName) ?? throw new InvalidOperationException("OutputType is not set!"));
 
             if (projectStyle == ProjectStyle.WindowsDesktop)
             {
                 if (MSBuildUtilities.IsWinForms(ProjectRootElement))
                 {
-                    propGroup.AddProperty(DesktopFacts.UseWinFormsPropertyName, "true");
+                    MSBuildUtilities.AddUseWinForms(propGroup);
                 }
 
                 if (MSBuildUtilities.IsWPF(ProjectRootElement))
                 {
-                    propGroup.AddProperty(DesktopFacts.UseWPFPropertyName, "true");
+                    MSBuildUtilities.AddUseWPF(propGroup);
                 }
             }
 
@@ -175,11 +175,11 @@ namespace ProjectSimplifier
             newProject.LoadProjects(pc, newGlobalProperties, rootElement);
 
             // If the original project had the TargetFramework property don't touch it during conversion.
-            var propertiesInTheBaseline = ImmutableArray.Create("OutputType");
+            var propertiesInTheBaseline = ImmutableArray.Create(MSBuildFacts.OutputTypeNodeName);
 
-            if (project.GetProperty("TargetFramework") is object)
+            if (project.GetProperty(MSBuildFacts.TargetFrameworkNodeName) is object)
             {
-                propertiesInTheBaseline = propertiesInTheBaseline.Add("TargetFramework");
+                propertiesInTheBaseline = propertiesInTheBaseline.Add(MSBuildFacts.TargetFrameworkNodeName);
             }
 
             if (project.GetProperty(DesktopFacts.UseWinFormsPropertyName) is object)

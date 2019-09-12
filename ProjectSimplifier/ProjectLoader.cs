@@ -33,12 +33,10 @@ namespace ProjectSimplifier
 
             Project = new UnconfiguredProject(configurations);
             Project.LoadProjects(collection, globalProperties, projectFilePath);
-            Console.WriteLine($"Successfully loaded project file '{projectFilePath}'.");
 
             var targetProjectProperties = options.TargetProjectProperties.ToImmutableDictionary(p => p.Split('=')[0], p => p.Split('=')[1]);
             SdkBaselineProject = CreateSdkBaselineProject(projectFilePath, Project.FirstConfiguredProject, globalProperties, configurations, targetProjectProperties);
             ProjectRootElement.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
-            Console.WriteLine($"Successfully loaded sdk baseline of project.");
 
             ProjectRootDirectory = Directory.GetParent(projectFilePath);
         }

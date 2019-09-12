@@ -46,7 +46,6 @@ namespace ProjectSimplifier
             ModifyProjectElement();
 
             _projectRootElement.Save(outputProjectPath);
-            Console.WriteLine($"Successfully converted project to {outputProjectPath}");
         }
 
         private void ChangeImports()

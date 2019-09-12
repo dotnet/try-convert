@@ -93,16 +93,13 @@ namespace ProjectSimplifier
             var vsinstalldir = Environment.GetEnvironmentVariable("VSINSTALLDIR");
             if (!string.IsNullOrEmpty(vsinstalldir))
             {
-                var path = Path.Combine(vsinstalldir, "MSBuild", "16.0", "Bin");
-                Console.WriteLine($"Found VS from VSINSTALLDIR (Dev Console): {path}");
-                return path;
+                return Path.Combine(vsinstalldir, "MSBuild", "16.0", "Bin");
             }
 
             // herpty derp
             var pathOnVS = Path.Combine(@"C:\Program Files (x86)\Microsoft Visual Studio", "2019", "Preview", "MSBuild", "Current", "Bin");
             if (!string.IsNullOrEmpty(pathOnVS))
             {
-                Console.WriteLine($"Found MSBuild from hardcoded location: {pathOnVS}");
                 return pathOnVS;
             }
 

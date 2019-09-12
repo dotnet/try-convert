@@ -130,5 +130,6 @@ namespace Facts
         public const string CodeSubType = "Code";
         public const string TargetFrameworkNodeName = "TargetFramework";
         public const string OutputTypeNodeName = "OutputType";
+        public const string GenerateAssemblyInfoNodeName = "GenerateAssemblyInfo";
     }
 }

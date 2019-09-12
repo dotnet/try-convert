@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using Facts;
 using Microsoft.Build.Construction;
-using Microsoft.Build.Execution;
 using PackageConversion;
 
 namespace ProjectSimplifier
@@ -35,6 +34,7 @@ namespace ProjectSimplifier
             RemoveUnnecessaryPropertiesNotInSDKByDefault();
 
             var tfm = AddTargetFrameworkProperty();
+            AddGenerateAssemblyInfo();
             AddDesktopProperties();
 
             AddTargetProjectProperties();
@@ -228,7 +228,14 @@ namespace ProjectSimplifier
 
         private void AddConvertedPackages(string tfm)
         {
-            var packagesConfigItemGroup = MSBuildUtilities.GetPackagesConfigItemGroup(_projectRootElement);
+            var packagesConfigItemGroups = MSBuildUtilities.GetPackagesConfigItemGroup(_projectRootElement);
+            if (!packagesConfigItemGroups.Any())
+            {
+                return;
+            }
+
+            var packagesConfigItemGroup = packagesConfigItemGroups.Single();
+
             var packagesConfigItem = MSBuildUtilities.GetPackagesConfigItem(packagesConfigItemGroup);
             var path = Path.Combine(_projectRootDirectory.FullName, packagesConfigItem.Include);
             
@@ -311,21 +318,30 @@ namespace ProjectSimplifier
             }
 
             // Don't create a new prop group; put the desktop properties in the same group as where TFM is located
-            var propGroup = _projectRootElement.PropertyGroups.Single(pg => pg.Children.Any(p => p.ElementName == "TargetFramework"));
+            var propGroup = MSBuildUtilities.GetTopPropertyGroupWithTFM(_projectRootElement);
 
             if (!_sdkBaselineProject.GlobalProperties.Contains(DesktopFacts.UseWinFormsPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildUtilities.IsWinForms(_projectRootElement))
             {
                 var useWinForms = _projectRootElement.CreatePropertyElement(DesktopFacts.UseWinFormsPropertyName);
                 useWinForms.Value = "true";
-                propGroup.PrependChild(useWinForms);
+                propGroup.AppendChild(useWinForms);
             }
 
             if (!_sdkBaselineProject.GlobalProperties.Contains(DesktopFacts.UseWPFPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildUtilities.IsWPF(_projectRootElement))
             {
                 var useWPF = _projectRootElement.CreatePropertyElement(DesktopFacts.UseWPFPropertyName);
                 useWPF.Value = "true";
-                propGroup.PrependChild(useWPF);
+                propGroup.AppendChild(useWPF);
             }
+        }
+
+        private void AddGenerateAssemblyInfo()
+        {
+            // Don't create a new prop group; put the desktop properties in the same group as where TFM is located
+            var propGroup = MSBuildUtilities.GetTopPropertyGroupWithTFM(_projectRootElement);
+            var generateAssemblyInfo = _projectRootElement.CreatePropertyElement(MSBuildFacts.GenerateAssemblyInfoNodeName);
+            generateAssemblyInfo.Value = "false";
+            propGroup.AppendChild(generateAssemblyInfo);
         }
 
         private void ModifyProjectElement()

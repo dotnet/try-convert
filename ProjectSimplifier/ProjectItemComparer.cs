@@ -19,6 +19,8 @@ namespace ProjectSimplifier
         {
             // If y has all the metadata that x has then we declare them as equal. This is because
             // the sdk can add new metadata but there's not reason to remove them during conversion.
+            //var xMetadata = x.DirectMetadata.Where(MSBuildUtilities.IsValidMetadataForConversionPurposes);
+            //var yMetadata = x.DirectMetadata.Where(MSBuildUtilities.IsValidMetadataForConversionPurposes);
             var metadataEqual = _compareMetadata ?
                                  x.DirectMetadata.All(xmd => y.DirectMetadata.Any(
                                      ymd => xmd.Name.Equals(ymd.Name, System.StringComparison.OrdinalIgnoreCase) &&

@@ -104,7 +104,7 @@ namespace ProjectSimplifier
             {
                 foreach (var prop in propGroup.Properties)
                 {
-                    if (Facts.MSBuildFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
+                    if (MSBuildFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
                         propGroup.RemoveChild(prop);
                     }
@@ -166,7 +166,7 @@ namespace ProjectSimplifier
 
                 foreach (var item in itemGroup.Items.Where(item => !MSBuildUtilities.IsPackageReference(item)))
                 {
-                    if (Facts.MSBuildFacts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                    if (MSBuildFacts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
                     {
                         itemGroup.RemoveChild(item);
                     }
@@ -190,6 +190,7 @@ namespace ProjectSimplifier
                     {
                         // Desktop projects will only convert to .NET Core, so any item includes that have .NET Core equivalents will be removed.
                         // Users will have to ensure those packages are also added if they cannot do so with a tool.
+                        // References that are already present will also be removed.
                         itemGroup.RemoveChild(item);
                     }
                     else

@@ -5,43 +5,44 @@ using System.Linq;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 using Facts;
+using System.Collections.Generic;
 
 namespace ProjectSimplifier
 {
-    internal class ProjectLoader
+    public class ProjectLoader
     {
         public UnconfiguredProject Project { get; private set; }
         public BaselineProject SdkBaselineProject { get; private set; }
         public IProjectRootElement ProjectRootElement { get; private set; }
         public DirectoryInfo ProjectRootDirectory { get; private set; }
 
-        public void LoadProjects(Options options)
+        public void LoadProjects(string projectFilePath = null, string roslynTargetsPath = null, string msbuildSdksPath = null, IEnumerable<string>  targetProjectProperties = null)
         {
-            string projectFilePath = Path.GetFullPath(options.ProjectFilePath);
+            var path = Path.GetFullPath(projectFilePath);
 
-            if (!File.Exists(projectFilePath))
+            if (!File.Exists(path))
             {
                 Console.Error.WriteLine($"The project file '{projectFilePath}' does not exist or is inaccessible.");
                 return;
             }
 
-            ImmutableDictionary<string, string> globalProperties = InitializeGlobalProperties(options);
+            ImmutableDictionary<string, string> globalProperties = InitializeGlobalProperties(roslynTargetsPath, msbuildSdksPath);
             var collection = new ProjectCollection(globalProperties);
 
-            ProjectRootElement = new MSBuildProjectRootElement(Microsoft.Build.Construction.ProjectRootElement.Open(projectFilePath, collection, preserveFormatting: true));
+            ProjectRootElement = new MSBuildProjectRootElement(Microsoft.Build.Construction.ProjectRootElement.Open(path, collection, preserveFormatting: true));
             var configurations = DetermineConfigurations(ProjectRootElement);
 
             Project = new UnconfiguredProject(configurations);
-            Project.LoadProjects(collection, globalProperties, projectFilePath);
+            Project.LoadProjects(collection, globalProperties, path);
 
-            var targetProjectProperties = options.TargetProjectProperties.ToImmutableDictionary(p => p.Split('=')[0], p => p.Split('=')[1]);
-            SdkBaselineProject = CreateSdkBaselineProject(projectFilePath, Project.FirstConfiguredProject, globalProperties, configurations, targetProjectProperties);
+            var props = targetProjectProperties.ToImmutableDictionary(p => p.Split('=')[0], p => p.Split('=')[1]);
+            SdkBaselineProject = CreateSdkBaselineProject(path, Project.FirstConfiguredProject, globalProperties, configurations, props);
             ProjectRootElement.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
 
-            ProjectRootDirectory = Directory.GetParent(projectFilePath);
+            ProjectRootDirectory = Directory.GetParent(path);
         }
 
-        private ImmutableDictionary<string, ImmutableDictionary<string, string>> DetermineConfigurations(IProjectRootElement projectRootElement)
+        public ImmutableDictionary<string, ImmutableDictionary<string, string>> DetermineConfigurations(IProjectRootElement projectRootElement)
         {
             var builder = ImmutableDictionary.CreateBuilder<string, ImmutableDictionary<string, string>>();
             foreach (var propertyGroup in projectRootElement.PropertyGroups)
@@ -97,17 +98,17 @@ namespace ProjectSimplifier
             return ProjectStyle.DefaultWithCustomTargets;
         }
 
-        private static ImmutableDictionary<string, string> InitializeGlobalProperties(Options options)
+        private static ImmutableDictionary<string, string> InitializeGlobalProperties(string roslynTargetsPath = null, string msbuildSdksPath = null)
         {
             var globalProperties = ImmutableDictionary.CreateBuilder<string, string>();
-            if (!string.IsNullOrEmpty(options.RoslynTargetsPath))
+            if (!string.IsNullOrEmpty(roslynTargetsPath))
             {
-                globalProperties.Add("RoslynTargetsPath", options.RoslynTargetsPath);
+                globalProperties.Add("RoslynTargetsPath", roslynTargetsPath);
             }
 
-            if (!string.IsNullOrEmpty(options.MSBuildSdksPath))
+            if (!string.IsNullOrEmpty(msbuildSdksPath))
             {
-                globalProperties.Add("MSBuildSDKsPath", options.MSBuildSdksPath);
+                globalProperties.Add("MSBuildSDKsPath", msbuildSdksPath);
             }
 
             return globalProperties.ToImmutable();

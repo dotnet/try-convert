@@ -56,7 +56,7 @@ namespace ProjectSimplifier
             try
             {
                 var projectLoader = new ProjectLoader();
-                projectLoader.LoadProjects(options);
+                projectLoader.LoadProjects(options.ProjectFilePath, options.RoslynTargetsPath, options.MSBuildSdksPath, options.TargetProjectProperties);
 
                 switch (options)
                 {

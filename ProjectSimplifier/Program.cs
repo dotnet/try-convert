@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using CommandLine;
+using Microsoft.Build.Locator;
 
 namespace ProjectSimplifier
 {
@@ -93,25 +95,42 @@ namespace ProjectSimplifier
             var vsinstalldir = Environment.GetEnvironmentVariable("VSINSTALLDIR");
             if (!string.IsNullOrEmpty(vsinstalldir))
             {
-                return Path.Combine(vsinstalldir, "MSBuild", "16.0", "Bin");
+                return Path.Combine(vsinstalldir, "MSBuild", "Current", "Bin");
             }
 
-            // herpty derp
-            var pathOnVS = Path.Combine(@"C:\Program Files (x86)\Microsoft Visual Studio", "2019", "Preview", "MSBuild", "Current", "Bin");
-            if (!string.IsNullOrEmpty(pathOnVS))
+            // Attempt to set the version of MSBuild.
+            var visualStudioInstances = MSBuildLocator.QueryVisualStudioInstances().ToArray();
+            var instance = visualStudioInstances.Length == 1
+                // If there is only one instance of MSBuild on this machine, set that as the one to use.
+                ? visualStudioInstances[0]
+                // Handle selecting the version of MSBuild you want to use.
+                : SelectVisualStudioInstance(visualStudioInstances);
+
+            return instance?.MSBuildPath;
+        }
+
+        private static VisualStudioInstance SelectVisualStudioInstance(VisualStudioInstance[] visualStudioInstances)
+        {
+            Console.WriteLine("Multiple installs of MSBuild detected please select one:");
+            for (int i = 0; i < visualStudioInstances.Length; i++)
             {
-                return pathOnVS;
+                Console.WriteLine($"Instance {i + 1}");
+                Console.WriteLine($"    Name: {visualStudioInstances[i].Name}");
+                Console.WriteLine($"    Version: {visualStudioInstances[i].Version}");
+                Console.WriteLine($"    MSBuild Path: {visualStudioInstances[i].MSBuildPath}");
             }
 
-            //Second chance for mono 
-            var systemLibLocation = typeof(object).Assembly.Location;
-            var monoMSBuildPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(systemLibLocation), "..", "msbuild", "16.0", "bin"));
-            if (Directory.Exists(monoMSBuildPath))
+            while (true)
             {
-                return Path.GetFullPath(monoMSBuildPath);
+                var userResponse = Console.ReadLine();
+                if (int.TryParse(userResponse, out int instanceNumber) &&
+                    instanceNumber > 0 &&
+                    instanceNumber <= visualStudioInstances.Length)
+                {
+                    return visualStudioInstances[instanceNumber - 1];
+                }
+                Console.WriteLine("Input not accepted, try again.");
             }
-
-            return null;
         }
     }
 }

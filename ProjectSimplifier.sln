@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmokeTests.WpfFramework", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmokeTests.WinformsFramework", "TestData\SmokeTests.WinformsFramework\SmokeTests.WinformsFramework.csproj", "{C8FB82A2-9921-4BB6-B144-D7F297404236}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SmokeTests.LegacyFSharpConsole", "SmokeTests.LegacyFSharpConsole\SmokeTests.LegacyFSharpConsole.fsproj", "{DF33A7B9-E0DD-4E09-B9D9-C6D0B7D5A648}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SmokeTests.LegacyFSharpConsole", "TestData\SmokeTests.LegacyFSharpConsole\SmokeTests.LegacyFSharpConsole.fsproj", "{DF33A7B9-E0DD-4E09-B9D9-C6D0B7D5A648}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

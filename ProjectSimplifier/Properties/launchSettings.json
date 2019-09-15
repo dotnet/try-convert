@@ -2,11 +2,11 @@
   "profiles": {
     "Diff": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"C:\\Users\\phcart\\Source\\Repos\\WPF-Samples\\Sample Applications\\PhotoStoreDemo\\PhotoStoreDemo.csproj\""
+      "commandLineArgs": "convert \"C:\\Users\\phillip\\source\\repos\\ProjectSimplifier\\TestData\\SmokeTests.LegacyFSharpConsole\\SmokeTests.LegacyFSharpConsole.fsproj\""
     },
     "Convert": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"C:\\Users\\phcart\\source\\repos\\ConsoleApp127\\FSharpConsole\\FSharpConsole.fsproj\""
+      "commandLineArgs": "convert \"C:\\Users\\phillip\\source\\repos\\ProjectSimplifier\\TestData\\SmokeTests.LegacyFSharpConsole\\SmokeTests.LegacyFSharpConsole.fsproj\""
     }
   }
 }

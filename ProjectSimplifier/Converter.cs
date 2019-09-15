@@ -26,7 +26,13 @@ namespace ProjectSimplifier
             _differs = _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Item2);
         }
 
-        internal void GenerateProjectFile(string outputProjectPath)
+        internal void Convert(string outputPath)
+        {
+            GenerateProjectFile();
+            _projectRootElement.Save(outputPath);
+        }
+
+        internal void GenerateProjectFile()
         {
             ChangeImports();
 
@@ -44,8 +50,6 @@ namespace ProjectSimplifier
             AddItemRemovesForIntroducedItems();
 
             ModifyProjectElement();
-
-            _projectRootElement.Save(outputProjectPath);
         }
 
         private void ChangeImports()

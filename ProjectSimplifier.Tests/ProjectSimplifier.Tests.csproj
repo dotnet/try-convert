@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MSBuildAbstractions\MSBuildAbstractions.csproj" />
     <ProjectReference Include="..\ProjectSimplifier\ProjectSimplifier.csproj" />
   </ItemGroup>
 

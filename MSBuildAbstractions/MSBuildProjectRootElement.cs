@@ -23,7 +23,7 @@ namespace ProjectSimplifier
     }
 
 
-    internal class MSBuildProjectRootElement : IProjectRootElement
+    public class MSBuildProjectRootElement : IProjectRootElement
     {
         private readonly ProjectRootElement _rootElement;
 

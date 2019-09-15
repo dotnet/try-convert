@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Facts\Facts.csproj" />
+    <ProjectReference Include="..\MSBuildAbstractions\MSBuildAbstractions.csproj" />
     <ProjectReference Include="..\PackageConversion\PackageConversion.csproj" />
   </ItemGroup>
 

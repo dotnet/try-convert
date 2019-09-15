@@ -41,7 +41,7 @@ namespace ProjectSimplifier
         string EvaluatedValue { get; }
     }
 
-    internal class MSBuildProjectProperty : IProjectProperty
+    public class MSBuildProjectProperty : IProjectProperty
     {
         private readonly ProjectProperty _property;
 
@@ -62,7 +62,7 @@ namespace ProjectSimplifier
                                           !_property.IsReservedProperty;
     }
 
-    internal class MSBuildProjectItem : IProjectItem
+    public class MSBuildProjectItem : IProjectItem
     {
         private readonly ProjectItem _item;
 
@@ -78,7 +78,7 @@ namespace ProjectSimplifier
         public IEnumerable<IProjectMetadata> DirectMetadata => _item.DirectMetadata.Select(md => new MSBuildProjectMetadata(md));
     }
 
-    internal class MSBuildProjectMetadata : IProjectMetadata
+    public class MSBuildProjectMetadata : IProjectMetadata
     {
         private readonly ProjectMetadata _projectMetadata;
 
@@ -101,7 +101,7 @@ namespace ProjectSimplifier
         }
     }
 
-    internal class MSBuildProject : IProject
+    public class MSBuildProject : IProject
     {
         private readonly Project _project;
 

@@ -32,7 +32,7 @@ namespace ProjectSimplifier
             ConfiguredProjects = projectBuilder.ToImmutable();
         }
 
-        internal void LoadProjects(ProjectCollection collection, ImmutableDictionary<string, string> globalProperties, ProjectRootElement rootElement)
+        internal void LoadProjects(ProjectCollection collection, ProjectRootElement rootElement)
         {
             var projectBuilder = ImmutableDictionary.CreateBuilder<string, IProject>();
             foreach (var config in Configurations)

@@ -8,7 +8,7 @@ namespace ProjectSimplifier
 {
     public static class Extensions
     {
-        public static bool ContainsIgnoreCase(this string target, string substring, StringComparison currentCultureIgnoreCase)
+        public static bool ContainsIgnoreCase(this string target, string substring)
         {
             return target.IndexOf(substring, StringComparison.OrdinalIgnoreCase) >= 0;
         }

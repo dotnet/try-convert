@@ -16,15 +16,15 @@ namespace ProjectSimplifier.Tests.Mocks
             return Create(lines.Select(p => p.Split('=')).ToDictionary(a => a[0], a => a[1]), propertiesInFile.Split(';'));
         }
 
-        public static IProject Create(IEnumerable<(string ItemType, string[] Items)> items)
+        public static IProject Create(IEnumerable<(string ItemType, string[] Items)> itemAndItemTypes)
         {
             var mock = new Mock<IProject>();
 
             var projectItems = new List<IProjectItem>();
 
-            foreach (var itemGroup in items)
+            foreach (var (itemType, items) in itemAndItemTypes)
             {
-                foreach (var item in itemGroup.Items)
+                foreach (var item in items)
                 {
                     var itemSplit = item.Split('|');
                     var itemInclude = itemSplit.First();
@@ -39,7 +39,7 @@ namespace ProjectSimplifier.Tests.Mocks
                     });
 
                     var projectItemMock = new Mock<IProjectItem>();
-                    projectItemMock.SetupGet(pi => pi.ItemType).Returns(itemGroup.ItemType);
+                    projectItemMock.SetupGet(pi => pi.ItemType).Returns(itemType);
                     projectItemMock.SetupGet(pi => pi.EvaluatedInclude).Returns(itemInclude);
                     projectItemMock.SetupGet(pi => pi.DirectMetadata).Returns(metadataMocks);
                     projectItems.Add(projectItemMock.Object);

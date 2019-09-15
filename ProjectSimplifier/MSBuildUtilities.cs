@@ -36,8 +36,8 @@ namespace ProjectSimplifier
             {
                 if (!string.IsNullOrEmpty(left))
                 {
-                    left = left + "|";
-                    right = right + "|";
+                    left += "|";
+                    right += "|";
                 }
 
                 left += "$(" + key + ")";
@@ -137,8 +137,8 @@ namespace ProjectSimplifier
         internal static bool FrameworkHasAValueTuple(string tfm)
         {
             if (tfm is null
-                || tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetstandardPrelude, StringComparison.CurrentCultureIgnoreCase)
-                || tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetcoreappPrelude, StringComparison.CurrentCultureIgnoreCase))
+                || tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetstandardPrelude)
+                || tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetcoreappPrelude))
             {
                 return false;
             }
@@ -173,8 +173,8 @@ namespace ProjectSimplifier
         }
 
         internal static bool IsNotNetFramework(string tfm) => 
-            !tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetcoreappPrelude, StringComparison.OrdinalIgnoreCase)
-            && !tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetstandardPrelude, StringComparison.OrdinalIgnoreCase);
+            !tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetcoreappPrelude)
+            && !tfm.ContainsIgnoreCase(Facts.MSBuildFacts.NetstandardPrelude);
 
         /// <summary>
         /// Checks if a given item needs to be removed because it either only runs on desktop .NET or is automatically pulled in as a reference and is thus unnecessary.

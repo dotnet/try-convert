@@ -172,7 +172,7 @@ namespace ProjectSimplifier
             // Create a new collection because a project with this name has already been loaded into the global collection.
             var pc = new ProjectCollection(newGlobalProperties);
             var newProject = new UnconfiguredProject(configurations);
-            newProject.LoadProjects(pc, newGlobalProperties, rootElement);
+            newProject.LoadProjects(pc, rootElement);
 
             // If the original project had the TargetFramework property don't touch it during conversion.
             var propertiesInTheBaseline = ImmutableArray.Create(MSBuildFacts.OutputTypeNodeName);

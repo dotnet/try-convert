@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 
 namespace ProjectSimplifier
 {
-    internal struct ItemsDiff
+    public struct ItemsDiff
     {
         public readonly string ItemType;
         public readonly ImmutableArray<IProjectItem> DefaultedItems;

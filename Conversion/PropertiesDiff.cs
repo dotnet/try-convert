@@ -1,10 +1,9 @@
 ﻿using System.Collections.Immutable;
 using System.Linq;
-using Microsoft.Build.Evaluation;
 
 namespace ProjectSimplifier
 {
-    internal struct PropertiesDiff
+    public struct PropertiesDiff
     {
         public readonly ImmutableArray<IProjectProperty> DefaultedProperties;
         public readonly ImmutableArray<IProjectProperty> NotDefaultedProperties;

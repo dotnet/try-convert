@@ -9,7 +9,7 @@ using PackageConversion;
 
 namespace ProjectSimplifier
 {
-    internal class Converter
+    public class Converter
     {
         private readonly UnconfiguredProject _project;
         private readonly BaselineProject _sdkBaselineProject;
@@ -26,7 +26,7 @@ namespace ProjectSimplifier
             _differs = _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Item2);
         }
 
-        internal void Convert(string outputPath)
+        public void Convert(string outputPath)
         {
             GenerateProjectFile();
             _projectRootElement.Save(outputPath);

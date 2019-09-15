@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Facts\Facts.csproj" />
+    <ProjectReference Include="..\MSBuildAbstractions\MSBuildAbstractions.csproj" />
+    <ProjectReference Include="..\PackageConversion\PackageConversion.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+  </ItemGroup>
+
+</Project>

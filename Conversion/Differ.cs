@@ -6,15 +6,15 @@ using System.Linq;
 
 namespace ProjectSimplifier
 {
-    internal class Differ
+    public class Differ
     {
         private readonly IProject _project;
         private readonly IProject _sdkBaselineProject;
 
         public Differ(IProject project, IProject sdkBaselineProject)
         {
-            _project = project ?? throw new System.ArgumentNullException(nameof(project));
-            _sdkBaselineProject = sdkBaselineProject ?? throw new System.ArgumentNullException(nameof(sdkBaselineProject));
+            _project = project ?? throw new ArgumentNullException(nameof(project));
+            _sdkBaselineProject = sdkBaselineProject ?? throw new ArgumentNullException(nameof(sdkBaselineProject));
         }
 
         public PropertiesDiff GetPropertiesDiff()

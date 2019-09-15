@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace ProjectSimplifier
 {
-    internal static class ProjectExtensions
+    public static class ProjectExtensions
     {
         public static void LogProjectProperties(this IProject project, string logFileName)
         {

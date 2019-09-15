@@ -5,7 +5,7 @@ using Microsoft.Build.Evaluation;
 
 namespace ProjectSimplifier
 {
-    class UnconfiguredProject
+    public class UnconfiguredProject
     {
         public ImmutableDictionary<string, IProject> ConfiguredProjects { get; private set; }
 
@@ -18,7 +18,7 @@ namespace ProjectSimplifier
             Configurations = configurations;
         }
 
-        internal void LoadProjects(ProjectCollection collection, ImmutableDictionary<string, string> globalProperties, string projectFilePath)
+        public void LoadProjects(ProjectCollection collection, ImmutableDictionary<string, string> globalProperties, string projectFilePath)
         {
             var projectBuilder = ImmutableDictionary.CreateBuilder<string, IProject>();
             foreach (var config in Configurations)
@@ -32,7 +32,7 @@ namespace ProjectSimplifier
             ConfiguredProjects = projectBuilder.ToImmutable();
         }
 
-        internal void LoadProjects(ProjectCollection collection, ProjectRootElement rootElement)
+        public void LoadProjects(ProjectCollection collection, ProjectRootElement rootElement)
         {
             var projectBuilder = ImmutableDictionary.CreateBuilder<string, IProject>();
             foreach (var config in Configurations)

@@ -1,6 +1,6 @@
 ﻿namespace ProjectSimplifier
 {
-    internal enum ProjectStyle
+    public enum ProjectStyle
     {
         /// <summary>
         /// The project has an import of Common.props and CSharp.targets. 

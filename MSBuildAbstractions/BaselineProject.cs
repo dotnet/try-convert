@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace ProjectSimplifier
 {
-    internal struct BaselineProject
+    public struct BaselineProject
     {
         public readonly ImmutableArray<string> GlobalProperties;
         public readonly ImmutableDictionary<string, string> TargetProjectProperties;

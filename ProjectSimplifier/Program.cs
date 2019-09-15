@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Reflection;
 using CommandLine;
@@ -93,8 +93,7 @@ namespace ProjectSimplifier
             var vsinstalldir = Environment.GetEnvironmentVariable("VSINSTALLDIR");
             if (!string.IsNullOrEmpty(vsinstalldir))
             {
-                return Path.Combine(vsinstalldir, "MSBuild", "16.0", "Bin");
-            }
+                return Path.Combine(vsinstalldir, "MSBuild", "Current", "Bin");
 
             // herpty derp
             var pathOnVS = Path.Combine(@"C:\Program Files (x86)\Microsoft Visual Studio", "2019", "Preview", "MSBuild", "Current", "Bin");

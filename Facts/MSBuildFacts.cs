@@ -77,7 +77,8 @@ namespace Facts
 
         public static ImmutableArray<string> DefaultOutputPaths => ImmutableArray.Create(
             @"bin\Release\",
-            @"bin\Debug\"
+            @"bin\Debug\",
+            @"bin\$(Configuration)\"
         );
 
         public static ImmutableArray<string> DefaultPlatformTargets => ImmutableArray.Create(

@@ -43,6 +43,7 @@ namespace SmokeTests
         {
             var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath);
             AssertPropsEqual(baselineRootElement, convertedRootElement);
+            AssertItemsEqual(baselineRootElement, convertedRootElement);
         }
 
         private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath)
@@ -79,6 +80,30 @@ namespace SmokeTests
 
                     Assert.Equal(baselineProp.Name, convertedProp.Name);
                     Assert.Equal(baselineProp.Value, convertedProp.Value);
+                }
+            }
+        }
+
+        private void AssertItemsEqual(IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement)
+        {
+            Assert.Equal(baselineRootElement.Sdk, convertedRootElement.Sdk);
+            Assert.Equal(baselineRootElement.ItemGroups.Count, convertedRootElement.ItemGroups.Count);
+
+            var baselineItemGroups = new List<ProjectItemGroupElement>(baselineRootElement.ItemGroups);
+            var convertedItemGroups = new List<ProjectItemGroupElement>(convertedRootElement.ItemGroups);
+
+            for (int i = 0; i < baselineItemGroups.Count; i++)
+            {
+                var baselineItems = new List<ProjectItemElement>(baselineItemGroups[i].Items);
+                var convertedItems = new List<ProjectItemElement>(convertedItemGroups[i].Items);
+
+                for (int j = 0; j < baselineItems.Count; j++)
+                {
+                    var baselineItem = baselineItems[j];
+                    var convertedItem = convertedItems[j];
+
+                    Assert.Equal(baselineItem.Include, convertedItem.Include);
+                    Assert.Equal(baselineItem.Update, convertedItem.Update);
                 }
             }
         }

@@ -110,9 +110,10 @@ namespace Facts
             "System.Net.Http"
         );
 
-        public static ImmutableArray<string> ItemsWithPackagesThatWorkOnNETCore => ImmutableArray.Create(
-            "System.Data.DataSetExtensions"
-        );
+        public static ImmutableDictionary<string, string> ItemsWithPackagesThatWorkOnNETCore => ImmutableDictionary.CreateRange(new Dictionary<string, string>
+        {            
+            { "System.Data.DataSetExtensions", "4.5.0" }
+        });
 
         public const string LowestFrameworkVersionWithSystemValueTuple = "net47";
         public const string SharedProjectsImportLabel = "Shared";

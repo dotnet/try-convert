@@ -184,7 +184,14 @@ namespace Conversion
                     {
                         itemGroup.RemoveChild(item);
                     }
-                    else if (MSBuildUtilities.IsLegacyXamlDesignerItem(item))
+                    else if (MSBuildUtilities.IsReferenceConvertibleToPackageReference(item))
+                    {
+                        var packageName = item.Include;
+                        var version = MSBuildFacts.ItemsWithPackagesThatWorkOnNETCore[packageName];
+                        AddPackage(packageName, version);
+                        itemGroup.RemoveChild(item);
+                    }
+                    else if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && MSBuildUtilities.IsLegacyXamlDesignerItem(item))
                     {
                         itemGroup.RemoveChild(item);
                     }
@@ -235,6 +242,18 @@ namespace Conversion
                     item.Remove = introducedItem.EvaluatedInclude;
                 }
             }
+        }
+
+        private void AddPackage(string packageName, string packageVersion)
+        {
+            var groupForPackageRefs = MSBuildUtilities.GetPackageReferencesItemGroup(_projectRootElement);
+
+            var metadata = new List<KeyValuePair<string, string>>()
+            {
+                new KeyValuePair<string, string>("Version", packageVersion)
+            };
+
+            groupForPackageRefs.AddItem(PackageFacts.PackageReferenceItemType, packageName, metadata);
         }
 
         private void AddConvertedPackages(string tfm)

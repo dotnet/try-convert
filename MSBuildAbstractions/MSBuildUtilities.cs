@@ -183,10 +183,12 @@ namespace MSBuildAbstractions
         /// Checks if a given item needs to be removed because it either only runs on desktop .NET or is automatically pulled in as a reference and is thus unnecessary.
         /// </summary>
         public static bool DesktopReferencesNeedsRemoval(ProjectItemElement item) =>
-            MSBuildFacts.ItemsWithPackagesThatWorkOnNETCore.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
-            || DesktopFacts.ReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
+            DesktopFacts.ReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
             || DesktopFacts.KnownWPFReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
             || DesktopFacts.KnownWinFormsReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
+
+        public static bool IsReferenceConvertibleToPackageReference(ProjectItemElement item) =>
+            MSBuildFacts.ItemsWithPackagesThatWorkOnNETCore.ContainsKey(item.Include);
 
         public static bool IsExplicitValueTupleReferenceNeeded(string tfm) => FrameworkHasAValueTuple(tfm);
 
@@ -240,11 +242,15 @@ namespace MSBuildAbstractions
         public static void AddUseWPF(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.UseWPFPropertyName, "true");
 
         public static ProjectPropertyGroupElement GetTopPropertyGroupWithTFM(IProjectRootElement rootElement) =>
-            rootElement.PropertyGroups.Single(pg => pg.Children.Any(p => p.ElementName == MSBuildFacts.TargetFrameworkNodeName));
+            rootElement.PropertyGroups.Single(pg => pg.Properties.Any(p => p.ElementName.Equals(MSBuildFacts.TargetFrameworkNodeName, StringComparison.OrdinalIgnoreCase)))
+            ?? rootElement.AddPropertyGroup();
+
+        public static ProjectItemGroupElement GetPackageReferencesItemGroup(IProjectRootElement rootElement) =>
+            rootElement.ItemGroups.SingleOrDefault(ig => ig.Items.All(i => i.ElementName.Equals(PackageFacts.PackageReferencePackagesNodeName, StringComparison.OrdinalIgnoreCase)))
+            ?? rootElement.AddItemGroup();
 
         public static bool IsValidMetadataForConversionPurposes(IProjectMetadata projectMetadata) =>
             !projectMetadata.Name.Equals(MSBuildFacts.RequiredTargetFrameworkNodeName, StringComparison.OrdinalIgnoreCase);
-
 
         /// <summary>
         /// Unquote string. It simply removes the starting and ending "'", and checks they are present before.

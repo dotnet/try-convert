@@ -6,7 +6,7 @@
     },
     "Convert": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"C:\\repos\\try-convert\\TestData\\SmokeTests.WinformsFramework\\SmokeTests.WinformsFramework.csproj\""
+      "commandLineArgs": "convert \"C:\\Users\\phcart\\Source\\Repos\\matching-game\\MatchingGame\\MatchingGame\\MatchingGame.csproj\""
     }
   }
 }

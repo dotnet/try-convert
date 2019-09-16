@@ -69,13 +69,13 @@ namespace Conversion
                     _projectRootElement.RemoveChild(import);
                 }
 
-                if (MSBuildUtilities.IsWinForms(_projectRootElement) || MSBuildUtilities.IsWinForms(_projectRootElement))
+                if (MSBuildUtilities.IsWinForms(_projectRootElement) || MSBuildUtilities.IsWPF(_projectRootElement))
                 {
                     _projectRootElement.Sdk = DesktopFacts.WinSDKAttribute;
                 }
                 else
                 {
-                    _projectRootElement.Sdk = DesktopFacts.WinSDKAttribute;
+                    _projectRootElement.Sdk = DesktopFacts.DefaultSDKAttribute;
                 }
             }
         }

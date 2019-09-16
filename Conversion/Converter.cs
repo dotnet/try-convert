@@ -191,6 +191,13 @@ namespace Conversion
                         AddPackage(packageName, version);
                         itemGroup.RemoveChild(item);
                     }
+                    else if (item.HasMetadata && MSBuildUtilities.CanItemMetadataBeRemoved(item))
+                    {
+                        foreach (var metadataElement in item.Metadata)
+                        {
+                            item.RemoveChild(metadataElement);
+                        }
+                    }
                     else if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && MSBuildUtilities.IsLegacyXamlDesignerItem(item))
                     {
                         itemGroup.RemoveChild(item);

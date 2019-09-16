@@ -190,6 +190,9 @@ namespace MSBuildAbstractions
         public static bool IsReferenceConvertibleToPackageReference(ProjectItemElement item) =>
             MSBuildFacts.ItemsWithPackagesThatWorkOnNETCore.ContainsKey(item.Include);
 
+        public static bool CanItemMetadataBeRemoved(ProjectItemElement item) =>
+            MSBuildFacts.ItemsThatCanHaveMetadataRemoved.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase);
+
         public static bool IsExplicitValueTupleReferenceNeeded(string tfm) => FrameworkHasAValueTuple(tfm);
 
         public static bool IsExplicitValueTupleReferenceNeeded(ProjectItemElement item, string tfm) =>

@@ -115,6 +115,10 @@ namespace Facts
             { "System.Data.DataSetExtensions", "4.5.0" }
         });
 
+        public static ImmutableArray<string> ItemsThatCanHaveMetadataRemoved => ImmutableArray.Create(
+            "ProjectReference"
+        );
+
         public const string LowestFrameworkVersionWithSystemValueTuple = "net47";
         public const string SharedProjectsImportLabel = "Shared";
         public const string NETCoreDesktopTFM = "netcoreapp3.0";

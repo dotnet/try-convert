@@ -17,11 +17,8 @@ namespace SmokeTests
             var projectToConvertPath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.LegacyFSharpConsole", "SmokeTests.LegacyFSharpConsole.fsproj");
             var projectBaselinePath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.FSharpConsoleBaseline", "SmokeTests.FSharpConsoleBaseline.fsproj");
 
-            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath);
-
-            AssertPropsEqual(baselineRootElement, convertedRootElement);
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
-
         [Fact]
         public void ConvertsWpfFrameworkTemplate()
         {
@@ -29,20 +26,37 @@ namespace SmokeTests
             var projectToConvertPath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.WpfFramework", "SmokeTests.WpfFramework.csproj");
             var projectBaselinePath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.WpfCoreBaseline", "SmokeTests.WpfCoreBaseline.csproj");
 
-            // TODO
-            Assert.True(true);
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
 
         [Fact]
         public void ConvertsWinformsFrameworkTemplate()
         {
             MSBuildUtilities.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");
-            var loader = new ProjectLoader();
-            var path = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.WinformsFramework", "SmokeTests.WinformsFramework.csproj");
-            loader.LoadProjects(path);
-            var converter = new Converter(loader.Project, loader.SdkBaselineProject, loader.ProjectRootElement, loader.ProjectRootDirectory);
-            var str = converter.GenerateProjectFile();
-            Assert.True(true);
+            var projectToConvertPath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.WinformsFramework", "SmokeTests.WinformsFramework.csproj");
+            var projectBaselinePath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.WinformsCoreBaseline", "SmokeTests.WinformsCoreBaseline.csproj");
+
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath);
+        }
+
+        private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath)
+        {
+            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath);
+            AssertPropsEqual(baselineRootElement, convertedRootElement);
+        }
+
+        private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath)
+        {
+            var conversionLoader = new ProjectLoader();
+            conversionLoader.LoadProjects(projectToConvertPath);
+
+            var baselineLoader = new ProjectLoader();
+            var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);
+
+            var converter = new Converter(conversionLoader.Project, conversionLoader.SdkBaselineProject, conversionLoader.ProjectRootElement, conversionLoader.ProjectRootDirectory);
+            var convertedRootElement = converter.GenerateProjectFile();
+
+            return (baselineRootElement, convertedRootElement);
         }
 
         private void AssertPropsEqual(IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement)
@@ -67,20 +81,6 @@ namespace SmokeTests
                     Assert.Equal(baselineProp.Value, convertedProp.Value);
                 }
             }
-        }
-
-        private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath)
-        {
-            var conversionLoader = new ProjectLoader();
-            conversionLoader.LoadProjects(projectToConvertPath);
-
-            var baselineLoader = new ProjectLoader();
-            var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);
-
-            var converter = new Converter(conversionLoader.Project, conversionLoader.SdkBaselineProject, conversionLoader.ProjectRootElement, conversionLoader.ProjectRootDirectory);
-            var convertedRootElement = converter.GenerateProjectFile();
-
-            return (baselineRootElement, convertedRootElement);
         }
     }
 }

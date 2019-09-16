@@ -6,7 +6,7 @@
     },
     "Convert": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"C:\\repos\\try-convert\\TestData\\SmokeTests.LegacyFSharpConsole\\SmokeTests.LegacyFSharpConsole.fsproj\""
+      "commandLineArgs": "convert \"C:\\repos\\try-convert\\TestData\\SmokeTests.WinformsFramework\\SmokeTests.WinformsFramework.csproj\""
     }
   }
 }

@@ -7,7 +7,7 @@ using Microsoft.Build.Evaluation;
 using Facts;
 using System.Collections.Generic;
 
-namespace ProjectSimplifier
+namespace MSBuildAbstractions
 {
     public class ProjectLoader
     {
@@ -16,7 +16,7 @@ namespace ProjectSimplifier
         public IProjectRootElement ProjectRootElement { get; private set; }
         public DirectoryInfo ProjectRootDirectory { get; private set; }
 
-        public void LoadProjects(string projectFilePath = null, string roslynTargetsPath = null, string msbuildSdksPath = null, IEnumerable<string>  targetProjectProperties = null)
+        public void LoadProjects(string projectFilePath = "", string roslynTargetsPath = "", string msbuildSdksPath = "", IEnumerable<string> targetProjectProperties = null)
         {
             var path = Path.GetFullPath(projectFilePath);
 
@@ -26,7 +26,7 @@ namespace ProjectSimplifier
                 return;
             }
 
-            ImmutableDictionary<string, string> globalProperties = InitializeGlobalProperties(roslynTargetsPath, msbuildSdksPath);
+            var globalProperties = InitializeGlobalProperties(roslynTargetsPath, msbuildSdksPath);
             var collection = new ProjectCollection(globalProperties);
 
             ProjectRootElement = new MSBuildProjectRootElement(Microsoft.Build.Construction.ProjectRootElement.Open(path, collection, preserveFormatting: true));
@@ -35,7 +35,8 @@ namespace ProjectSimplifier
             Project = new UnconfiguredProject(configurations);
             Project.LoadProjects(collection, globalProperties, path);
 
-            var props = targetProjectProperties.ToImmutableDictionary(p => p.Split('=')[0], p => p.Split('=')[1]);
+            var props = InitializeTargetProjectProperties(targetProjectProperties);
+
             SdkBaselineProject = CreateSdkBaselineProject(path, Project.FirstConfiguredProject, globalProperties, configurations, props);
             ProjectRootElement.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
 
@@ -96,6 +97,22 @@ namespace ProjectSimplifier
             }
 
             return ProjectStyle.DefaultWithCustomTargets;
+        }
+
+        private static ImmutableDictionary<string, string> InitializeTargetProjectProperties(IEnumerable<string> targetProjectProperties)
+        {
+            var builder = ImmutableDictionary.CreateBuilder<string, string>();
+            if (targetProjectProperties is object)
+            {
+                foreach (var item in targetProjectProperties)
+                {
+                    var parts = item.Split('=');
+                    builder.Add(parts[0], parts[1]);
+                }
+            }
+
+            var props = builder.ToImmutable();
+            return props;
         }
 
         private static ImmutableDictionary<string, string> InitializeGlobalProperties(string roslynTargetsPath = null, string msbuildSdksPath = null)
@@ -171,7 +188,7 @@ namespace ProjectSimplifier
 
             var newGlobalProperties = globalProperties.AddRange(targetProjectProperties);
             // Create a new collection because a project with this name has already been loaded into the global collection.
-            var pc = new ProjectCollection(newGlobalProperties);
+            using var pc = new ProjectCollection(newGlobalProperties);
             var newProject = new UnconfiguredProject(configurations);
             newProject.LoadProjects(pc, rootElement);
 

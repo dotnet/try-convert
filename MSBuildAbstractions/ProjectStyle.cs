@@ -1,4 +1,4 @@
-﻿namespace ProjectSimplifier
+﻿namespace MSBuildAbstractions
 {
     public enum ProjectStyle
     {

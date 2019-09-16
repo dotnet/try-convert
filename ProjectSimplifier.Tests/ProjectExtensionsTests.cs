@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ProjectSimplifier;
-using ProjectSimplifier.Tests.Mocks;
+using MSBuildAbstractions;
+using MSBuildAbstractions.Tests.Mocks;
 using Xunit;
 
-namespace ProjectSimplifier.Tests
+namespace MSBuildAbstractions.Tests
 {
     public class ProjectExtensionsTests
     {

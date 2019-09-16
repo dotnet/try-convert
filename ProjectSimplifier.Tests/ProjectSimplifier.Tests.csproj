@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <IsPackable>false</IsPackable>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,8 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MSBuildAbstractions\MSBuildAbstractions.csproj" />
-    <ProjectReference Include="..\ProjectSimplifier\ProjectSimplifier.csproj" />
+    <ProjectReference Include="..\Conversion\Conversion.csproj" />
   </ItemGroup>
 
   <ItemGroup>

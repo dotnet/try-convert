@@ -1,10 +1,11 @@
-﻿using System;
+﻿using MSBuildAbstractions;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
-namespace ProjectSimplifier
+namespace Conversion
 {
     public class Differ
     {

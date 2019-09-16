@@ -5,9 +5,10 @@ using System.IO;
 using System.Linq;
 using Facts;
 using Microsoft.Build.Construction;
+using MSBuildAbstractions;
 using PackageConversion;
 
-namespace ProjectSimplifier
+namespace Conversion
 {
     public class Converter
     {
@@ -32,7 +33,7 @@ namespace ProjectSimplifier
             _projectRootElement.Save(outputPath);
         }
 
-        internal void GenerateProjectFile()
+        internal string GenerateProjectFile()
         {
             ChangeImports();
 
@@ -50,6 +51,8 @@ namespace ProjectSimplifier
             AddItemRemovesForIntroducedItems();
 
             ModifyProjectElement();
+
+            return _projectRootElement.ToString();
         }
 
         private void ChangeImports()
@@ -282,7 +285,7 @@ namespace ProjectSimplifier
 
         private string AddTargetFrameworkProperty()
         {
-            string StripDecimals(string tfm)
+            static string StripDecimals(string tfm)
             {
                 var parts = tfm.Split('.');
                 return string.Join("", parts);

@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.Build.Evaluation;
 using Moq;
 
-namespace ProjectSimplifier.Tests.Mocks
+namespace MSBuildAbstractions.Tests.Mocks
 {
     internal class IProjectFactory
     {

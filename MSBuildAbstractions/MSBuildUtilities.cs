@@ -1,12 +1,15 @@
 ﻿using Facts;
 using Microsoft.Build.Construction;
+using Microsoft.Build.Locator;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace ProjectSimplifier
+namespace MSBuildAbstractions
 {
     public static class MSBuildUtilities
     {
@@ -257,6 +260,74 @@ namespace ProjectSimplifier
 
             s = s.Substring(1, s.Length - 2);
             return true;
+        }
+
+        public static string HookAssemblyResolveForMSBuild(string msbuildPath = null)
+        {
+            msbuildPath = GetMSBuildPathIfNotSpecified(msbuildPath);
+            if (string.IsNullOrWhiteSpace(msbuildPath))
+            {
+                Console.WriteLine("Cannot find MSBuild. Please pass in a path to msbuild using -m or run from a developer command prompt.");
+                return null;
+            }
+
+            AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) =>
+            {
+                var targetAssembly = Path.Combine(msbuildPath, new AssemblyName(eventArgs.Name).Name + ".dll");
+                return File.Exists(targetAssembly) ? Assembly.LoadFrom(targetAssembly) : null;
+            };
+
+            return msbuildPath;
+        }
+
+        private static string GetMSBuildPathIfNotSpecified(string msbuildPath = null)
+        {
+            // If the user specified a msbuild path use that.
+            if (!string.IsNullOrEmpty(msbuildPath))
+            {
+                return msbuildPath;
+            }
+
+            // If the user is running from a developer command prompt use the MSBuild of that VS
+            var vsinstalldir = Environment.GetEnvironmentVariable("VSINSTALLDIR");
+            if (!string.IsNullOrEmpty(vsinstalldir))
+            {
+                return Path.Combine(vsinstalldir, "MSBuild", "Current", "Bin");
+            }
+
+            // Attempt to set the version of MSBuild.
+            var visualStudioInstances = MSBuildLocator.QueryVisualStudioInstances().ToArray();
+            var instance = visualStudioInstances.Length == 1
+                // If there is only one instance of MSBuild on this machine, set that as the one to use.
+                ? visualStudioInstances[0]
+                // Handle selecting the version of MSBuild you want to use.
+                : SelectVisualStudioInstance(visualStudioInstances);
+
+            return instance?.MSBuildPath;
+        }
+
+        private static VisualStudioInstance SelectVisualStudioInstance(VisualStudioInstance[] visualStudioInstances)
+        {
+            Console.WriteLine("Multiple installs of MSBuild detected please select one:");
+            for (int i = 0; i < visualStudioInstances.Length; i++)
+            {
+                Console.WriteLine($"Instance {i + 1}");
+                Console.WriteLine($"    Name: {visualStudioInstances[i].Name}");
+                Console.WriteLine($"    Version: {visualStudioInstances[i].Version}");
+                Console.WriteLine($"    MSBuild Path: {visualStudioInstances[i].MSBuildPath}");
+            }
+
+            while (true)
+            {
+                var userResponse = Console.ReadLine();
+                if (int.TryParse(userResponse, out int instanceNumber) &&
+                    instanceNumber > 0 &&
+                    instanceNumber <= visualStudioInstances.Length)
+                {
+                    return visualStudioInstances[instanceNumber - 1];
+                }
+                Console.WriteLine("Input not accepted, try again.");
+            }
         }
     }
 }

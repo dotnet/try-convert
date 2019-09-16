@@ -1,9 +1,10 @@
 ﻿using System.Collections.Immutable;
 using System.Linq;
-using ProjectSimplifier.Tests.Mocks;
+using Conversion;
+using MSBuildAbstractions.Tests.Mocks;
 using Xunit;
 
-namespace ProjectSimplifier.Tests
+namespace MSBuildAbstractions.Tests
 {
     public class PropertiesDiffTests
     {

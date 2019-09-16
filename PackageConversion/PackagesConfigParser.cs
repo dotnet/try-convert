@@ -41,7 +41,7 @@ namespace PackageConversion
 
         internal static IEnumerable<PackagesConfigPackage> ParseDocument(XDocument doc)
         {
-            PackagesConfigPackage ParsePackageConfig(XElement element) =>
+            static PackagesConfigPackage ParsePackageConfig(XElement element) =>
                 new PackagesConfigPackage
                 {
                     // Required
@@ -55,10 +55,8 @@ namespace PackageConversion
                     AllowedVersions = element.Attribute("allowedVersions") is null ? string.Empty : element.Attribute("allowedVersions").Value,
                     DevelopmentDependency = element.Attribute("allowedVersions") is null ? false : bool.Parse(element.Attribute("developmentDependency").Value),
                 };
-
-            string VersionWithoutSuffix(string nugetVersion) => nugetVersion.Split('-').First();
-
-            bool ValidPackageNode(XElement pkgNode) =>
+            static string VersionWithoutSuffix(string nugetVersion) => nugetVersion.Split('-').First();
+            static bool ValidPackageNode(XElement pkgNode) =>
                 pkgNode.Attribute(PackageFacts.PackageReferenceIDName) is object
                 && !string.IsNullOrWhiteSpace(pkgNode.Attribute(PackageFacts.PackageReferenceIDName).Value)
                 && pkgNode.Attribute(PackageFacts.PackageReferenceVersionName) is object

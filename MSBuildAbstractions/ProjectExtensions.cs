@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace ProjectSimplifier
+namespace MSBuildAbstractions
 {
     public static class ProjectExtensions
     {
@@ -35,24 +35,14 @@ namespace ProjectSimplifier
 
             var tfv = project.GetPropertyValue("TargetFrameworkVersion");
 
-            switch (tfi)
+            tf = tfi switch
             {
-                case ".NETFramework":
-                    tf = "net";
-                    break;
-                case ".NETStandard":
-                    tf = "netstandard";
-                    break;
-                case ".NETCoreApp":
-                    tf = "netcoreapp";
-                    break;
-                case ".NETPortable":
-                    tf = "netstandard";
-                    break;
-                default:
-                    throw new InvalidOperationException($"Unknown TargetFrameworkIdentifier {tfi}");
-            }
-
+                ".NETFramework" => "net",
+                ".NETStandard" => "netstandard",
+                ".NETCoreApp" => "netcoreapp",
+                ".NETPortable" => "netstandard",
+                _ => throw new InvalidOperationException($"Unknown TargetFrameworkIdentifier {tfi}"),
+            };
             if (tfi == ".NETPortable")
             {
                 var profile = project.GetPropertyValue("TargetFrameworkProfile");

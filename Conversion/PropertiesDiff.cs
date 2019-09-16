@@ -1,7 +1,8 @@
-﻿using System.Collections.Immutable;
+﻿using MSBuildAbstractions;
+using System.Collections.Immutable;
 using System.Linq;
 
-namespace ProjectSimplifier
+namespace Conversion
 {
     public struct PropertiesDiff
     {

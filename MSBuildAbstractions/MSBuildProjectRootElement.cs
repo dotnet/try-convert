@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Build.Construction;
 
-namespace ProjectSimplifier
+namespace MSBuildAbstractions
 {
     public interface IProjectRootElement
     {

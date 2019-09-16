@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 
-namespace ProjectSimplifier
+namespace MSBuildAbstractions
 {
     public struct BaselineProject
     {

@@ -10,7 +10,7 @@ namespace SmokeTests
         [Fact]
         public void ConvertsLegacyFSharpConsole()
         {
-            MSBuildUtilities.HookAssemblyResolveForMSBuild();
+            MSBuildUtilities.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");
             var loader = new ProjectLoader();
             var path = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.LegacyFSharpConsole", "SmokeTests.LegacyFSharpConsole.fsproj");
             loader.LoadProjects(path);
@@ -25,7 +25,7 @@ namespace SmokeTests
         [Fact]
         public void ConvertsWpfFrameworkTemplate()
         {
-            MSBuildUtilities.HookAssemblyResolveForMSBuild();
+            MSBuildUtilities.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");
             var loader = new ProjectLoader();
             var path = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.WpfFramework", "SmokeTests.WpfFramework.csproj");
             loader.LoadProjects(path);
@@ -37,7 +37,7 @@ namespace SmokeTests
         [Fact]
         public void ConvertsWinformsFrameworkTemplate()
         {
-            MSBuildUtilities.HookAssemblyResolveForMSBuild();
+            MSBuildUtilities.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");
             var loader = new ProjectLoader();
             var path = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.WinformsFramework", "SmokeTests.WinformsFramework.csproj");
             loader.LoadProjects(path);

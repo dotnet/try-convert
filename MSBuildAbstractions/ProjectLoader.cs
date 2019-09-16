@@ -43,6 +43,21 @@ namespace MSBuildAbstractions
             ProjectRootDirectory = Directory.GetParent(path);
         }
 
+        public IProjectRootElement GetRootElementFromProjectFile(string projectFilePath = "", string roslynTargetsPath = "", string msbuildSdksPath = "")
+        {
+            var path = Path.GetFullPath(projectFilePath);
+
+            if (!File.Exists(path))
+            {
+                throw new ArgumentException($"The project file '{projectFilePath}' does not exist or is inaccessible.");
+            }
+
+            var globalProperties = InitializeGlobalProperties(roslynTargetsPath, msbuildSdksPath);
+            var collection = new ProjectCollection(globalProperties);
+
+            return new MSBuildProjectRootElement(Microsoft.Build.Construction.ProjectRootElement.Open(path, collection, preserveFormatting: true));
+        }
+
         public ImmutableDictionary<string, ImmutableDictionary<string, string>> DetermineConfigurations(IProjectRootElement projectRootElement)
         {
             var builder = ImmutableDictionary.CreateBuilder<string, ImmutableDictionary<string, string>>();

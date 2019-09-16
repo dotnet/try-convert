@@ -24,7 +24,7 @@ namespace Conversion
             _sdkBaselineProject = sdkBaselineProject;
             _projectRootElement = projectRootElement ?? throw new ArgumentNullException(nameof(projectRootElement));
             _projectRootDirectory = projectRootDirectory;
-            _differs = _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Item2);
+            _differs = GetDiffers();
         }
 
         public void Convert(string outputPath)
@@ -54,6 +54,9 @@ namespace Conversion
 
             return _projectRootElement;
         }
+
+        internal ImmutableDictionary<string, Differ> GetDiffers() =>
+            _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Item2);
 
         private void ChangeImports()
         {

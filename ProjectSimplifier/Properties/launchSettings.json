@@ -6,7 +6,7 @@
     },
     "Convert": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"C:\\Users\\phillip\\source\\repos\\ProjectSimplifier\\TestData\\SmokeTests.LegacyFSharpConsole\\SmokeTests.LegacyFSharpConsole.fsproj\""
+      "commandLineArgs": "convert \"C:\\repos\\try-convert\\TestData\\SmokeTests.LegacyFSharpConsole\\SmokeTests.LegacyFSharpConsole.fsproj\""
     }
   }
 }

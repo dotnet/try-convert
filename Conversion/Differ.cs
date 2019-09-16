@@ -9,13 +9,13 @@ namespace Conversion
 {
     public class Differ
     {
-        private readonly IProject _project;
-        private readonly IProject _sdkBaselineProject;
+        private readonly IProject _project1;
+        private readonly IProject _project2;
 
-        public Differ(IProject project, IProject sdkBaselineProject)
+        public Differ(IProject project1, IProject project2)
         {
-            _project = project ?? throw new ArgumentNullException(nameof(project));
-            _sdkBaselineProject = sdkBaselineProject ?? throw new ArgumentNullException(nameof(sdkBaselineProject));
+            _project1 = project1 ?? throw new ArgumentNullException(nameof(project1));
+            _project2 = project2 ?? throw new ArgumentNullException(nameof(project2));
         }
 
         public PropertiesDiff GetPropertiesDiff()
@@ -24,12 +24,12 @@ namespace Conversion
             var notDefaultedProps = ImmutableArray.CreateBuilder<IProjectProperty>();
             var changedProps = ImmutableArray.CreateBuilder<(IProjectProperty, IProjectProperty)>();
 
-            var propertiesInFile = _project.Properties.Where(p => p.IsDefinedInProject).Select(p => p.Name).Distinct();
+            var propertiesInFile = _project1.Properties.Where(p => p.IsDefinedInProject).Select(p => p.Name).Distinct();
 
             foreach (var propInFile in propertiesInFile)
             {
-                var originalEvaluatedProp = _project.GetProperty(propInFile);
-                var newEvaluatedProp = _sdkBaselineProject.GetProperty(propInFile);
+                var originalEvaluatedProp = _project1.GetProperty(propInFile);
+                var newEvaluatedProp = _project2.GetProperty(propInFile);
                 if (newEvaluatedProp is object)
                 {
                     if (!originalEvaluatedProp.EvaluatedValue.Equals(newEvaluatedProp.EvaluatedValue, StringComparison.OrdinalIgnoreCase))
@@ -52,8 +52,8 @@ namespace Conversion
 
         public ImmutableArray<ItemsDiff> GetItemsDiff()
         {
-            var oldItemGroups = from oldItem in _project.Items group oldItem by oldItem.ItemType;
-            var newItemGroups = from newItem in _sdkBaselineProject.Items group newItem by newItem.ItemType;
+            var oldItemGroups = from oldItem in _project1.Items group oldItem by oldItem.ItemType;
+            var newItemGroups = from newItem in _project2.Items group newItem by newItem.ItemType;
 
             var addedRemovedGroups = from og in oldItemGroups
                                      from ng in newItemGroups

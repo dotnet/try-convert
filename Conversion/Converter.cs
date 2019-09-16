@@ -33,7 +33,7 @@ namespace Conversion
             _projectRootElement.Save(outputPath);
         }
 
-        internal string GenerateProjectFile()
+        internal IProjectRootElement GenerateProjectFile()
         {
             ChangeImports();
 
@@ -52,7 +52,7 @@ namespace Conversion
 
             ModifyProjectElement();
 
-            return _projectRootElement.ToString();
+            return _projectRootElement;
         }
 
         private void ChangeImports()
@@ -253,12 +253,12 @@ namespace Conversion
                 var groupForPackageRefs = _projectRootElement.AddItemGroup();
                 foreach (var pkgref in packageReferences)
                 {
-                    if (pkgref.ID.Equals(Facts.MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm))
+                    if (pkgref.ID.Equals(MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm))
                     {
                         continue;
                     }
 
-                    if (Facts.MSBuildFacts.UnnecessaryItemIncludes.Contains(pkgref.ID, StringComparer.OrdinalIgnoreCase))
+                    if (MSBuildFacts.UnnecessaryItemIncludes.Contains(pkgref.ID, StringComparer.OrdinalIgnoreCase))
                     {
                         continue;
                     }

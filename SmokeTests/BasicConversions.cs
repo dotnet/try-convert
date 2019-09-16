@@ -15,7 +15,10 @@ namespace SmokeTests
             var path = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.LegacyFSharpConsole", "SmokeTests.LegacyFSharpConsole.fsproj");
             loader.LoadProjects(path);
             var converter = new Converter(loader.Project, loader.SdkBaselineProject, loader.ProjectRootElement, loader.ProjectRootDirectory);
-            var str = converter.GenerateProjectFile();
+            var root = converter.GenerateProjectFile();
+
+            // TODO - figure out how to compare against a baseline
+
             Assert.True(true);
         }
 

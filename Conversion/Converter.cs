@@ -187,7 +187,7 @@ namespace Conversion
                     else if (MSBuildUtilities.IsReferenceConvertibleToPackageReference(item))
                     {
                         var packageName = item.Include;
-                        var version = MSBuildFacts.ItemsWithPackagesThatWorkOnNETCore[packageName];
+                        var version = MSBuildFacts.DefaultItemsThatHavePackageEquivalents[packageName];
                         AddPackage(packageName, version);
                         itemGroup.RemoveChild(item);
                     }

@@ -188,7 +188,7 @@ namespace MSBuildAbstractions
             || DesktopFacts.KnownWinFormsReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
 
         public static bool IsReferenceConvertibleToPackageReference(ProjectItemElement item) =>
-            MSBuildFacts.ItemsWithPackagesThatWorkOnNETCore.ContainsKey(item.Include);
+            MSBuildFacts.DefaultItemsThatHavePackageEquivalents.ContainsKey(item.Include);
 
         public static bool CanItemMetadataBeRemoved(ProjectItemElement item) =>
             MSBuildFacts.ItemsThatCanHaveMetadataRemoved.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase);

@@ -110,7 +110,7 @@ namespace Facts
             "System.Net.Http"
         );
 
-        public static ImmutableDictionary<string, string> ItemsWithPackagesThatWorkOnNETCore => ImmutableDictionary.CreateRange(new Dictionary<string, string>
+        public static ImmutableDictionary<string, string> DefaultItemsThatHavePackageEquivalents => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {            
             { "System.Data.DataSetExtensions", "4.5.0" }
         });

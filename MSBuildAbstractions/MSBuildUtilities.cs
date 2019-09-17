@@ -187,6 +187,12 @@ namespace MSBuildAbstractions
             || DesktopFacts.KnownWPFReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
             || DesktopFacts.KnownWinFormsReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
 
+        public static bool IsDesktopRemovableGlobbedItem(ProjectStyle style, ProjectItemElement item) =>
+            style == ProjectStyle.WindowsDesktop
+            && MSBuildFacts.GlobbedItemTypes.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase)
+            && (item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
+                                         && pme.Value.Equals(DesktopFacts.FormSubTypeValue, StringComparison.OrdinalIgnoreCase)));
+
         public static bool IsReferenceConvertibleToPackageReference(ProjectItemElement item) =>
             MSBuildFacts.DefaultItemsThatHavePackageEquivalents.ContainsKey(item.Include);
 
@@ -196,17 +202,27 @@ namespace MSBuildAbstractions
         public static bool IsExplicitValueTupleReferenceNeeded(string tfm) => FrameworkHasAValueTuple(tfm);
 
         public static bool IsExplicitValueTupleReferenceNeeded(ProjectItemElement item, string tfm) =>
-            item.Include.Equals(Facts.MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && FrameworkHasAValueTuple(tfm);
+            item.Include.Equals(MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && FrameworkHasAValueTuple(tfm);
 
         /// <summary>
-        /// Checks if the given item is a designer file that is not one of { Settings.Designer.cs, Resources.Designer.cs }.
+        /// Checks if the given item is a designer file.
         /// </summary>
         /// <param name="item">The ProjectItemElement that might be a designer file.</param>
-        /// <returns>true if the given ProjectItemElement is a designer file that isn't a settings or resources file.</returns>
-        public static bool IsWinFormsUIDesignerFile(ProjectItemElement item) =>
-            item.Include.EndsWith(DesktopFacts.DesignerEndString, StringComparison.OrdinalIgnoreCase)
-            && !item.Include.EndsWith(DesktopFacts.ResourcesDesignerFileName, StringComparison.OrdinalIgnoreCase)
-            && !item.Include.EndsWith(DesktopFacts.SettingsDesignerFileName, StringComparison.OrdinalIgnoreCase);
+        /// <returns>true if the given ProjectItemElement is a designer file.</returns>
+        public static bool IsDesignerFile(ProjectItemElement item) =>
+            item.Include.EndsWith(DesktopFacts.DesignerSuffix, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if the given item is a resx file.
+        /// </summary>
+        public static bool IsResxFile(ProjectItemElement item) =>
+            item.Include.EndsWith(DesktopFacts.ResourcesFileSuffix, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if the given item is a settings file.
+        /// </summary>
+        public static bool IsSettingsFile(ProjectItemElement item) =>
+            item.Include.EndsWith(DesktopFacts.SettingsFileSuffix, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Checks if the given property is the 'Name' property, and if its value is the same as the project file name.
@@ -252,14 +268,19 @@ namespace MSBuildAbstractions
 
         public static bool IsLegacyXamlDesignerItem(ProjectItemElement item) =>
             item.Include.EndsWith(DesktopFacts.XamlFileExtension, StringComparison.OrdinalIgnoreCase)
-            && item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeName, StringComparison.OrdinalIgnoreCase)
+            && item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
                                        && pme.Value.Equals(MSBuildFacts.DesignerSubType, StringComparison.OrdinalIgnoreCase));
 
         public static bool IsDependentUponXamlDesignerItem(ProjectItemElement item) =>
-            item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeName, StringComparison.OrdinalIgnoreCase)
-                                     && pme.Value.Equals(MSBuildFacts.CodeSubType, StringComparison.OrdinalIgnoreCase))
+            item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
+                                     && pme.Value.Equals(MSBuildFacts.CodeSubTypeValue, StringComparison.OrdinalIgnoreCase))
             && item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.DependentUponName, StringComparison.OrdinalIgnoreCase)
                                         && pme.Value.EndsWith(DesktopFacts.XamlFileExtension, StringComparison.OrdinalIgnoreCase));
+
+        public static bool IsItemWithUnnecessaryMetadata(ProjectItemElement item) =>
+            MSBuildFacts.GlobbedItemTypes.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase)
+            && item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
+                                        && pme.Value.Equals(MSBuildFacts.CodeSubTypeValue, StringComparison.OrdinalIgnoreCase));
 
         public static IEnumerable<ProjectItemGroupElement> GetPackagesConfigItemGroup(IProjectRootElement root) =>
             root.ItemGroups.Where(pige => pige.Items.Any(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));

@@ -131,14 +131,14 @@ namespace Facts
         public const string DefineConstantsName = "DefineConstants";
         public const string OutputPathName = "OutputPath";
         public const string DebugTypeName = "DebugType";
-        public const string SubTypeName = "SubType";
+        public const string SubTypeNodeName = "SubType";
         public const string DependentUponName = "DependentUpon";
         public const string PlatformTargetName = "PlatformTarget";
         public const string NetcoreappPrelude = "netcoreapp";
         public const string NetstandardPrelude = "netstandard";
         public const string MSBuildReferenceName = "Reference";
         public const string DesignerSubType = "Designer";
-        public const string CodeSubType = "Code";
+        public const string CodeSubTypeValue = "Code";
         public const string TargetFrameworkNodeName = "TargetFramework";
         public const string OutputTypeNodeName = "OutputType";
         public const string GenerateAssemblyInfoNodeName = "GenerateAssemblyInfo";
@@ -146,5 +146,6 @@ namespace Facts
         public const string NameNodeName = "Name";
         public const string DocumentationFileNodeName = "DocumentationFile";
         public const string DefaultDocumentationFileLocation = @"bin\$(Configuration)\$(AssemblyName).XML";
+        public const string CSharpFileSuffix = ".cs";
     }
 }

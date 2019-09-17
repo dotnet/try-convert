@@ -126,33 +126,27 @@ namespace Conversion
                     {
                         propGroup.RemoveChild(prop);
                     }
-
-                    if (MSBuildUtilities.IsDefineConstantDefault(prop))
+                    else if (MSBuildUtilities.IsDefineConstantDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
-
-                    if (MSBuildUtilities.IsDebugTypeDefault(prop))
+                    else if (MSBuildUtilities.IsDebugTypeDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
-
-                    if (MSBuildUtilities.IsOutputPathDefault(prop))
+                    else if (MSBuildUtilities.IsOutputPathDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
-
-                    if (MSBuildUtilities.IsPlatformTargetDefault(prop))
+                    else if (MSBuildUtilities.IsPlatformTargetDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
-
-                    if (MSBuildUtilities.IsNameDefault(prop, GetProjectName(_projectFilePath)))
+                    else if (MSBuildUtilities.IsNameDefault(prop, GetProjectName(_projectFilePath)))
                     {
                         propGroup.RemoveChild(prop);
                     }
-
-                    if (MSBuildUtilities.IsDocumentationFileDefault(prop))
+                    else if (MSBuildUtilities.IsDocumentationFileDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
@@ -167,7 +161,7 @@ namespace Conversion
 
         private void RemoveOrUpdateItems(string tfm)
         {
-            void UpdateBasedOnDiff(ImmutableArray<ItemsDiff> itemsDiff, ProjectItemGroupElement itemGroup, ProjectItemElement item)
+            static void UpdateBasedOnDiff(ImmutableArray<ItemsDiff> itemsDiff, ProjectItemGroupElement itemGroup, ProjectItemElement item)
             {
                 var itemTypeDiff = itemsDiff.FirstOrDefault(id => id.ItemType.Equals(item.ItemType, StringComparison.OrdinalIgnoreCase));
                 if (!itemTypeDiff.DefaultedItems.IsDefault)
@@ -191,13 +185,32 @@ namespace Conversion
                 }
             }
 
+            static bool IsDesktopRemovableItem(BaselineProject sdkBaselineProject, ProjectItemGroupElement itemGroup, ProjectItemElement item)
+            {
+                return sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop
+                       && (MSBuildUtilities.IsLegacyXamlDesignerItem(item)
+                           || MSBuildUtilities.IsDependentUponXamlDesignerItem(item)
+                           || MSBuildUtilities.IsDesignerFile(item)
+                           || MSBuildUtilities.IsSettingsFile(item)
+                           || MSBuildUtilities.IsResxFile(item)
+                           || MSBuildUtilities.DesktopReferencesNeedsRemoval(item)
+                           || MSBuildUtilities.IsDesktopRemovableGlobbedItem(sdkBaselineProject.ProjectStyle, item));
+            }
+
             foreach (var itemGroup in _projectRootElement.ItemGroups)
             {
                 var configurationName = MSBuildUtilities.GetConfigurationName(itemGroup.Condition);
-                var itemsDiff = _differs[configurationName].GetItemsDiff();
 
                 foreach (var item in itemGroup.Items.Where(item => !MSBuildUtilities.IsPackageReference(item)))
                 {
+                    if (item.HasMetadata && MSBuildUtilities.CanItemMetadataBeRemoved(item))
+                    {
+                        foreach (var metadataElement in item.Metadata)
+                        {
+                            item.RemoveChild(metadataElement);
+                        }
+                    }
+
                     if (MSBuildFacts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
                     {
                         itemGroup.RemoveChild(item);
@@ -210,37 +223,22 @@ namespace Conversion
                     {
                         var packageName = item.Include;
                         var version = MSBuildFacts.DefaultItemsThatHavePackageEquivalents[packageName];
+
                         AddPackage(packageName, version);
+
                         itemGroup.RemoveChild(item);
                     }
-                    else if (item.HasMetadata && MSBuildUtilities.CanItemMetadataBeRemoved(item))
-                    {
-                        foreach (var metadataElement in item.Metadata)
-                        {
-                            item.RemoveChild(metadataElement);
-                        }
-                    }
-                    else if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && MSBuildUtilities.IsLegacyXamlDesignerItem(item))
+                    else if (IsDesktopRemovableItem(_sdkBaselineProject, itemGroup, item))
                     {
                         itemGroup.RemoveChild(item);
                     }
-                    else if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && MSBuildUtilities.IsDependentUponXamlDesignerItem(item))
+                    else if (MSBuildUtilities.IsItemWithUnnecessaryMetadata(item))
                     {
-                        itemGroup.RemoveChild(item);
-                    }
-                    else if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && MSBuildUtilities.IsWinFormsUIDesignerFile(item))
-                    {
-                        itemGroup.RemoveChild(item);
-                    }
-                    else if (_sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop && MSBuildUtilities.DesktopReferencesNeedsRemoval(item))
-                    {
-                        // Desktop projects will only convert to .NET Core, so any item includes that have .NET Core equivalents will be removed.
-                        // Users will have to ensure those packages are also added if they cannot do so with a tool.
-                        // References that are already present will also be removed.
                         itemGroup.RemoveChild(item);
                     }
                     else
                     {
+                        var itemsDiff = _differs[configurationName].GetItemsDiff();
                         UpdateBasedOnDiff(itemsDiff, itemGroup, item);
                     }
                 }
@@ -314,7 +312,7 @@ namespace Conversion
                         continue;
                     }
 
-                    // TODO: more metadata
+                    // TODO: more metadata?
                     var metadata = new List<KeyValuePair<string, string>>()
                     {
                         new KeyValuePair<string, string>("Version", pkgref.Version)

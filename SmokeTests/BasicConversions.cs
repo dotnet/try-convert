@@ -68,18 +68,26 @@ namespace SmokeTests
             var baselinePropGroups = new List<ProjectPropertyGroupElement>(baselineRootElement.PropertyGroups);
             var convertedPropGroups = new List<ProjectPropertyGroupElement>(convertedRootElement.PropertyGroups);
 
-            for (int i = 0; i < baselinePropGroups.Count; i++)
+            if (baselinePropGroups.Count > 0)
             {
-                var baselineProps = new List<ProjectPropertyElement>(baselinePropGroups[i].Properties);
-                var convertedProps = new List<ProjectPropertyElement>(convertedPropGroups[i].Properties);
-
-                for (int j = 0; j < baselineProps.Count; j++)
+                for (int i = 0; i < baselinePropGroups.Count; i++)
                 {
-                    var baselineProp = baselineProps[j];
-                    var convertedProp = convertedProps[j];
+                    var baselineProps = new List<ProjectPropertyElement>(baselinePropGroups[i].Properties);
+                    var convertedProps = new List<ProjectPropertyElement>(convertedPropGroups[i].Properties);
 
-                    Assert.Equal(baselineProp.Name, convertedProp.Name);
-                    Assert.Equal(baselineProp.Value, convertedProp.Value);
+                    Assert.Equal(baselineProps.Count, convertedProps.Count);
+
+                    if (baselineProps.Count > 0)
+                    {
+                        for (int j = 0; j < baselineProps.Count; j++)
+                        {
+                            var baselineProp = baselineProps[j];
+                            var convertedProp = convertedProps[j];
+
+                            Assert.Equal(baselineProp.Name, convertedProp.Name);
+                            Assert.Equal(baselineProp.Value, convertedProp.Value);
+                        }
+                    }
                 }
             }
         }
@@ -92,18 +100,26 @@ namespace SmokeTests
             var baselineItemGroups = new List<ProjectItemGroupElement>(baselineRootElement.ItemGroups);
             var convertedItemGroups = new List<ProjectItemGroupElement>(convertedRootElement.ItemGroups);
 
-            for (int i = 0; i < baselineItemGroups.Count; i++)
+            if (baselineItemGroups.Count > 0)
             {
-                var baselineItems = new List<ProjectItemElement>(baselineItemGroups[i].Items);
-                var convertedItems = new List<ProjectItemElement>(convertedItemGroups[i].Items);
-
-                for (int j = 0; j < baselineItems.Count; j++)
+                for (int i = 0; i < baselineItemGroups.Count; i++)
                 {
-                    var baselineItem = baselineItems[j];
-                    var convertedItem = convertedItems[j];
+                    var baselineItems = new List<ProjectItemElement>(baselineItemGroups[i].Items);
+                    var convertedItems = new List<ProjectItemElement>(convertedItemGroups[i].Items);
 
-                    Assert.Equal(baselineItem.Include, convertedItem.Include);
-                    Assert.Equal(baselineItem.Update, convertedItem.Update);
+                    Assert.Equal(baselineItems.Count, convertedItems.Count);
+
+                    if (baselineItems.Count > 1)
+                    {
+                        for (int j = 0; j < baselineItems.Count; j++)
+                        {
+                            var baselineItem = baselineItems[j];
+                            var convertedItem = convertedItems[j];
+
+                            Assert.Equal(baselineItem.Include, convertedItem.Include);
+                            Assert.Equal(baselineItem.Update, convertedItem.Update);
+                        }
+                    }
                 }
             }
         }

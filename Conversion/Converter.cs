@@ -346,7 +346,7 @@ namespace Conversion
                 return _sdkBaselineProject.GlobalProperties.First(p => p.Equals("TargetFramework", StringComparison.OrdinalIgnoreCase));
             }
 
-            var propGroup = GetOrCreateEmptyPropertyGroup();
+            var propGroup = MSBuildUtilities.GetOrCreateEmptyPropertyGroup(_sdkBaselineProject, _projectRootElement);
 
             var targetFrameworkElement = _projectRootElement.CreatePropertyElement("TargetFramework");
 
@@ -407,22 +407,6 @@ namespace Conversion
             _projectRootElement.DefaultTargets = null;
         }
 
-        private ProjectPropertyGroupElement GetOrCreateEmptyPropertyGroup()
-        {
-            bool IsAfterFirstImport(ProjectPropertyGroupElement propertyGroup)
-            {
-                if (_sdkBaselineProject.ProjectStyle == ProjectStyle.Default || _sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop)
-                    return true;
-
-                var firstImport = _projectRootElement.Imports.Where(i => i.Label != MSBuildFacts.SharedProjectsImportLabel).First();
-                return propertyGroup.Location.Line > firstImport.Location.Line;
-            }
-
-            return _projectRootElement.PropertyGroups.FirstOrDefault(pg => pg.Condition == "" &&
-                                                                     IsAfterFirstImport(pg))
-                    ?? _projectRootElement.AddPropertyGroup();
-        }
-
         private void AddTargetProjectProperties()
         {
             if (_sdkBaselineProject.TargetProjectProperties.IsEmpty)
@@ -430,7 +414,7 @@ namespace Conversion
                 return;
             }
 
-            var propGroup = GetOrCreateEmptyPropertyGroup();
+            var propGroup = MSBuildUtilities.GetOrCreateEmptyPropertyGroup(_sdkBaselineProject, _projectRootElement);
 
             foreach (var prop in _sdkBaselineProject.TargetProjectProperties)
             {

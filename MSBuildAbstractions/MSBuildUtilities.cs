@@ -302,6 +302,21 @@ namespace MSBuildAbstractions
         public static bool IsValidMetadataForConversionPurposes(IProjectMetadata projectMetadata) =>
             !projectMetadata.Name.Equals(MSBuildFacts.RequiredTargetFrameworkNodeName, StringComparison.OrdinalIgnoreCase);
 
+        public static ProjectPropertyGroupElement GetOrCreateEmptyPropertyGroup(BaselineProject baselineProject, IProjectRootElement projectRootElement)
+        {
+            bool IsAfterFirstImport(ProjectPropertyGroupElement propertyGroup)
+            {
+                if (baselineProject.ProjectStyle == ProjectStyle.Default || baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop)
+                    return true;
+
+                var firstImport = projectRootElement.Imports.Where(i => i.Label != MSBuildFacts.SharedProjectsImportLabel).First();
+                return propertyGroup.Location.Line > firstImport.Location.Line;
+            }
+
+            return projectRootElement.PropertyGroups.FirstOrDefault(pg => pg.Condition == "" && IsAfterFirstImport(pg))
+                   ?? projectRootElement.AddPropertyGroup();
+        }
+
         /// <summary>
         /// Unquote string. It simply removes the starting and ending "'", and checks they are present before.
         /// </summary>

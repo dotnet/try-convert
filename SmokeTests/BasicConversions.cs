@@ -54,7 +54,7 @@ namespace SmokeTests
             var baselineLoader = new ProjectLoader();
             var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);
 
-            var converter = new Converter(conversionLoader.Project, conversionLoader.SdkBaselineProject, conversionLoader.ProjectRootElement, conversionLoader.ProjectRootDirectory);
+            var converter = new Converter(conversionLoader.Project, conversionLoader.SdkBaselineProject, conversionLoader.ProjectRootElement, conversionLoader.ProjectRootDirectory, projectToConvertPath);
             var convertedRootElement = converter.GenerateProjectFile();
 
             return (baselineRootElement, convertedRootElement);

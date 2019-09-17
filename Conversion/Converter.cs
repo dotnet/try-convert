@@ -17,14 +17,16 @@ namespace Conversion
         private readonly IProjectRootElement _projectRootElement;
         private readonly ImmutableDictionary<string, Differ> _differs;
         private readonly DirectoryInfo _projectRootDirectory;
+        private readonly string _projectFilePath;
 
-        public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, IProjectRootElement projectRootElement, DirectoryInfo projectRootDirectory)
+        public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, IProjectRootElement projectRootElement, DirectoryInfo projectRootDirectory, string projectFilePath)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _sdkBaselineProject = sdkBaselineProject;
             _projectRootElement = projectRootElement ?? throw new ArgumentNullException(nameof(projectRootElement));
             _projectRootDirectory = projectRootDirectory;
             _differs = GetDiffers();
+            _projectFilePath = projectFilePath;
         }
 
         public void Convert(string outputPath)
@@ -110,6 +112,12 @@ namespace Conversion
 
         private void RemoveUnnecessaryPropertiesNotInSDKByDefault()
         {
+            static string GetProjectName(string projectPath)
+            {
+                var projName = projectPath.Split('\\').Last();
+                return projName.Substring(0, projName.LastIndexOf('.'));
+            }
+
             foreach (var propGroup in _projectRootElement.PropertyGroups)
             {
                 foreach (var prop in propGroup.Properties)
@@ -118,19 +126,33 @@ namespace Conversion
                     {
                         propGroup.RemoveChild(prop);
                     }
-                    else if (MSBuildUtilities.IsDefineConstantDefault(prop))
+
+                    if (MSBuildUtilities.IsDefineConstantDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
-                    else if (MSBuildUtilities.IsDebugTypeDefault(prop))
+
+                    if (MSBuildUtilities.IsDebugTypeDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
-                    else if (MSBuildUtilities.IsOutputPathDefault(prop))
+
+                    if (MSBuildUtilities.IsOutputPathDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
-                    else if (MSBuildUtilities.IsPlatformTargetDefault(prop))
+
+                    if (MSBuildUtilities.IsPlatformTargetDefault(prop))
+                    {
+                        propGroup.RemoveChild(prop);
+                    }
+
+                    if (MSBuildUtilities.IsNameDefault(prop, GetProjectName(_projectFilePath)))
+                    {
+                        propGroup.RemoveChild(prop);
+                    }
+
+                    if (MSBuildUtilities.IsDocumentationFileDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }

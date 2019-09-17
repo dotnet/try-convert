@@ -49,7 +49,7 @@ namespace ProjectSimplifier
                         differ.GenerateReport(opt.DiffReportPath);
                         break;
                     case ConvertOptions opt:
-                        var converter = new Converter(projectLoader.Project, projectLoader.SdkBaselineProject, projectLoader.ProjectRootElement, projectLoader.ProjectRootDirectory);
+                        var converter = new Converter(projectLoader.Project, projectLoader.SdkBaselineProject, projectLoader.ProjectRootElement, projectLoader.ProjectRootDirectory, options.ProjectFilePath);
                         converter.Convert(opt.OutputProjectPath ?? opt.ProjectFilePath);
                         break;
                 }

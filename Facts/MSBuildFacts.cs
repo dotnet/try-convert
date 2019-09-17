@@ -59,14 +59,19 @@ namespace Facts
             "TargetFrameworkProfile",
             "FSharpTargetsPath",
 
-            // The following are rarely (if ever) set by users, but are defaulted in some templates,
-            // and are likely to have incorrect values for .NET SDK/VS interaction
+            // This is not applicable in most cases, as older VS versions won't work with any modern .NET Core
             "MinimumVisualStudioVersion",
+
+            // This is so unlikely to be changed from the default that we can just remove it
             "SchemaVersion",
-            "Name",
+            
+            // This is set by F# legacy templates, but since we default to 64-bit on .NET Core this is unlikely to ever be meaningful
             "Prefer32Bit",
-            "DocumentationFile",
+
+            // This is dropped in by templates and is so unlikely to ever be set that it's not worth keeping
             "VSToolsPath",
+
+            // This is dropped in by templates, but is unlikely to be valid given that the .NET SDK specifies a minimum VS version that will work
             "VisualStudioVersion"
         );
 
@@ -138,5 +143,8 @@ namespace Facts
         public const string OutputTypeNodeName = "OutputType";
         public const string GenerateAssemblyInfoNodeName = "GenerateAssemblyInfo";
         public const string RequiredTargetFrameworkNodeName = "RequiredTargetFramework";
+        public const string NameNodeName = "Name";
+        public const string DocumentationFileNodeName = "DocumentationFile";
+        public const string DefaultDocumentationFileLocation = @"bin\$(Configuration)\$(AssemblyName).XML";
     }
 }

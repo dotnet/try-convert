@@ -14,8 +14,8 @@ namespace SmokeTests
         public void ConvertsLegacyFSharpConsole()
         {
             MSBuildUtilities.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");
-            var projectToConvertPath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.LegacyFSharpConsole", "SmokeTests.LegacyFSharpConsole.fsproj");
-            var projectBaselinePath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.FSharpConsoleBaseline", "SmokeTests.FSharpConsoleBaseline.fsproj");
+            var projectToConvertPath = Path.Combine("..", "..", "..", "..", "..", "tests", "TestData", "SmokeTests.LegacyFSharpConsole", "SmokeTests.LegacyFSharpConsole.fsproj");
+            var projectBaselinePath = Path.Combine("..", "..", "..", "..", "..", "tests","TestData", "SmokeTests.FSharpConsoleBaseline", "SmokeTests.FSharpConsoleBaseline.fsproj");
 
             AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
@@ -23,8 +23,8 @@ namespace SmokeTests
         public void ConvertsWpfFrameworkTemplate()
         {
             MSBuildUtilities.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");
-            var projectToConvertPath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.WpfFramework", "SmokeTests.WpfFramework.csproj");
-            var projectBaselinePath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.WpfCoreBaseline", "SmokeTests.WpfCoreBaseline.csproj");
+            var projectToConvertPath = Path.Combine("..", "..", "..", "..","..", "tests", "TestData", "SmokeTests.WpfFramework", "SmokeTests.WpfFramework.csproj");
+            var projectBaselinePath = Path.Combine("..", "..", "..", "..", "..", "tests","TestData", "SmokeTests.WpfCoreBaseline", "SmokeTests.WpfCoreBaseline.csproj");
 
             AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
@@ -33,8 +33,8 @@ namespace SmokeTests
         public void ConvertsWinformsFrameworkTemplate()
         {
             MSBuildUtilities.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");
-            var projectToConvertPath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.WinformsFramework", "SmokeTests.WinformsFramework.csproj");
-            var projectBaselinePath = Path.Combine("..", "..", "..", "..", "TestData", "SmokeTests.WinformsCoreBaseline", "SmokeTests.WinformsCoreBaseline.csproj");
+            var projectToConvertPath = Path.Combine("..", "..", "..", "..", "..", "tests","TestData", "SmokeTests.WinformsFramework", "SmokeTests.WinformsFramework.csproj");
+            var projectBaselinePath = Path.Combine("..", "..", "..", "..", "..", "tests","TestData", "SmokeTests.WinformsCoreBaseline", "SmokeTests.WinformsCoreBaseline.csproj");
 
             AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }

@@ -107,7 +107,10 @@ namespace Conversion
                 report.AddRange(diff.GetDiffLines());
             }
 
-            File.WriteAllLines(reportFilePath, report);
+            reportFilePath = string.IsNullOrWhiteSpace(reportFilePath) ? Directory.GetCurrentDirectory() : reportFilePath;
+            var filePath = Path.Combine(reportFilePath, "report.txt");
+
+            File.WriteAllLines(filePath, report);
         }
     }
 }

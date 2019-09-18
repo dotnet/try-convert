@@ -1,77 +1,85 @@
-variables:
-  - name: Build.Repository.Clean
-    value: true
-  - name: _HelixType
-    value: build/product
-  - name: _HelixSource
-    value: pr/dotnet/arcade-minimalci-sample/$(Build.SourceBranch)
-  - name: _HelixTestType
-    value: test/product/
-  - name: _XUnitProject
-    value: $(Build.SourcesDirectory)/Hello.Tests/Hello.Tests.csproj
-  - name: _XUnitTargetFramework
-    value: netcoreapp2.0
-  - name: _XUnitRunnerVersion
-    value: 2.4.1
-  - name: _DotNetCliPackageType
-    value: sdk
-  - name: _DotNetCliVersion
-    value: 2.1.403
-  - name: _HelixAccessToken
-    value: ''
-
-# CI and PR triggers
+# Branches that trigger a build on commit
 trigger:
 - master
+- feature/*
 
+# Branches that trigger builds on PR
 pr:
 - master
+- feature/*
+
+
+variables:
+  - name: _TeamName
+    value: DotNetCore
+  - name: _BuildConfig 
+    value: Release
+  - name: _PublishUsingPipelines
+    value: true
+  - name: _DotNetArtifactsCategory
+    value: .NETCore
 
 jobs:
-- template: /eng/common/templates/job/job.yml
+- template: /eng/common/templates/jobs/jobs.yml
   parameters:
-    name: Windows_NT
-    enableTelemetry: true
+    enableMicrobuild: true
     enablePublishBuildArtifacts: true
-    helixRepo: dotnet/arcade-minimalci-sample
-    pool:
-      name: NetCorePublic-Pool
-      queue: BuildPool.Windows.10.Amd64.VS2017.Open
-    strategy:
-      matrix:
-        debug_configuration:
-          _BuildConfig: Debug
-        release_configuration:
-          _BuildConfig: Release
-    steps:
-    - script: eng\common\cibuild.cmd
-        -configuration $(_BuildConfig)
-        -prepareMachine
-      name: Build
-      displayName: Build
-      condition: succeeded()
-    - template: /eng/common/templates/steps/send-to-helix.yml
-      parameters:
-        HelixSource: $(_HelixSource)
-        HelixType: $(_HelixTestType)
-        HelixTargetQueues: Windows.10.Amd64.Open;Windows.81.Amd64.Open;Windows.7.Amd64.Open
-        XUnitProjects: $(_XUnitProject)
-        XUnitPublishTargetFramework: $(_XUnitTargetFramework)
-        XUnitRuntimeTargetFramework: $(_XUnitTargetFramework)
-        XUnitRunnerVersion: $(_XUnitRunnerVersion)
-        IncludeDotNetCli: true
-        DotNetCliPackageType: $(_DotNetCliPackageType)
-        DotNetCliVersion: $(_DotNetCliVersion)
-        EnableXUnitReporter: true
-        WaitForWorkItemCompletion: true
-        Creator: arcade-minimalci-sample
-        HelixAccessToken: $(_HelixAccessToken)
-        condition: eq(variables['_BuildConfig'], 'Debug')
-    - task: PublishBuildArtifacts@1
-      displayName: Publish Logs to VSTS
-      inputs:
-        PathtoPublish: '$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)'
-        PublishLocation: Container
-        ArtifactName: $(Agent.Os)_$(Agent.JobName)
-      continueOnError: true
-      condition: always()
+    enablePublishTestResults: true
+    enablePublishBuildAssets: true
+    enablePublishUsingPipelines: $(_PublishUsingPipelines)
+    enableTelemetry: true
+    helixRepo: dotnet/standard
+    jobs:
+    - job: Windows_NT
+      pool: 
+        ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+          name: NetCorePublic-Pool
+          queue: buildpool.windows.10.amd64.vs2017.open
+        ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+          name: NetCoreInternal-Pool
+          queue: buildpool.windows.10.amd64.vs2017
+      variables:
+      # Enable signing for internal, non-PR builds
+      - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+        - group: DotNet-Blob-Feed
+        - group: DotNet-Symbol-Server-Pats
+        - name: _SignType
+          value: Real
+        - name: _DotNetPublishToBlobFeed
+          value: true
+        - name: _BuildArgs
+          value: /p:SignType=$(_SignType)
+            /p:DotNetSignType=$(_SignType)
+            /p:MicroBuild_SigningEnabled=true 
+            /p:OverridePackageSource=https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json
+            /p:TeamName=$(_TeamName)
+            /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1)
+            /p:DotNetPublishBlobFeedUrl=https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json
+            /p:DotNetPublishToBlobFeed=true
+            /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines)
+            /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory)
+            /p:DotNetSymbolServerTokenMsdl=$(microsoft-symbol-server-pat)
+            /p:DotNetSymbolServerTokenSymWeb=$(symweb-symbol-server-pat)
+            /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+        - name: _OfficialBuildIdArgs
+      # else
+      - ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+        - name: _SignType
+          value: Test
+        - name: _BuildArgs
+          value: /p:SignType=$(_SignType)
+      strategy:
+        matrix:
+          Debug:
+            _BuildConfig: Debug
+          Release:
+            _BuildConfig: Release
+      steps:
+      - checkout: self
+        clean: true
+      - script: eng\common\cibuild.cmd
+          -configuration $(_BuildConfig) 
+          -prepareMachine
+          -warnaserror:0
+          $(_BuildArgs)
+        displayName: Windows Build / Publish

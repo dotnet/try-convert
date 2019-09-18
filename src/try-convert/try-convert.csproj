@@ -2,12 +2,29 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net472</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <AutoGenerateAssemblyVersion>true</AutoGenerateAssemblyVersion>
+
+    <Description>Command line tool for converting a project to run under .NET Core.</Description>
+
+    <IsPackable>true</IsPackable>
+    <PackAsTool>true</PackAsTool>
+
+    <!--
+      These identifiers are for generating the shim'd core executables for signing. Not all options
+      from $(RoslynPortableRuntimeIdentifiers) work or make sense in this context.
+    -->
+    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.CommandLine.Experimental" Version="0.2.0-alpha.19154.3" />
+    <PackageReference Include="Microsoft.Build.Locator" Version="1.2.6" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.6.0-rc1.19456.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.6.0-rc1.19456.4" />
+    <PackageReference Include="System.Security.Principal.Windows" Version="4.6.0-rc1.19456.4" />
   </ItemGroup>
 
   <ItemGroup>

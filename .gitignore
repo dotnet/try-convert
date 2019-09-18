@@ -266,3 +266,5 @@ sdkBaseLineProject.log
 out.csproj
 
 .ionide
+
+**.*.launchSettings.json

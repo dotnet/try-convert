@@ -2,7 +2,7 @@
   "profiles": {
     "Diff": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"C:\\Users\\phillip\\source\\repos\\ProjectSimplifier\\TestData\\SmokeTests.LegacyFSharpConsole\\SmokeTests.LegacyFSharpConsole.fsproj\""
+      "commandLineArgs": "-p \"C:\\Users\\phcart\\source\\repos\\WpfApp15\\WpfApp15\\WpfApp15.csproj\" -o \"C:\\Users\\phcart\\scratch\""
     },
     "Convert": {
       "commandName": "Project",

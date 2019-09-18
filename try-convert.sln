@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conversion.Tests", "tests\C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageConversion.Tests", "tests\PackageConversion.Tests\PackageConversion.Tests.csproj", "{A3DDB4B7-F48E-40FA-A638-B03EECB48255}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmokeTests", "tests\SmokeTests\SmokeTests.csproj", "{26176B40-732E-425C-A5F8-70B738C4778A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smoke.Tests", "tests\Smoke.Tests\Smoke.Tests.csproj", "{26176B40-732E-425C-A5F8-70B738C4778A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

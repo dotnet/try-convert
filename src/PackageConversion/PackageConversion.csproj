@@ -9,4 +9,8 @@
     <ProjectReference Include="..\Facts\Facts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="PackageConversion.Tests" />
+  </ItemGroup>
+
 </Project>

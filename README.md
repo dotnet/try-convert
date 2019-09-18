@@ -1,27 +1,25 @@
-# ProjectSimplifier
-This is a tool that can be used to help with the conversion of old-style csprojs to ones based on the .NET SDK. 
+# dotnet try-convert
 
-[![Build status](https://ci.appveyor.com/api/projects/status/dcg6k8sca3v83xba?svg=true)](https://ci.appveyor.com/project/SrivatsnNarayanan/msbuildsdkdiffer)
+This is a tool that will help in migrating .NET Framework projects to .NET Core (or .NET SDK-style if you're not ready for .NET Core yet).
 
-# What does the tool do?
-It loads up a given project and evaluates it to get a list of all properties and items. It then replaces the project in memory with a simple .NET SDK based template and then re-evaluates it.
-It does the second evaluation in the same project folder so that items that are automatically picked up by globbing will be known as well. It then produces a diff of the two states to identify the following:
+As the name suggests, this tool is not guaranteed to fully convert a project into a 100% working state. The tool is conservative and does as good of a job as it can to ensure that a converted project can still be loaded into Visual Studio and build. However, there are an enormous amount of factors that can result in a project that may not load or build that this tool explicitly does not cover.
+
+It is highly recommended that you use this tool on a project that is under source control.
+
+##  What does the tool do?
+
+It loads a given project and evaluates it to get a list of all properties and items. It then replaces the project in memory with a simple .NET SDK based template and then re-evaluates it.
+
+It does the second evaluation in the same project folder so that items that are automatically picked up by globbing will be known as well. It then applies rules about well-known properties and items, finally producing a diff of the two states to identify the following:
+
 - Properties that can now be removed from the project because they are already implicitly defined by the SDK and the project had the default value.
 - Properties that need to be kept in the project either because they override the default or it's a property not defined in the SDK.
 - Items that can be removed because they are implicitly brought in by globs in the SDK
 - Items that need to be changed to the Update syntax because although they're brought by the SDK, there is extra metadata being added.
-- Items that need to be kept because theyr are not implicit in the SDK.
+- Items that need to be kept because they are are not implicit in the SDK.
 
-# Usage:
+This diff is used to convert a given project file.
 
-From a VS 2017 Developer command prompt
+## Attribution
 
-    ProjectSimplifier convert a.csproj -out:b.csproj
-
-From a regular command prompt
-
-    ProjectSimplifier convert a.csproj -out:b.csproj -m:`<path to msbuild.exe>`
-
-
-Caveats: If your project has custom imports, you might be changing semantics in a very subtle way by moving to the SDK and this tool doesnt know to find those cases.
-
+This tool is based on the work of [Srivatsn Narayanan](https://github.com/srivatsn) and his [ProjectSimplifier](https://github.com/srivatsn/ProjectSimplifier) project.

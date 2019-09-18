@@ -264,3 +264,5 @@ report.diff
 currentProject.log
 sdkBaseLineProject.log
 out.csproj
+
+.ionide

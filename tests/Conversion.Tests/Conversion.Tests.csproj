@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Conversion\Conversion.csproj" />
+    <ProjectReference Include="..\..\src\Conversion\Conversion.csproj" />
   </ItemGroup>
 
 </Project>

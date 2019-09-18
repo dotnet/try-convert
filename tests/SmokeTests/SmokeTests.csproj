@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Conversion\Conversion.csproj" />
-    <ProjectReference Include="..\MSBuildAbstractions\MSBuildAbstractions.csproj" />
+    <ProjectReference Include="..\..\src\Conversion\Conversion.csproj" />
+    <ProjectReference Include="..\..\src\MSBuildAbstractions\MSBuildAbstractions.csproj" />
   </ItemGroup>
 
 </Project>

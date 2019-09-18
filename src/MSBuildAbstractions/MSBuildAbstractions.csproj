@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
-    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

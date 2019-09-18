@@ -6,7 +6,7 @@
     },
     "Convert": {
       "commandName": "Project",
-      "commandLineArgs": "convert \"C:\\Users\\phcart\\source\\repos\\WpfApp12\\WpfApp12\\WpfApp12.csproj\""
+      "commandLineArgs": "\"C:\\Users\\phcart\\source\\repos\\WpfApp13\\WpfApp13\\WpfApp13.csproj\""
     }
   }
 }

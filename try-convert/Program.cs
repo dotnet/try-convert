@@ -9,11 +9,11 @@ namespace ProjectSimplifier
     {
         static int Main(string[] args)
         {
-            var options = Parser.Default.ParseArguments<LogOptions, DiffOptions, ConvertOptions>(args);
+            var options = Parser.Default.ParseArguments<Options>(args);
             switch (options)
             {
-                case Parsed<object> command:
-                    var optionsValue = command.Value as Options;
+                case Parsed<Options> command:
+                    var optionsValue = command.Value;
                     var msbuildPath = MSBuildUtilities.HookAssemblyResolveForMSBuild(optionsValue.MSBuildPath);
                     if (!string.IsNullOrWhiteSpace(msbuildPath))
                     {
@@ -21,7 +21,7 @@ namespace ProjectSimplifier
                     }
                     return -1;
 
-                case NotParsed<object> notParsed:
+                case NotParsed<Options> notParsed:
                     foreach (var error in notParsed.Errors)
                     {
                         Console.WriteLine(error);
@@ -37,22 +37,8 @@ namespace ProjectSimplifier
             {
                 var projectLoader = new ProjectLoader();
                 projectLoader.LoadProjects(options.ProjectFilePath, options.RoslynTargetsPath, options.MSBuildSdksPath, options.TargetProjectProperties);
-
-                switch (options)
-                {
-                    case LogOptions opt:
-                        projectLoader.Project.FirstConfiguredProject.LogProjectProperties(opt.CurrentProjectLogPath);
-                        projectLoader.SdkBaselineProject.Project.FirstConfiguredProject.LogProjectProperties(opt.SdkBaseLineProjectLogPath);
-                        break;
-                    case DiffOptions opt:
-                        var differ = new Differ(projectLoader.Project.FirstConfiguredProject, projectLoader.SdkBaselineProject.Project.FirstConfiguredProject);
-                        differ.GenerateReport(opt.DiffReportPath);
-                        break;
-                    case ConvertOptions opt:
-                        var converter = new Converter(projectLoader.Project, projectLoader.SdkBaselineProject, projectLoader.ProjectRootElement, projectLoader.ProjectRootDirectory, options.ProjectFilePath);
-                        converter.Convert(opt.OutputProjectPath ?? opt.ProjectFilePath);
-                        break;
-                }
+                var converter = new Converter(projectLoader.Project, projectLoader.SdkBaselineProject, projectLoader.ProjectRootElement, projectLoader.ProjectRootDirectory, options.ProjectFilePath);
+                converter.Convert(options.OutputPath ?? options.ProjectFilePath);
             }
             catch (Exception e)
             {

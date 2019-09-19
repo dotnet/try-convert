@@ -1,5 +1,10 @@
 # dotnet try-convert
 
+| |Unit Tests (Debug)|Unit Tests (Release)|
+|---|:--:|:--:|
+| ci |[![Build Status](https://dev.azure.com/dnceng/public/_apis/build/status/dotnet/try-convert/try-convert-ci?branchName=master&jobName=Windows_NT&configuration=Windows_NT%20Debug&label=master)](https://dev.azure.com/dnceng/public/_build/latest?definitionId=616&branchName=master)|[![Build Status](https://dev.azure.com/dnceng/public/_apis/build/status/dotnet/try-convert/try-convert-ci?branchName=master&jobName=Windows_NT&configuration=Windows_NT%20Release&label=master)](https://dev.azure.com/dnceng/public/_build/latest?definitionId=616&branchName=master)|
+| official | [![Build Status](https://dev.azure.com/dnceng/internal/_apis/build/status/dotnet/try-convert/try-convert-official?branchName=master&jobName=Windows_NT&configuration=Windows_NT%20Debug&label=master)](https://dev.azure.com/dnceng/internal/_build/latest?definitionId=615&branchName=master)|[![Build Status](https://dev.azure.com/dnceng/internal/_apis/build/status/dotnet/try-convert/try-convert-official?branchName=master&jobName=Windows_NT&configuration=Windows_NT%20Release&label=master)](https://dev.azure.com/dnceng/internal/_build/latest?definitionId=615&branchName=master)|
+
 This is a tool that will help in migrating .NET Framework projects to .NET Core (or .NET SDK-style if you're not ready for .NET Core yet).
 
 As the name suggests, this tool is not guaranteed to fully convert a project into a 100% working state. The tool is conservative and does as good of a job as it can to ensure that a converted project can still be loaded into Visual Studio and build. However, there are an enormous amount of factors that can result in a project that may not load or build that this tool explicitly does not cover.

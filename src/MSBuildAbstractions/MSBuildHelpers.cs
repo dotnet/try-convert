@@ -195,7 +195,7 @@ namespace MSBuildAbstractions
         /// Finds the item group where a packages.config is included. Assumes only one.
         /// </summary>
         public static ProjectItemGroupElement GetPackagesConfigItemGroup(IProjectRootElement root) =>
-            root.ItemGroups.First(pige => pige.Items.Any(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));
+            root.ItemGroups.FirstOrDefault(pige => pige.Items.Any(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));
 
         /// <summary>
         /// Finds the packages.config item in its containing item group.

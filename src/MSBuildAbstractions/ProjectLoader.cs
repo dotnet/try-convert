@@ -63,9 +63,9 @@ namespace MSBuildAbstractions
             var builder = ImmutableDictionary.CreateBuilder<string, ImmutableDictionary<string, string>>();
             foreach (var propertyGroup in projectRootElement.PropertyGroups)
             {
-                if (MSBuildUtilities.ConditionToDimensionValues(propertyGroup.Condition, out var dimensionValues))
+                if (MSBuildHelpers.ConditionToDimensionValues(propertyGroup.Condition, out var dimensionValues))
                 {
-                    var name = MSBuildUtilities.GetConfigurationName(dimensionValues);
+                    var name = MSBuildHelpers.GetConfigurationName(dimensionValues);
                     builder.Add(name, dimensionValues.ToImmutableDictionary());
                 }
             }
@@ -103,7 +103,7 @@ namespace MSBuildAbstractions
                 if (MSBuildFacts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
                     MSBuildFacts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
                 {
-                    if (MSBuildUtilities.IsWPF(project) || MSBuildUtilities.IsWinForms(project))
+                    if (MSBuildHelpers.IsWPF(project) || MSBuildHelpers.IsWinForms(project))
                     {
                         return ProjectStyle.WindowsDesktop;
                     }
@@ -190,14 +190,14 @@ namespace MSBuildAbstractions
 
             if (projectStyle == ProjectStyle.WindowsDesktop)
             {
-                if (MSBuildUtilities.IsWinForms(ProjectRootElement))
+                if (MSBuildHelpers.IsWinForms(ProjectRootElement))
                 {
-                    MSBuildUtilities.AddUseWinForms(propGroup);
+                    MSBuildHelpers.AddUseWinForms(propGroup);
                 }
 
-                if (MSBuildUtilities.IsWPF(ProjectRootElement))
+                if (MSBuildHelpers.IsWPF(ProjectRootElement))
                 {
-                    MSBuildUtilities.AddUseWPF(propGroup);
+                    MSBuildHelpers.AddUseWPF(propGroup);
                 }
             }
 

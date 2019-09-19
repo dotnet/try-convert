@@ -71,7 +71,7 @@ namespace Conversion
                     _projectRootElement.RemoveChild(import);
                 }
 
-                if (MSBuildUtilities.IsWinForms(_projectRootElement) || MSBuildUtilities.IsWPF(_projectRootElement))
+                if (MSBuildHelpers.IsWinForms(_projectRootElement) || MSBuildHelpers.IsWPF(_projectRootElement))
                 {
                     _projectRootElement.Sdk = DesktopFacts.WinSDKAttribute;
                 }
@@ -86,7 +86,7 @@ namespace Conversion
         {
             foreach (var propGroup in _projectRootElement.PropertyGroups)
             {
-                var configurationName = MSBuildUtilities.GetConfigurationName(propGroup.Condition);
+                var configurationName = MSBuildHelpers.GetConfigurationName(propGroup.Condition);
                 var propDiff = _differs[configurationName].GetPropertiesDiff();
 
                 foreach (var prop in propGroup.Properties)
@@ -126,27 +126,27 @@ namespace Conversion
                     {
                         propGroup.RemoveChild(prop);
                     }
-                    else if (MSBuildUtilities.IsDefineConstantDefault(prop))
+                    else if (ProjectPropertyHelpers.IsDefineConstantDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
-                    else if (MSBuildUtilities.IsDebugTypeDefault(prop))
+                    else if (ProjectPropertyHelpers.IsDebugTypeDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
-                    else if (MSBuildUtilities.IsOutputPathDefault(prop))
+                    else if (ProjectPropertyHelpers.IsOutputPathDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
-                    else if (MSBuildUtilities.IsPlatformTargetDefault(prop))
+                    else if (ProjectPropertyHelpers.IsPlatformTargetDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
-                    else if (MSBuildUtilities.IsNameDefault(prop, GetProjectName(_projectFilePath)))
+                    else if (ProjectPropertyHelpers.IsNameDefault(prop, GetProjectName(_projectFilePath)))
                     {
                         propGroup.RemoveChild(prop);
                     }
-                    else if (MSBuildUtilities.IsDocumentationFileDefault(prop))
+                    else if (ProjectPropertyHelpers.IsDocumentationFileDefault(prop))
                     {
                         propGroup.RemoveChild(prop);
                     }
@@ -188,22 +188,22 @@ namespace Conversion
             static bool IsDesktopRemovableItem(BaselineProject sdkBaselineProject, ProjectItemGroupElement itemGroup, ProjectItemElement item)
             {
                 return sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop
-                       && (MSBuildUtilities.IsLegacyXamlDesignerItem(item)
-                           || MSBuildUtilities.IsDependentUponXamlDesignerItem(item)
-                           || MSBuildUtilities.IsDesignerFile(item)
-                           || MSBuildUtilities.IsSettingsFile(item)
-                           || MSBuildUtilities.IsResxFile(item)
-                           || MSBuildUtilities.DesktopReferencesNeedsRemoval(item)
-                           || MSBuildUtilities.IsDesktopRemovableGlobbedItem(sdkBaselineProject.ProjectStyle, item));
+                       && (ProjectItemHelpers.IsLegacyXamlDesignerItem(item)
+                           || ProjectItemHelpers.IsDependentUponXamlDesignerItem(item)
+                           || ProjectItemHelpers.IsDesignerFile(item)
+                           || ProjectItemHelpers.IsSettingsFile(item)
+                           || ProjectItemHelpers.IsResxFile(item)
+                           || ProjectItemHelpers.DesktopReferencesNeedsRemoval(item)
+                           || ProjectItemHelpers.IsDesktopRemovableGlobbedItem(sdkBaselineProject.ProjectStyle, item));
             }
 
             foreach (var itemGroup in _projectRootElement.ItemGroups)
             {
-                var configurationName = MSBuildUtilities.GetConfigurationName(itemGroup.Condition);
+                var configurationName = MSBuildHelpers.GetConfigurationName(itemGroup.Condition);
 
-                foreach (var item in itemGroup.Items.Where(item => !MSBuildUtilities.IsPackageReference(item)))
+                foreach (var item in itemGroup.Items.Where(item => !ProjectItemHelpers.IsPackageReference(item)))
                 {
-                    if (item.HasMetadata && MSBuildUtilities.CanItemMetadataBeRemoved(item))
+                    if (item.HasMetadata && ProjectItemHelpers.CanItemMetadataBeRemoved(item))
                     {
                         foreach (var metadataElement in item.Metadata)
                         {
@@ -215,11 +215,11 @@ namespace Conversion
                     {
                         itemGroup.RemoveChild(item);
                     }
-                    else if (MSBuildUtilities.IsExplicitValueTupleReferenceNeeded(item, tfm))
+                    else if (ProjectItemHelpers.IsExplicitValueTupleReferenceThatCanBeRemoved(item, tfm))
                     {
                         itemGroup.RemoveChild(item);
                     }
-                    else if (MSBuildUtilities.IsReferenceConvertibleToPackageReference(item))
+                    else if (ProjectItemHelpers.IsReferenceConvertibleToPackageReference(item))
                     {
                         var packageName = item.Include;
                         var version = MSBuildFacts.DefaultItemsThatHavePackageEquivalents[packageName];
@@ -232,7 +232,7 @@ namespace Conversion
                     {
                         itemGroup.RemoveChild(item);
                     }
-                    else if (MSBuildUtilities.IsItemWithUnnecessaryMetadata(item))
+                    else if (ProjectItemHelpers.IsItemWithUnnecessaryMetadata(item))
                     {
                         itemGroup.RemoveChild(item);
                     }
@@ -273,7 +273,7 @@ namespace Conversion
 
         private void AddPackage(string packageName, string packageVersion)
         {
-            var groupForPackageRefs = MSBuildUtilities.GetPackageReferencesItemGroup(_projectRootElement);
+            var groupForPackageRefs = MSBuildHelpers.GetOrCreatePackageReferencesItemGroup(_projectRootElement);
 
             var metadata = new List<KeyValuePair<string, string>>()
             {
@@ -285,15 +285,13 @@ namespace Conversion
 
         private void AddConvertedPackages(string tfm)
         {
-            var packagesConfigItemGroups = MSBuildUtilities.GetPackagesConfigItemGroup(_projectRootElement);
-            if (!packagesConfigItemGroups.Any())
+            var packagesConfigItemGroup = MSBuildHelpers.GetPackagesConfigItemGroup(_projectRootElement);
+            if (packagesConfigItemGroup is null)
             {
                 return;
             }
 
-            var packagesConfigItemGroup = packagesConfigItemGroups.Single();
-
-            var packagesConfigItem = MSBuildUtilities.GetPackagesConfigItem(packagesConfigItemGroup);
+            var packagesConfigItem = MSBuildHelpers.GetPackagesConfigItem(packagesConfigItemGroup);
             var path = Path.Combine(_projectRootDirectory.FullName, packagesConfigItem.Include);
             
             var packageReferences = PackagesConfigConverter.Convert(path);
@@ -302,7 +300,7 @@ namespace Conversion
                 var groupForPackageRefs = _projectRootElement.AddItemGroup();
                 foreach (var pkgref in packageReferences)
                 {
-                    if (pkgref.ID.Equals(MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && MSBuildUtilities.FrameworkHasAValueTuple(tfm))
+                    if (pkgref.ID.Equals(MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && MSBuildHelpers.FrameworkHasAValueTuple(tfm))
                     {
                         continue;
                     }
@@ -346,7 +344,7 @@ namespace Conversion
                 return _sdkBaselineProject.GlobalProperties.First(p => p.Equals("TargetFramework", StringComparison.OrdinalIgnoreCase));
             }
 
-            var propGroup = MSBuildUtilities.GetOrCreateEmptyPropertyGroup(_sdkBaselineProject, _projectRootElement);
+            var propGroup = MSBuildHelpers.GetOrCreateEmptyPropertyGroup(_sdkBaselineProject, _projectRootElement);
 
             var targetFrameworkElement = _projectRootElement.CreatePropertyElement("TargetFramework");
 
@@ -359,7 +357,7 @@ namespace Conversion
                 var rawTFM = _sdkBaselineProject.Project.FirstConfiguredProject.GetProperty("TargetFramework").EvaluatedValue;
 
                 // This is pretty much never gonna happen, but it was cheap to write the code
-                targetFrameworkElement.Value = MSBuildUtilities.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
+                targetFrameworkElement.Value = MSBuildHelpers.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
             }
 
             propGroup.PrependChild(targetFrameworkElement);
@@ -375,16 +373,16 @@ namespace Conversion
             }
 
             // Don't create a new prop group; put the desktop properties in the same group as where TFM is located
-            var propGroup = MSBuildUtilities.GetTopPropertyGroupWithTFM(_projectRootElement);
+            var propGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroupWithTFM(_projectRootElement);
 
-            if (!_sdkBaselineProject.GlobalProperties.Contains(DesktopFacts.UseWinFormsPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildUtilities.IsWinForms(_projectRootElement))
+            if (!_sdkBaselineProject.GlobalProperties.Contains(DesktopFacts.UseWinFormsPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildHelpers.IsWinForms(_projectRootElement))
             {
                 var useWinForms = _projectRootElement.CreatePropertyElement(DesktopFacts.UseWinFormsPropertyName);
                 useWinForms.Value = "true";
                 propGroup.AppendChild(useWinForms);
             }
 
-            if (!_sdkBaselineProject.GlobalProperties.Contains(DesktopFacts.UseWPFPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildUtilities.IsWPF(_projectRootElement))
+            if (!_sdkBaselineProject.GlobalProperties.Contains(DesktopFacts.UseWPFPropertyName, StringComparer.OrdinalIgnoreCase) && MSBuildHelpers.IsWPF(_projectRootElement))
             {
                 var useWPF = _projectRootElement.CreatePropertyElement(DesktopFacts.UseWPFPropertyName);
                 useWPF.Value = "true";
@@ -395,7 +393,7 @@ namespace Conversion
         private void AddGenerateAssemblyInfo()
         {
             // Don't create a new prop group; put the desktop properties in the same group as where TFM is located
-            var propGroup = MSBuildUtilities.GetTopPropertyGroupWithTFM(_projectRootElement);
+            var propGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroupWithTFM(_projectRootElement);
             var generateAssemblyInfo = _projectRootElement.CreatePropertyElement(MSBuildFacts.GenerateAssemblyInfoNodeName);
             generateAssemblyInfo.Value = "false";
             propGroup.AppendChild(generateAssemblyInfo);
@@ -414,7 +412,7 @@ namespace Conversion
                 return;
             }
 
-            var propGroup = MSBuildUtilities.GetOrCreateEmptyPropertyGroup(_sdkBaselineProject, _projectRootElement);
+            var propGroup = MSBuildHelpers.GetOrCreateEmptyPropertyGroup(_sdkBaselineProject, _projectRootElement);
 
             foreach (var prop in _sdkBaselineProject.TargetProjectProperties)
             {

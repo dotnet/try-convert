@@ -32,7 +32,7 @@ namespace ProjectSimplifier
 
         public static int Run(string project, string output, string msbuildPath, bool diffOnly)
         {
-            msbuildPath = MSBuildUtilities.HookAssemblyResolveForMSBuild(msbuildPath);
+            msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(msbuildPath);
             if (string.IsNullOrWhiteSpace(msbuildPath))
             {
                 return -1;

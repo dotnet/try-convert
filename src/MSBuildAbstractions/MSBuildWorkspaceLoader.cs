@@ -9,22 +9,36 @@ using System.Collections.Generic;
 
 namespace MSBuildAbstractions
 {
-    public class ProjectLoader
+    public class MSBuildWorkspaceLoader
     {
+        private readonly string _workspacePath;
+        private readonly MSBuildWorkspaceType _workspaceType;
+
         public UnconfiguredProject Project { get; private set; }
         public BaselineProject SdkBaselineProject { get; private set; }
         public IProjectRootElement ProjectRootElement { get; private set; }
         public DirectoryInfo ProjectRootDirectory { get; private set; }
 
-        public void LoadProjects(string projectFilePath = "", string roslynTargetsPath = "", string msbuildSdksPath = "", IEnumerable<string> targetProjectProperties = null)
+        public MSBuildWorkspaceLoader(string workspacePath, MSBuildWorkspaceType workspaceType)
         {
-            var path = Path.GetFullPath(projectFilePath);
-
-            if (!File.Exists(path))
+            if (string.IsNullOrWhiteSpace(workspacePath))
             {
-                Console.Error.WriteLine($"The project file '{projectFilePath}' does not exist or is inaccessible.");
-                return;
+                throw new ArgumentException($"{workspacePath} cannot be null or empty.");
             }
+
+            if (!File.Exists(workspacePath))
+            {
+                throw new FileNotFoundException(workspacePath);
+            }
+
+            _workspacePath = workspacePath;
+            _workspaceType = workspaceType;
+        }
+
+        public void LoadWorkspace(string roslynTargetsPath = "", string msbuildSdksPath = "", IEnumerable<string> targetProjectProperties = null)
+        {
+            var 
+            var sln = SolutionFile.Parse("");
 
             var globalProperties = InitializeGlobalProperties(roslynTargetsPath, msbuildSdksPath);
             var collection = new ProjectCollection(globalProperties);

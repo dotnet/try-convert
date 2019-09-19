@@ -49,10 +49,10 @@ namespace SmokeTests
 
         private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath)
         {
-            var conversionLoader = new ProjectLoader();
-            conversionLoader.LoadProjects(projectToConvertPath);
+            var conversionLoader = new MSBuildWorkspaceLoader();
+            conversionLoader.LoadWorkspace(projectToConvertPath);
 
-            var baselineLoader = new ProjectLoader();
+            var baselineLoader = new MSBuildWorkspaceLoader();
             var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);
 
             var converter = new Converter(conversionLoader.Project, conversionLoader.SdkBaselineProject, conversionLoader.ProjectRootElement, conversionLoader.ProjectRootDirectory, projectToConvertPath);

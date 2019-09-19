@@ -7,21 +7,37 @@
 
 This is a tool that will help in migrating .NET Framework projects to .NET Core (or .NET SDK-style if you're not ready for .NET Core yet).
 
-As the name suggests, this tool is not guaranteed to fully convert a project into a 100% working state. The tool is conservative and does as good of a job as it can to ensure that a converted project can still be loaded into Visual Studio and build. However, there are an enormous amount of factors that can result in a project that may not load or build that this tool explicitly does not cover.
+## Support policy
+
+**This tool is not supported in any way.** Nobody will be on the hook for fixing any issues with it, nor is anyone who builds this tool obliged to add any requested features.
+
+This is an open source project built by members of the .NET team in their spare time. Although we'll strive to fix issues and add features if people ask for them, the default answer to any issue filed will be, "we'll review a pull request that implements this".
+
+## Who is this tool for?
+
+This tool is for anyone looking to get a little help migrating their projects to .NET Core (or .NET SDK-style projects).
+
+As the name suggests, this tool is not guaranteed to fully convert a project into a 100% working state. The tool is conservative and does as good of a job as it can to ensure that a converted project can still be loaded into Visual Studio and build. However, there are an enormous amount of factors that can result in a project that may not load or build that this tool explicitly does not cover. These include:
+
+* Complex, custom builds that you may have in your solution
+* API usage that is incompatible with .NET Core
+* Unsupported project types (such as Xamarin, WebForms, or WCF projects)
+
+If the bulk of your codebase is generally capable of moving to .NET Core (such as lots of class libraries with no platform-specific code), then this tool should help quite a bit.
 
 It is highly recommended that you use this tool on a project that is under source control.
 
-##  What does the tool do?
+## What does the tool do?
 
 It loads a given project and evaluates it to get a list of all properties and items. It then replaces the project in memory with a simple .NET SDK based template and then re-evaluates it.
 
 It does the second evaluation in the same project folder so that items that are automatically picked up by globbing will be known as well. It then applies rules about well-known properties and items, finally producing a diff of the two states to identify the following:
 
-- Properties that can now be removed from the project because they are already implicitly defined by the SDK and the project had the default value.
-- Properties that need to be kept in the project either because they override the default or it's a property not defined in the SDK.
-- Items that can be removed because they are implicitly brought in by globs in the SDK
-- Items that need to be changed to the Update syntax because although they're brought by the SDK, there is extra metadata being added.
-- Items that need to be kept because they are are not implicit in the SDK.
+* Properties that can now be removed from the project because they are already implicitly defined by the SDK and the project had the default value
+* Properties that need to be kept in the project either because they override the default or it's a property not defined in the SDK.
+* Items that can be removed because they are implicitly brought in by globs in the SDK
+* Items that need to be changed to the Update syntax because although they're brought by the SDK, there is extra metadata being added.
+* Items that need to be kept because they are are not implicit in the SDK.
 
 This diff is used to convert a given project file.
 

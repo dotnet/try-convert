@@ -26,7 +26,6 @@ namespace MSBuildAbstractions
                 var globalPropertiesWithDimensions = globalProperties.AddRange(config.Value);
                 var project = new MSBuildProject(collection.LoadProject(projectFilePath, globalPropertiesWithDimensions, toolsVersion: null));
                 projectBuilder.Add(config.Key, project);
-
             }
 
             ConfiguredProjects = projectBuilder.ToImmutable();

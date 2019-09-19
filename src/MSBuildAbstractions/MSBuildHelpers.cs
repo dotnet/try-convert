@@ -11,7 +11,10 @@ using System.Text.RegularExpressions;
 
 namespace MSBuildAbstractions
 {
-    public static class MSBuildUtilities
+    /// <summary>
+    /// Static helper methods for working with general MSBuildisms.
+    /// </summary>
+    public static class MSBuildHelpers
     {
         /// <summary>
         /// matches $(name) pattern
@@ -137,6 +140,9 @@ namespace MSBuildAbstractions
             return true;
         }
 
+        /// <summary>
+        /// Given a TFM string, determines if that TFM has an explicit System.ValueTuple reference.
+        /// </summary>
         public static bool FrameworkHasAValueTuple(string tfm)
         {
             if (tfm is null
@@ -151,157 +157,86 @@ namespace MSBuildAbstractions
                 return false;
             }
 
-            return tfm.StartsWith(Facts.MSBuildFacts.LowestFrameworkVersionWithSystemValueTuple);
+            return tfm.StartsWith(MSBuildFacts.LowestFrameworkVersionWithSystemValueTuple);
         }
 
-        public static bool IsPackageReference(ProjectItemElement element) => element.ElementName.Equals(PackageFacts.PackageReferenceItemType, StringComparison.OrdinalIgnoreCase);
+        /// <summary>
+        /// Gets all Reference items from a given item group.
+        /// </summary>
+        private static IEnumerable<ProjectItemElement> GetReferences(ProjectItemGroupElement itemGroup) =>
+            itemGroup.Items.Where(item => item.ElementName.Equals(MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase));
 
-        public static IEnumerable<ProjectItemElement> GetCandidateItemsForRemoval(ProjectItemGroupElement itemGroup) =>
-            itemGroup.Items.Where(item => item.ElementName.Equals(Facts.MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase)
-                                          || Facts.MSBuildFacts.GlobbedItemTypes.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase));
-
-        public static IEnumerable<ProjectItemElement> GetReferences(ProjectItemGroupElement itemGroup) =>
-            itemGroup.Items.Where(item => item.ElementName.Equals(Facts.MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase));
-
+        /// <summary>
+        /// Determines if a given project is a WPF project by looking at its references.
+        /// </summary>
         public static bool IsWPF(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
             return DesktopFacts.KnownWPFReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
+        /// <summary>
+        /// Determines if a given project is a WinForms project by looking at its references.
+        /// </summary>
         public static bool IsWinForms(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
             return DesktopFacts.KnownWinFormsReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
+        /// <summary>
+        /// Checks if a given TFM is not .NET Framework.
+        /// </summary>
         public static bool IsNotNetFramework(string tfm) => 
             !tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
             && !tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude);
 
         /// <summary>
-        /// Checks if a given item needs to be removed because it either only runs on desktop .NET or is automatically pulled in as a reference and is thus unnecessary.
+        /// Finds the item group where a packages.config is included. Assumes only one.
         /// </summary>
-        public static bool DesktopReferencesNeedsRemoval(ProjectItemElement item) =>
-            DesktopFacts.ReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
-            || DesktopFacts.KnownWPFReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
-            || DesktopFacts.KnownWinFormsReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
-
-        public static bool IsDesktopRemovableGlobbedItem(ProjectStyle style, ProjectItemElement item) =>
-            style == ProjectStyle.WindowsDesktop
-            && MSBuildFacts.GlobbedItemTypes.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase)
-            && (item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
-                                         && pme.Value.Equals(DesktopFacts.FormSubTypeValue, StringComparison.OrdinalIgnoreCase)));
-
-        public static bool IsReferenceConvertibleToPackageReference(ProjectItemElement item) =>
-            MSBuildFacts.DefaultItemsThatHavePackageEquivalents.ContainsKey(item.Include);
-
-        public static bool CanItemMetadataBeRemoved(ProjectItemElement item) =>
-            MSBuildFacts.ItemsThatCanHaveMetadataRemoved.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase);
-
-        public static bool IsExplicitValueTupleReferenceNeeded(string tfm) => FrameworkHasAValueTuple(tfm);
-
-        public static bool IsExplicitValueTupleReferenceNeeded(ProjectItemElement item, string tfm) =>
-            item.Include.Equals(MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && FrameworkHasAValueTuple(tfm);
+        public static ProjectItemGroupElement GetPackagesConfigItemGroup(IProjectRootElement root) =>
+            root.ItemGroups.First(pige => pige.Items.Any(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));
 
         /// <summary>
-        /// Checks if the given item is a designer file.
+        /// Finds the packages.config item in its containing item group.
         /// </summary>
-        /// <param name="item">The ProjectItemElement that might be a designer file.</param>
-        /// <returns>true if the given ProjectItemElement is a designer file.</returns>
-        public static bool IsDesignerFile(ProjectItemElement item) =>
-            item.Include.EndsWith(DesktopFacts.DesignerSuffix, StringComparison.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Checks if the given item is a resx file.
-        /// </summary>
-        public static bool IsResxFile(ProjectItemElement item) =>
-            item.Include.EndsWith(DesktopFacts.ResourcesFileSuffix, StringComparison.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Checks if the given item is a settings file.
-        /// </summary>
-        public static bool IsSettingsFile(ProjectItemElement item) =>
-            item.Include.EndsWith(DesktopFacts.SettingsFileSuffix, StringComparison.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Checks if the given property is the 'Name' property, and if its value is the same as the project file name.
-        /// </summary>
-        public static bool IsNameDefault(ProjectPropertyElement prop, string projectName) =>
-            prop.ElementName.Equals(MSBuildFacts.NameNodeName, StringComparison.OrdinalIgnoreCase)
-            && prop.Value.Equals(projectName, StringComparison.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Checks if the given property is 'DefineConstants', and if the values defined are the defaults brought in by a template.
-        /// </summary>
-        public static bool IsDefineConstantDefault(ProjectPropertyElement prop) =>
-            prop.ElementName.Equals(MSBuildFacts.DefineConstantsName, StringComparison.OrdinalIgnoreCase)
-            && prop.Value.Split(';').All(constant => MSBuildFacts.DefaultDefineConstants.Contains(constant, StringComparer.OrdinalIgnoreCase));
-
-        /// <summary>
-        /// Checks if the given property is 'DebugType', and if the value defined is a default brought in by a template.
-        /// </summary>
-        public static bool IsDebugTypeDefault(ProjectPropertyElement prop) =>
-            prop.ElementName.Equals(MSBuildFacts.DebugTypeName, StringComparison.OrdinalIgnoreCase)
-            && MSBuildFacts.DefaultDebugTypes.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Checks if the given property is 'OutputPath', and if the value defined is a default brought in by a template.
-        /// </summary>
-        public static bool IsOutputPathDefault(ProjectPropertyElement prop) =>
-            prop.ElementName.Equals(MSBuildFacts.OutputPathName, StringComparison.OrdinalIgnoreCase)
-            && MSBuildFacts.DefaultOutputPaths.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Checks if the given property is 'PlatformTarget', and if the value defined is a default brought in by a template.
-        /// </summary>
-        public static bool IsPlatformTargetDefault(ProjectPropertyElement prop) =>
-            prop.ElementName.Equals(MSBuildFacts.PlatformTargetName, StringComparison.OrdinalIgnoreCase)
-            && MSBuildFacts.DefaultPlatformTargets.Contains(prop.Value, StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Checks if the given property is 'DocumentationFile', and if the value defined is a default brought in by a template.
-        /// </summary>
-        public static bool IsDocumentationFileDefault(ProjectPropertyElement prop) =>
-            prop.ElementName.Equals(MSBuildFacts.DocumentationFileNodeName, StringComparison.OrdinalIgnoreCase)
-            && prop.Value.Equals(MSBuildFacts.DefaultDocumentationFileLocation, StringComparison.OrdinalIgnoreCase);
-
-        public static bool IsLegacyXamlDesignerItem(ProjectItemElement item) =>
-            item.Include.EndsWith(DesktopFacts.XamlFileExtension, StringComparison.OrdinalIgnoreCase)
-            && item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
-                                       && pme.Value.Equals(MSBuildFacts.DesignerSubType, StringComparison.OrdinalIgnoreCase));
-
-        public static bool IsDependentUponXamlDesignerItem(ProjectItemElement item) =>
-            item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
-                                     && pme.Value.Equals(MSBuildFacts.CodeSubTypeValue, StringComparison.OrdinalIgnoreCase))
-            && item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.DependentUponName, StringComparison.OrdinalIgnoreCase)
-                                        && pme.Value.EndsWith(DesktopFacts.XamlFileExtension, StringComparison.OrdinalIgnoreCase));
-
-        public static bool IsItemWithUnnecessaryMetadata(ProjectItemElement item) =>
-            MSBuildFacts.GlobbedItemTypes.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase)
-            && item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
-                                        && pme.Value.Equals(MSBuildFacts.CodeSubTypeValue, StringComparison.OrdinalIgnoreCase));
-
-        public static IEnumerable<ProjectItemGroupElement> GetPackagesConfigItemGroup(IProjectRootElement root) =>
-            root.ItemGroups.Where(pige => pige.Items.Any(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));
-
         public static ProjectItemElement GetPackagesConfigItem(ProjectItemGroupElement packagesConfigItemGroup) =>
             packagesConfigItemGroup.Items.Single(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase));
 
+        /// <summary>
+        /// Adds the UseWindowsForms=True property to the top-level project property group.
+        /// </summary>
         public static void AddUseWinForms(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.UseWinFormsPropertyName, "true");
+
+        /// <summary>
+        /// Adds the UseWPF=true property to the top-level project property group.
+        /// </summary>
         public static void AddUseWPF(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.UseWPFPropertyName, "true");
 
-        public static ProjectPropertyGroupElement GetTopPropertyGroupWithTFM(IProjectRootElement rootElement) =>
+        /// <summary>
+        /// Finds the property group with the TFM specified, which is normally the top-level property group.
+        /// </summary>
+        public static ProjectPropertyGroupElement GetOrCreateTopLevelPropertyGroupWithTFM(IProjectRootElement rootElement) =>
             rootElement.PropertyGroups.Single(pg => pg.Properties.Any(p => p.ElementName.Equals(MSBuildFacts.TargetFrameworkNodeName, StringComparison.OrdinalIgnoreCase)))
             ?? rootElement.AddPropertyGroup();
-
-        public static ProjectItemGroupElement GetPackageReferencesItemGroup(IProjectRootElement rootElement) =>
+        
+        /// <summary>
+        /// Finds the item group where PackageReferences are specified. Usually there is only one.
+        /// </summary>
+        public static ProjectItemGroupElement GetOrCreatePackageReferencesItemGroup(IProjectRootElement rootElement) =>
             rootElement.ItemGroups.SingleOrDefault(ig => ig.Items.All(i => i.ElementName.Equals(PackageFacts.PackageReferencePackagesNodeName, StringComparison.OrdinalIgnoreCase)))
             ?? rootElement.AddItemGroup();
 
+        /// <summary>
+        /// Checks if a metadata item can stay or if it needs to be converted.
+        /// </summary>
+        /// <returns>True if the metadata item is fine. False if it needs to be removed or converted.</returns>
         public static bool IsValidMetadataForConversionPurposes(IProjectMetadata projectMetadata) =>
             !projectMetadata.Name.Equals(MSBuildFacts.RequiredTargetFrameworkNodeName, StringComparison.OrdinalIgnoreCase);
 
+        /// <summary>
+        /// Gets the top-level property group, and if it doesn't exist, creates it.
+        /// </summary>
         public static ProjectPropertyGroupElement GetOrCreateEmptyPropertyGroup(BaselineProject baselineProject, IProjectRootElement projectRootElement)
         {
             bool IsAfterFirstImport(ProjectPropertyGroupElement propertyGroup)
@@ -333,6 +268,9 @@ namespace MSBuildAbstractions
             return true;
         }
 
+        /// <summary>
+        /// Given an optional path to MSBuild, registers an MSBuild.exe to be used for assembly resolution with this tool.
+        /// </summary>
         public static string HookAssemblyResolveForMSBuild(string msbuildPath = null)
         {
             msbuildPath = GetMSBuildPathIfNotSpecified(msbuildPath);
@@ -351,6 +289,9 @@ namespace MSBuildAbstractions
             return msbuildPath;
         }
 
+        /// <summary>
+        /// Given an optional path to MSBuild, finds an MSBuild path. Will query Visual Studio instances and ask for user input if there are multitple ones.
+        /// </summary>
         private static string GetMSBuildPathIfNotSpecified(string msbuildPath = null)
         {
             // If the user specified a msbuild path use that.

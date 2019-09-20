@@ -352,3 +352,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Local testing files
+**/*/launchSettings.json
+**/*/FolderProfile.pubxml

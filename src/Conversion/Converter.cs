@@ -51,7 +51,10 @@ namespace Conversion
 
             AddConvertedPackages(tfm);
             RemoveOrUpdateItems(tfm);
-            AddItemRemovesForIntroducedItems();
+
+            // Does not appear to be necessary.
+            // This also clutters up the project file whenever you have embedded resources like images.
+            //AddItemRemovesForIntroducedItems();
 
             ModifyProjectElement();
 

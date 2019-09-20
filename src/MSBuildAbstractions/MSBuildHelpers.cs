@@ -258,8 +258,7 @@ namespace MSBuildAbstractions
         public static bool ArePropertyGroupElementsIdentical(ProjectPropertyGroupElement groupA, ProjectPropertyGroupElement groupB)
         {
             return groupA.Properties.Count == groupB.Properties.Count
-                   && groupA.Properties.All(propA => groupB.Properties.Any(propB => propA.ElementName.Equals(propB.ElementName, StringComparison.OrdinalIgnoreCase)
-                                                                                    && propA.Value.Equals(propB.Value, StringComparison.OrdinalIgnoreCase)));
+                   && groupA.Properties.All(propA => groupB.Properties.Any(propB => ProjectPropertyHelpers.ArePropertiesEqual(propA, propB)));
         }
 
 

@@ -45,6 +45,7 @@ namespace Conversion
             var tfm = AddTargetFrameworkProperty();
             AddGenerateAssemblyInfo();
             AddDesktopProperties();
+            AddCommonPropertiesToTopLevelPropertyGroup();
 
             AddTargetProjectProperties();
 
@@ -387,6 +388,36 @@ namespace Conversion
                 var useWPF = _projectRootElement.CreatePropertyElement(DesktopFacts.UseWPFPropertyName);
                 useWPF.Value = "true";
                 propGroup.AppendChild(useWPF);
+            }
+        }
+
+        private void AddCommonPropertiesToTopLevelPropertyGroup()
+        {
+            var propGroups = _projectRootElement.PropertyGroups;
+            var pairs = propGroups.Zip(propGroups.Skip(1), (pgA, pgB) => (pgA, pgB))
+                                  .Where(pair => MSBuildHelpers.ArePropertyGroupElementsIdentical(pair.pgA, pair.pgB));
+
+            var topLevelPropGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroupWithTFM(_projectRootElement);
+
+            foreach (var (a,b) in pairs)
+            {
+                foreach (var prop in a.Properties)
+                {
+                    a.RemoveChild(prop);
+
+                    if (!topLevelPropGroup.Properties.Any(p => ProjectPropertyHelpers.ArePropertiesEqual(p, prop)))
+                    {
+                        topLevelPropGroup.AppendChild(prop);
+                    }
+                }
+
+                foreach (var prop in b.Properties)
+                {
+                    b.RemoveChild(prop);
+                }
+
+                _projectRootElement.RemoveChild(a);
+                _projectRootElement.RemoveChild(b);
             }
         }
 

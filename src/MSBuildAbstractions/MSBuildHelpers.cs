@@ -253,6 +253,17 @@ namespace MSBuildAbstractions
         }
 
         /// <summary>
+        /// Determines if all the properties in two property groups are identical, regardless of condition.
+        /// </summary>
+        public static bool ArePropertyGroupElementsIdentical(ProjectPropertyGroupElement groupA, ProjectPropertyGroupElement groupB)
+        {
+            return groupA.Properties.Count == groupB.Properties.Count
+                   && groupA.Properties.All(propA => groupB.Properties.Any(propB => propA.ElementName.Equals(propB.ElementName, StringComparison.OrdinalIgnoreCase)
+                                                                                    && propA.Value.Equals(propB.Value, StringComparison.OrdinalIgnoreCase)));
+        }
+
+
+        /// <summary>
         /// Unquote string. It simply removes the starting and ending "'", and checks they are present before.
         /// </summary>
         /// <param name="s">string to unquote </param>

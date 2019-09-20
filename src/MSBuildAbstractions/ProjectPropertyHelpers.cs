@@ -54,5 +54,13 @@ namespace MSBuildAbstractions
         public static bool IsDocumentationFileDefault(ProjectPropertyElement prop) =>
             prop.ElementName.Equals(MSBuildFacts.DocumentationFileNodeName, StringComparison.OrdinalIgnoreCase)
             && prop.Value.Equals(MSBuildFacts.DefaultDocumentationFileLocation, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Determines if the name and value of two properties are identical.
+        /// </summary>
+        public static bool ArePropertiesEqual(ProjectPropertyElement a, ProjectPropertyElement b) =>
+            a.ElementName.Equals(b.ElementName, StringComparison.OrdinalIgnoreCase)
+            && a.Value.Equals(b.Value, StringComparison.OrdinalIgnoreCase)
+            && a.Condition.Equals(b.Condition, StringComparison.OrdinalIgnoreCase);
     }
 }

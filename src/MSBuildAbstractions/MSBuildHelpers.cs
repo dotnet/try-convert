@@ -253,7 +253,7 @@ namespace MSBuildAbstractions
         }
 
         /// <summary>
-        /// Determines if all the properties in two property groups are identical, regardless of condition.
+        /// Determines if all the properties in two property groups are identical.
         /// </summary>
         public static bool ArePropertyGroupElementsIdentical(ProjectPropertyGroupElement groupA, ProjectPropertyGroupElement groupB)
         {

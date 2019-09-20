@@ -45,6 +45,7 @@ namespace Conversion
             var tfm = AddTargetFrameworkProperty();
             AddGenerateAssemblyInfo();
             AddDesktopProperties();
+            AddCommonPropertiesToTopLevelPropertyGroup();
 
             AddTargetProjectProperties();
 
@@ -387,6 +388,57 @@ namespace Conversion
                 var useWPF = _projectRootElement.CreatePropertyElement(DesktopFacts.UseWPFPropertyName);
                 useWPF.Value = "true";
                 propGroup.AppendChild(useWPF);
+            }
+        }
+
+        private void AddCommonPropertiesToTopLevelPropertyGroup()
+        {
+            var propGroups = _projectRootElement.PropertyGroups;
+
+            // If there is only 1, it's the top-level group.
+            // If there are only 2, then the remaining group has unqiue properties in it that may be configuration-specific.
+            if (propGroups.Count <= 2)
+            {
+                return;
+            }
+
+            var pairs = propGroups.Zip(propGroups.Skip(1), (pgA, pgB) => (pgA, pgB))
+                                  .Where(pair => MSBuildHelpers.ArePropertyGroupElementsIdentical(pair.pgA, pair.pgB));
+
+            var topLevelPropGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroupWithTFM(_projectRootElement);
+
+            foreach (var (a,b) in pairs)
+            {
+                foreach (var prop in a.Properties)
+                {
+                    if (prop.Parent is object)
+                    {
+                        a.RemoveChild(prop);
+                    }
+
+                    if (!topLevelPropGroup.Properties.Any(p => ProjectPropertyHelpers.ArePropertiesEqual(p, prop)))
+                    {
+                        topLevelPropGroup.AppendChild(prop);
+                    }
+                }
+
+                foreach (var prop in b.Properties)
+                {
+                    if (prop.Parent is object)
+                    {
+                        b.RemoveChild(prop);
+                    }
+                }
+
+                if (a.Parent is object)
+                {
+                    _projectRootElement.RemoveChild(a);
+                }
+
+                if (b.Parent is object)
+                {
+                    _projectRootElement.RemoveChild(b);
+                }
             }
         }
 

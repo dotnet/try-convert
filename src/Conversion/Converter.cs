@@ -394,6 +394,14 @@ namespace Conversion
         private void AddCommonPropertiesToTopLevelPropertyGroup()
         {
             var propGroups = _projectRootElement.PropertyGroups;
+
+            // If there is only 1, it's the top-level group.
+            // If there are only 2, then the remaining group has unqiue properties in it that may be configuration-specific.
+            if (propGroups.Count <= 2)
+            {
+                return;
+            }
+
             var pairs = propGroups.Zip(propGroups.Skip(1), (pgA, pgB) => (pgA, pgB))
                                   .Where(pair => MSBuildHelpers.ArePropertyGroupElementsIdentical(pair.pgA, pair.pgB));
 
@@ -403,7 +411,10 @@ namespace Conversion
             {
                 foreach (var prop in a.Properties)
                 {
-                    a.RemoveChild(prop);
+                    if (prop.Parent is object)
+                    {
+                        a.RemoveChild(prop);
+                    }
 
                     if (!topLevelPropGroup.Properties.Any(p => ProjectPropertyHelpers.ArePropertiesEqual(p, prop)))
                     {
@@ -413,11 +424,21 @@ namespace Conversion
 
                 foreach (var prop in b.Properties)
                 {
-                    b.RemoveChild(prop);
+                    if (prop.Parent is object)
+                    {
+                        b.RemoveChild(prop);
+                    }
                 }
 
-                _projectRootElement.RemoveChild(a);
-                _projectRootElement.RemoveChild(b);
+                if (a.Parent is object)
+                {
+                    _projectRootElement.RemoveChild(a);
+                }
+
+                if (b.Parent is object)
+                {
+                    _projectRootElement.RemoveChild(b);
+                }
             }
         }
 

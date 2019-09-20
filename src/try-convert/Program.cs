@@ -61,6 +61,7 @@ namespace ProjectSimplifier
                 return -1;
             }
 
+            Console.WriteLine("Conversion complete!");
             return 0;
         }
     }

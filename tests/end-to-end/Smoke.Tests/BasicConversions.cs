@@ -51,14 +51,14 @@ namespace SmokeTests
         private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath)
         {
             var conversionLoader = new MSBuildWorkspaceLoader(projectToConvertPath, MSBuildWorkspaceType.Project);
-            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath);
+            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true);
 
             var baselineLoader = new MSBuildWorkspaceLoader(projectBaselinePath, MSBuildWorkspaceType.Project);
             var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);
 
             var item = conversionWorkspace.WorkspaceItems.Single();
             var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-            var convertedRootElement = converter.GenerateProjectFile();
+            var convertedRootElement = converter.ConvertProjectFile();
 
             return (baselineRootElement, convertedRootElement);
         }

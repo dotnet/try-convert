@@ -75,7 +75,7 @@ namespace Conversion
                 }
                 else
                 {
-                    _projectRootElement.Sdk = DesktopFacts.DefaultSDKAttribute;
+                    _projectRootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
                 }
             }
         }

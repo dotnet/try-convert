@@ -72,7 +72,7 @@ namespace MSBuildAbstractions
             switch (projectStyle)
             {
                 case ProjectStyle.Default:
-                    rootElement.Sdk = DesktopFacts.DefaultSDKAttribute;
+                    rootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
                     break;
                 case ProjectStyle.WindowsDesktop:
                     rootElement.Sdk = DesktopFacts.WinSDKAttribute;

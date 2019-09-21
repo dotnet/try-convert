@@ -2,11 +2,9 @@
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace MSBuildAbstractions
 {
@@ -29,9 +27,7 @@ namespace MSBuildAbstractions
                 var unconfiguredProject = new UnconfiguredProject(configurations);
                 unconfiguredProject.LoadProjects(collection, globalProperties, path);
 
-                var props = InitializeTargetProjectProperties();
-
-                var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, globalProperties, configurations, props);
+                var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations);
                 root.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
 
                 var item = new MSBuildWorkspaceItem(root, unconfiguredProject, baseline);
@@ -56,33 +52,12 @@ namespace MSBuildAbstractions
             return builder.ToImmutable();
         }
 
-        private static ImmutableDictionary<string, string> InitializeTargetProjectProperties(IEnumerable<string> targetProjectProperties = null)
-        {
-            var builder = ImmutableDictionary.CreateBuilder<string, string>();
-            if (targetProjectProperties is object)
-            {
-                foreach (var item in targetProjectProperties)
-                {
-                    var parts = item.Split('=');
-                    builder.Add(parts[0], parts[1]);
-                }
-            }
-
-            var props = builder.ToImmutable();
-            return props;
-        }
-
         /// <summary>
         /// Clear out the project's construction model and add a simple SDK-based project to get a baseline.
         /// We need to use the same name as the original csproj and same path so that all the default that derive
         /// from name\path get the right values (there are a lot of them).
         /// </summary>
-        private BaselineProject CreateSdkBaselineProject(string projectFilePath,
-                                                         IProject project,
-                                                         IProjectRootElement root,
-                                                         ImmutableDictionary<string, string> globalProperties,
-                                                         ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations,
-                                                         ImmutableDictionary<string, string> targetProjectProperties)
+        private BaselineProject CreateSdkBaselineProject(string projectFilePath, IProject project, IProjectRootElement root, ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations)
         {
             var projectStyle = GetProjectStyle(root);
             var rootElement = ProjectRootElement.Open(projectFilePath);
@@ -128,10 +103,8 @@ namespace MSBuildAbstractions
                 }
             }
 
-            var newGlobalProperties = globalProperties.AddRange(targetProjectProperties);
-
             // Create a new collection because a project with this name has already been loaded into the global collection.
-            using var pc = new ProjectCollection(newGlobalProperties);
+            using var pc = new ProjectCollection();
             var newProject = new UnconfiguredProject(configurations);
             newProject.LoadProjects(pc, rootElement);
 
@@ -153,7 +126,7 @@ namespace MSBuildAbstractions
                 propertiesInTheBaseline = propertiesInTheBaseline.Add(DesktopFacts.UseWPFPropertyName);
             }
 
-            return new BaselineProject(newProject, propertiesInTheBaseline, targetProjectProperties, projectStyle);
+            return new BaselineProject(newProject, propertiesInTheBaseline, projectStyle);
         }
 
         private ProjectStyle GetProjectStyle(IProjectRootElement project)

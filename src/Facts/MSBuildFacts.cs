@@ -124,6 +124,7 @@ namespace Facts
             "ProjectReference"
         );
 
+        public const string DefaultSDKAttribute = "Microsoft.NET.Sdk";
         public const string LowestFrameworkVersionWithSystemValueTuple = "net47";
         public const string SharedProjectsImportLabel = "Shared";
         public const string NETCoreDesktopTFM = "netcoreapp3.0";

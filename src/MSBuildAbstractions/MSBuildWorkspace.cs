@@ -22,6 +22,12 @@ namespace MSBuildAbstractions
             foreach (var path in paths)
             {
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
+                if (root.Sdk.ContainsIgnoreCase(MSBuildFacts.DefaultSDKAttribute))
+                {
+                    Console.WriteLine($"'{path}' is already a .NET SDK-style project, so it won't be converted.");
+                    continue;
+                }
+
                 var configurations = DetermineConfigurations(root);
 
                 var unconfiguredProject = new UnconfiguredProject(configurations);

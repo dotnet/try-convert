@@ -44,7 +44,6 @@ namespace Facts
         );
 
         public const string WinSDKAttribute = "Microsoft.NET.Sdk.WindowsDesktop";
-        public const string DefaultSDKAttribute = "Microsoft.NET.Sdk";
         public const string UseWPFPropertyName = "UseWPF";
         public const string UseWinFormsPropertyName = "UseWindowsForms";
         public const string DesignerSuffix = ".Designer.cs";

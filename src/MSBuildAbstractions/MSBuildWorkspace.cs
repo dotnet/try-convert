@@ -34,9 +34,7 @@ namespace MSBuildAbstractions
                 var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, globalProperties, configurations, props);
                 root.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
 
-                var rootDirectory = Directory.GetParent(path);
-
-                var item = new MSBuildWorkspaceItem(root, unconfiguredProject, baseline, rootDirectory);
+                var item = new MSBuildWorkspaceItem(root, unconfiguredProject, baseline);
                 items.Add(item);
             }
 

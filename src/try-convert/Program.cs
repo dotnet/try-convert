@@ -71,7 +71,7 @@ namespace TryConvert
                 }
 
                 var workspaceLoader = new MSBuildWorkspaceLoader(workspacePath, workspaceType);
-                var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspace);
+                var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath);
 
                 foreach (var item in msbuildWorkspace.WorkspaceItems)
                 {
@@ -82,7 +82,7 @@ namespace TryConvert
                     }
                     else
                     {
-                        var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement, item.RootDirectory, project);
+                        var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
 
                         // TODO - ignoring output for now
                         converter.Convert(workspacePath);

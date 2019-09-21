@@ -24,7 +24,6 @@ namespace MSBuildAbstractions
         /// </summary>
         public static (bool isSolution, string workspacePath) FindWorkspace(string searchDirectory, string workspacePath = null)
         {
-            Console.WriteLine(searchDirectory);
             if (!string.IsNullOrEmpty(workspacePath))
             {
                 if (!Path.IsPathRooted(workspacePath))
@@ -93,7 +92,6 @@ namespace MSBuildAbstractions
             }
 
             var files = fileSelector(searchBase).ToList();
-            files.ForEach(file => Console.WriteLine(file));
             if (files.Count > 1)
             {
                 throw new FileNotFoundException(string.Format(multipleFilesFoundError, searchBase));

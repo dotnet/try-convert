@@ -16,17 +16,13 @@ namespace Conversion
         private readonly BaselineProject _sdkBaselineProject;
         private readonly IProjectRootElement _projectRootElement;
         private readonly ImmutableDictionary<string, Differ> _differs;
-        private readonly DirectoryInfo _projectRootDirectory;
-        private readonly string _projectFilePath;
 
-        public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, IProjectRootElement projectRootElement, DirectoryInfo projectRootDirectory, string projectFilePath)
+        public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, IProjectRootElement projectRootElement)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _sdkBaselineProject = sdkBaselineProject;
             _projectRootElement = projectRootElement ?? throw new ArgumentNullException(nameof(projectRootElement));
-            _projectRootDirectory = projectRootDirectory;
             _differs = GetDiffers();
-            _projectFilePath = projectFilePath;
         }
 
         public void Convert(string outputPath)
@@ -143,7 +139,7 @@ namespace Conversion
                     {
                         propGroup.RemoveChild(prop);
                     }
-                    else if (ProjectPropertyHelpers.IsNameDefault(prop, GetProjectName(_projectFilePath)))
+                    else if (ProjectPropertyHelpers.IsNameDefault(prop, GetProjectName(_projectRootElement.FullPath)))
                     {
                         propGroup.RemoveChild(prop);
                     }
@@ -293,7 +289,7 @@ namespace Conversion
             }
 
             var packagesConfigItem = MSBuildHelpers.GetPackagesConfigItem(packagesConfigItemGroup);
-            var path = Path.Combine(_projectRootDirectory.FullName, packagesConfigItem.Include);
+            var path = Path.Combine(_projectRootElement.DirectoryPath, packagesConfigItem.Include);
             
             var packageReferences = PackagesConfigConverter.Convert(path);
             if (packageReferences is object && packageReferences.Any())

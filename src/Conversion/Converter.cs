@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Facts;
+using Microsoft.Build.Construction;
+using MSBuildAbstractions;
+using PackageConversion;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using Facts;
-using Microsoft.Build.Construction;
-using MSBuildAbstractions;
-using PackageConversion;
 
 namespace Conversion
 {
@@ -27,11 +27,11 @@ namespace Conversion
 
         public void Convert(string outputPath)
         {
-            GenerateProjectFile();
+            ConvertProjectFile();
             _projectRootElement.Save(outputPath);
         }
 
-        internal IProjectRootElement GenerateProjectFile()
+        internal IProjectRootElement ConvertProjectFile()
         {
             ChangeImports();
 
@@ -270,7 +270,7 @@ namespace Conversion
 
             var packagesConfigItem = MSBuildHelpers.GetPackagesConfigItem(packagesConfigItemGroup);
             var path = Path.Combine(_projectRootElement.DirectoryPath, packagesConfigItem.Include);
-            
+
             var packageReferences = PackagesConfigConverter.Convert(path);
             if (packageReferences is object && packageReferences.Any())
             {
@@ -383,7 +383,7 @@ namespace Conversion
 
             var topLevelPropGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroupWithTFM(_projectRootElement);
 
-            foreach (var (a,b) in pairs)
+            foreach (var (a, b) in pairs)
             {
                 foreach (var prop in a.Properties)
                 {

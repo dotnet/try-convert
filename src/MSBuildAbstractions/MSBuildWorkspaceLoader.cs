@@ -30,7 +30,7 @@ namespace MSBuildAbstractions
             _outputPath = workspacePath; // TODO - this should actually be a  thing though
         }
 
-        public MSBuildWorkspace LoadWorkspace(string path)
+        public MSBuildWorkspace LoadWorkspace(string path, bool noBackup)
         {
             var projectPaths =
                 _workspaceType switch
@@ -40,7 +40,7 @@ namespace MSBuildAbstractions
                     _ => throw new InvalidOperationException("couldn't do literally anything")
                 };
 
-            return new MSBuildWorkspace(projectPaths);
+            return new MSBuildWorkspace(projectPaths, noBackup);
         }
 
         public IProjectRootElement GetRootElementFromProjectFile(string projectFilePath = "")

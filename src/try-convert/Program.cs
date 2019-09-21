@@ -23,17 +23,15 @@ namespace TryConvert
                 .UseExceptionHandler()
                 .AddOption(new Option(new[] { "-p", "--project" }, "The path to a project to convert", new Argument<string>()))
                 .AddOption(new Option(new [] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.", new Argument<string>()))
-
-                // TODO - ignoring output for now
-                //.AddOption(new Option(new[] { "-o", "--output" }, "The output path to write the converted project to", new Argument<string>()))
                 .AddOption(new Option(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that", new Argument<string>()))
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done", new Argument<bool>()))
+                .AddOption(new Option(new[] { "--no-backup"}, "Converts projects and does not create a backup of the originals.", new Argument<bool>()))
                 .Build();
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string project, string workspace, /*string output, */string msbuildPath, bool diffOnly)
+        public static int Run(string project, string workspace, string output, string msbuildPath, bool diffOnly, bool noBackup)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
@@ -71,7 +69,7 @@ namespace TryConvert
                 }
 
                 var workspaceLoader = new MSBuildWorkspaceLoader(workspacePath, workspaceType);
-                var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath);
+                var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup);
 
                 foreach (var item in msbuildWorkspace.WorkspaceItems)
                 {
@@ -83,8 +81,6 @@ namespace TryConvert
                     else
                     {
                         var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-
-                        // TODO - ignoring output for now
                         converter.Convert(workspacePath);
                     }
                 }

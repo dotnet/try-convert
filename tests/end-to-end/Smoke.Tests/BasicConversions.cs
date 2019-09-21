@@ -58,7 +58,7 @@ namespace SmokeTests
 
             var item = conversionWorkspace.WorkspaceItems.Single();
             var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-            var convertedRootElement = converter.GenerateProjectFile();
+            var convertedRootElement = converter.ConvertProjectFile();
 
             return (baselineRootElement, convertedRootElement);
         }

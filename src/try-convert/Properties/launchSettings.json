@@ -2,7 +2,7 @@
   "profiles": {
     "Diff": {
       "commandName": "Project",
-      "commandLineArgs": "-w \"C:\\Users\\phillip\\Source\\Repos\\Weather\\WinFormsFxClient\""
+      "commandLineArgs": "-w \"C:\\Users\\phillip\\Source\\Repos\\Weather\\WinFormsFxClient\" --no-backup"
     },
     "Convert": {
       "commandName": "Project",

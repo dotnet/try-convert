@@ -12,7 +12,7 @@ namespace MSBuildAbstractions
     {
         public ImmutableArray<MSBuildWorkspaceItem> WorkspaceItems { get; }
 
-        public MSBuildWorkspace(ImmutableArray<string> paths)
+        public MSBuildWorkspace(ImmutableArray<string> paths, bool noBackup)
         {
             var items = ImmutableArray.CreateBuilder<MSBuildWorkspaceItem>();
 
@@ -21,6 +21,11 @@ namespace MSBuildAbstractions
 
             foreach (var path in paths)
             {
+                if (!noBackup)
+                {
+                    File.Copy(path, path + ".old");
+                }
+
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
                 if (root.Sdk.ContainsIgnoreCase(MSBuildFacts.DefaultSDKAttribute))
                 {

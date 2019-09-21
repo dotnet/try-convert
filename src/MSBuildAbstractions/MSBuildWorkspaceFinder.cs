@@ -24,6 +24,7 @@ namespace MSBuildAbstractions
         /// </summary>
         public static (bool isSolution, string workspacePath) FindWorkspace(string searchDirectory, string workspacePath = null)
         {
+            Console.WriteLine(searchDirectory);
             if (!string.IsNullOrEmpty(workspacePath))
             {
                 if (!Path.IsPathRooted(workspacePath))

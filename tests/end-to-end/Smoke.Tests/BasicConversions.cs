@@ -4,6 +4,7 @@ using MSBuildAbstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Xunit;
 
 namespace SmokeTests
@@ -49,13 +50,14 @@ namespace SmokeTests
 
         private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath)
         {
-            var conversionLoader = new MSBuildWorkspaceLoader();
-            conversionLoader.LoadWorkspace(projectToConvertPath);
+            var conversionLoader = new MSBuildWorkspaceLoader(projectToConvertPath, MSBuildWorkspaceType.Project);
+            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath);
 
-            var baselineLoader = new MSBuildWorkspaceLoader();
+            var baselineLoader = new MSBuildWorkspaceLoader(projectBaselinePath, MSBuildWorkspaceType.Project);
             var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);
 
-            var converter = new Converter(conversionLoader.Project, conversionLoader.SdkBaselineProject, conversionLoader.ProjectRootElement, conversionLoader.ProjectRootDirectory, projectToConvertPath);
+            var item = conversionWorkspace.WorkspaceItems.Single();
+            var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement, item.RootDirectory, projectToConvertPath);
             var convertedRootElement = converter.GenerateProjectFile();
 
             return (baselineRootElement, convertedRootElement);

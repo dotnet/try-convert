@@ -22,9 +22,10 @@ namespace TryConvert
                 .UseParseErrorReporting()
                 .UseExceptionHandler()
                 .AddOption(new Option(new[] { "-p", "--project" }, "The path to a project to convert", new Argument<string>()))
-                .AddOption(new Option(new[] { "-f", "--folder" }, "The path to a project to convert", new Argument<string>()))
                 .AddOption(new Option(new [] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.", new Argument<string>()))
-                .AddOption(new Option(new[] { "-o", "--output" }, "The output path to write the converted project to", new Argument<string>()))
+
+                // TODO - ignoring output for now
+                //.AddOption(new Option(new[] { "-o", "--output" }, "The output path to write the converted project to", new Argument<string>()))
                 .AddOption(new Option(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that", new Argument<string>()))
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done", new Argument<bool>()))
                 .Build();
@@ -32,7 +33,7 @@ namespace TryConvert
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string project, string folder, string workspace, string output, string msbuildPath, bool diffOnly)
+        public static int Run(string project, string workspace, /*string output, */string msbuildPath, bool diffOnly)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
@@ -40,30 +41,16 @@ namespace TryConvert
                 return -1;
             }
 
-            if (!string.IsNullOrWhiteSpace(project) && (!string.IsNullOrWhiteSpace(folder)))
-            {
-                Console.WriteLine("Cannot specify both a project and a folder.");
-                return -1;
-            }
-
-            if (!string.IsNullOrWhiteSpace(folder) && !string.IsNullOrWhiteSpace(workspace))
-            {
-                Console.WriteLine("Cannot specify both a folder and a workspace.");
-                return -1;
-            }
-
-            var currentDirectory = string.Empty;
-
             try
             {
-                msbuildPath = MSBuildUtilities.HookAssemblyResolveForMSBuild(msbuildPath);
+                msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(msbuildPath);
                 if (string.IsNullOrWhiteSpace(msbuildPath))
                 {
                     Console.WriteLine("Could not find an MSBuild.");
                     return -1;
                 }
 
-                currentDirectory = Environment.CurrentDirectory;
+                var currentDirectory = Environment.CurrentDirectory;
                 string workspacePath = string.Empty;
                 MSBuildWorkspaceType workspaceType;
 
@@ -71,11 +58,6 @@ namespace TryConvert
                 {
                     workspacePath = Path.GetFullPath(project, Environment.CurrentDirectory);
                     workspaceType = MSBuildWorkspaceType.Project;
-                }
-                else if (!string.IsNullOrWhiteSpace(folder))
-                {
-                    workspacePath = Path.GetFullPath(folder, Environment.CurrentDirectory);
-                    workspaceType = MSBuildWorkspaceType.Folder;
                 }
                 else if (!string.IsNullOrWhiteSpace(workspace))
                 {
@@ -87,22 +69,24 @@ namespace TryConvert
                     throw new ArgumentException("No valid arguments to fulfill a workspace are given.");
                 }
 
+                var workspaceLoader = new MSBuildWorkspaceLoader(workspacePath, workspaceType);
+                var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspace);
 
+                foreach (var item in msbuildWorkspace.WorkspaceItems)
+                {
+                    if (diffOnly)
+                    {
+                        var differ = new Differ(item.UnconfiguredProject.FirstConfiguredProject, item.SdkBaselineProject.Project.FirstConfiguredProject);
+                        differ.GenerateReport(workspacePath);
+                    }
+                    else
+                    {
+                        var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement, item.RootDirectory, project);
 
-                //var projectLoader = new MSBuildWorkspaceLoader();
-                //projectLoader.LoadWorkspace(workspace);
-
-                //if (diffOnly)
-                //{
-                //    var differ = new Differ(projectLoader.Project.FirstConfiguredProject, projectLoader.SdkBaselineProject.Project.FirstConfiguredProject);
-                //    differ.GenerateReport(output);
-                //}
-                //else
-                //{
-                //    var converter = new Converter(projectLoader.Project, projectLoader.SdkBaselineProject, projectLoader.ProjectRootElement, projectLoader.ProjectRootDirectory, project);
-                //    var path = string.IsNullOrWhiteSpace(output) ? workspace : output;
-                //    converter.Convert(path);
-                //}
+                        // TODO - ignoring output for now
+                        converter.Convert(workspacePath);
+                    }
+                }
             }
             catch (Exception e)
             {

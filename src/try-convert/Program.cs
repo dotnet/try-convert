@@ -31,7 +31,7 @@ namespace TryConvert
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string project, string workspace, string output, string msbuildPath, bool diffOnly, bool noBackup)
+        public static int Run(string project, string workspace, string msbuildPath, bool diffOnly, bool noBackup)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {

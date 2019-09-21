@@ -93,6 +93,7 @@ namespace MSBuildAbstractions
             }
 
             var files = fileSelector(searchBase).ToList();
+            files.ForEach(file => Console.WriteLine(file));
             if (files.Count > 1)
             {
                 throw new FileNotFoundException(string.Format(multipleFilesFoundError, searchBase));

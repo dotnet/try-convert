@@ -63,6 +63,7 @@ namespace TryConvert
                 {
                     var (isSolution, workspaceFilePath) = MSBuildWorkspaceFinder.FindWorkspace(currentDirectory, workspace);
                     workspaceType = isSolution ? MSBuildWorkspaceType.Solution : MSBuildWorkspaceType.Project;
+                    workspacePath = workspaceFilePath;
                 }
                 else
                 {

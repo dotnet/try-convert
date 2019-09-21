@@ -354,5 +354,5 @@ MigrationBackup/
 .ionide/
 
 # Local testing files
-**/*/launchSettings.json
-**/*/FolderProfile.pubxml
+Properties/launchSettings.json
+Properties/FolderProfile.pubxml

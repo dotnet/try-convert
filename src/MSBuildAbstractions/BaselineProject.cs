@@ -10,10 +10,9 @@ namespace MSBuildAbstractions
         public readonly UnconfiguredProject Project;
         public readonly ProjectStyle ProjectStyle;
 
-        public BaselineProject(UnconfiguredProject project, ImmutableArray<string> globalProperties, ImmutableDictionary<string, string> targetProjectProperties, ProjectStyle projectStyle) : this()
+        public BaselineProject(UnconfiguredProject project, ImmutableArray<string> globalProperties, ProjectStyle projectStyle) : this()
         {
             GlobalProperties = globalProperties;
-            TargetProjectProperties = targetProjectProperties;
             Project = project ?? throw new ArgumentNullException(nameof(project));
             ProjectStyle = projectStyle;
         }

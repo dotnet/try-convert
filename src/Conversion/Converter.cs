@@ -43,8 +43,6 @@ namespace Conversion
             AddDesktopProperties();
             AddCommonPropertiesToTopLevelPropertyGroup();
 
-            AddTargetProjectProperties();
-
             AddConvertedPackages(tfm);
             RemoveOrUpdateItems(tfm);
 
@@ -250,27 +248,6 @@ namespace Conversion
             }
         }
 
-        private void AddItemRemovesForIntroducedItems()
-        {
-            var introducedItems = _differs.Values
-                                          .SelectMany(
-                                                differ => differ.GetItemsDiff()
-                                                                .Where(diff => MSBuildFacts.GlobbedItemTypes.Contains(diff.ItemType, StringComparer.OrdinalIgnoreCase))
-                                                                .SelectMany(diff => diff.IntroducedItems))
-                                          .Distinct(ProjectItemComparer.IncludeComparer);
-
-            if (introducedItems.Any())
-            {
-                var itemGroup = _projectRootElement.AddItemGroup();
-                foreach (var introducedItem in introducedItems)
-                {
-                    var item = itemGroup.AddItem(introducedItem.ItemType, introducedItem.EvaluatedInclude);
-                    item.Include = null;
-                    item.Remove = introducedItem.EvaluatedInclude;
-                }
-            }
-        }
-
         private void AddPackage(string packageName, string packageVersion)
         {
             var groupForPackageRefs = MSBuildHelpers.GetOrCreatePackageReferencesItemGroup(_projectRootElement);
@@ -454,21 +431,6 @@ namespace Conversion
         {
             _projectRootElement.ToolsVersion = null;
             _projectRootElement.DefaultTargets = null;
-        }
-
-        private void AddTargetProjectProperties()
-        {
-            if (_sdkBaselineProject.TargetProjectProperties.IsEmpty)
-            {
-                return;
-            }
-
-            var propGroup = MSBuildHelpers.GetOrCreateEmptyPropertyGroup(_sdkBaselineProject, _projectRootElement);
-
-            foreach (var prop in _sdkBaselineProject.TargetProjectProperties)
-            {
-                propGroup.AddProperty(prop.Key, prop.Value);
-            }
         }
     }
 }

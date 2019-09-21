@@ -43,7 +43,7 @@ namespace MSBuildAbstractions
             return new MSBuildWorkspace(projectPaths);
         }
 
-        public IProjectRootElement GetRootElementFromProjectFile(string projectFilePath = "", string roslynTargetsPath = "", string msbuildSdksPath = "")
+        public IProjectRootElement GetRootElementFromProjectFile(string projectFilePath = "")
         {
             var path = Path.GetFullPath(projectFilePath);
 

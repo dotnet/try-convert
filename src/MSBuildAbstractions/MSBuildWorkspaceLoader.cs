@@ -34,7 +34,7 @@ namespace MSBuildAbstractions
             {
                 if (project.ProjectType != SolutionProjectType.KnownToBeMSBuildFormat)
                 {
-                    Console.WriteLine($"{project.AbsolutePath} is not a supported project type and will be skipped.");
+                    Console.WriteLine($"{project.AbsolutePath} is not a supported solution item and will be skipped.");
                 }
 
                 return project.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat;

@@ -81,7 +81,7 @@ namespace TryConvert
                     else
                     {
                         var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-                        converter.Convert(workspacePath);
+                        converter.Convert(item.ProjectRootElement.FullPath);
                     }
                 }
             }

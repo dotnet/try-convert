@@ -62,5 +62,10 @@ namespace MSBuildAbstractions
             a.ElementName.Equals(b.ElementName, StringComparison.OrdinalIgnoreCase)
             && a.Value.Equals(b.Value, StringComparison.OrdinalIgnoreCase)
             && a.Condition.Equals(b.Condition, StringComparison.OrdinalIgnoreCase);
+
+        public static bool IsLegacyWebProjectTypeGuidsProperty(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSBuildFacts.ProjectTypeGuidsNodeName, StringComparison.OrdinalIgnoreCase)
+            && prop.Value.Split(';').Where(guidString => Guid.TryParse(guidString, out var _))
+                                    .All(guidString => MSBuildFacts.LegacyWebProjectTypeGuids.Contains(Guid.Parse(guidString)));
     }
 }

@@ -10,7 +10,6 @@ namespace MSBuildAbstractions
     public class MSBuildWorkspaceLoader
     {
         private readonly string _workspacePath;
-        private readonly string _outputPath;
         private readonly MSBuildWorkspaceType _workspaceType;
 
         public MSBuildWorkspaceLoader(string workspacePath, MSBuildWorkspaceType workspaceType)
@@ -27,16 +26,28 @@ namespace MSBuildAbstractions
 
             _workspacePath = workspacePath;
             _workspaceType = workspaceType;
-            _outputPath = workspacePath; // TODO - this should actually be a  thing though
         }
 
         public MSBuildWorkspace LoadWorkspace(string path, bool noBackup)
         {
+            static bool IsSupportedProjectType(ProjectInSolution project)
+            {
+                if (project.ProjectType != SolutionProjectType.KnownToBeMSBuildFormat)
+                {
+                    Console.WriteLine($"{project.AbsolutePath} is not a supported project type and will be skipped.");
+                }
+
+                return project.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat;
+            }
+
             var projectPaths =
                 _workspaceType switch
                 {
                     MSBuildWorkspaceType.Project => ImmutableArray.Create(path),
-                    MSBuildWorkspaceType.Solution => SolutionFile.Parse(_workspacePath).ProjectsInOrder.Select(p => p.AbsolutePath).ToImmutableArray(),
+                    MSBuildWorkspaceType.Solution =>
+                        SolutionFile.Parse(_workspacePath).ProjectsInOrder
+                            .Where(IsSupportedProjectType)
+                            .Select(p => p.AbsolutePath).ToImmutableArray(),
                     _ => throw new InvalidOperationException("couldn't do literally anything")
                 };
 

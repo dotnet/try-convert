@@ -48,7 +48,7 @@ namespace MSBuildAbstractions
                         SolutionFile.Parse(_workspacePath).ProjectsInOrder
                             .Where(IsSupportedProjectType)
                             .Select(p => p.AbsolutePath).ToImmutableArray(),
-                    _ => throw new InvalidOperationException("couldn't do literally anything")
+                    _ => throw new InvalidOperationException("Somehow, an enum that isn't possible was passed in here.")
                 };
 
             return new MSBuildWorkspace(projectPaths, noBackup);

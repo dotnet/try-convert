@@ -30,7 +30,7 @@ namespace Conversion
             {
                 var originalEvaluatedProp = _project1.GetProperty(propInFile);
                 var newEvaluatedProp = _project2.GetProperty(propInFile);
-                if (newEvaluatedProp is object)
+                if (newEvaluatedProp is { })
                 {
                     if (!originalEvaluatedProp.EvaluatedValue.Equals(newEvaluatedProp.EvaluatedValue, StringComparison.OrdinalIgnoreCase))
                     {

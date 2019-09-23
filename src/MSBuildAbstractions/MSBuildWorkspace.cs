@@ -83,6 +83,7 @@ namespace MSBuildAbstractions
             switch (projectStyle)
             {
                 case ProjectStyle.Default:
+                case ProjectStyle.DefaultSubset:
                     rootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
                     break;
                 case ProjectStyle.WindowsDesktop:
@@ -128,17 +129,17 @@ namespace MSBuildAbstractions
             // If the original project had the TargetFramework property don't touch it during conversion.
             var propertiesInTheBaseline = ImmutableArray.Create(MSBuildFacts.OutputTypeNodeName);
 
-            if (project.GetProperty(MSBuildFacts.TargetFrameworkNodeName) is object)
+            if (project.GetProperty(MSBuildFacts.TargetFrameworkNodeName) is { })
             {
                 propertiesInTheBaseline = propertiesInTheBaseline.Add(MSBuildFacts.TargetFrameworkNodeName);
             }
 
-            if (project.GetProperty(DesktopFacts.UseWinFormsPropertyName) is object)
+            if (project.GetProperty(DesktopFacts.UseWinFormsPropertyName) is { })
             {
                 propertiesInTheBaseline = propertiesInTheBaseline.Add(DesktopFacts.UseWinFormsPropertyName);
             }
 
-            if (project.GetProperty(DesktopFacts.UseWPFPropertyName) is object)
+            if (project.GetProperty(DesktopFacts.UseWPFPropertyName) is { })
             {
                 propertiesInTheBaseline = propertiesInTheBaseline.Add(DesktopFacts.UseWPFPropertyName);
             }
@@ -155,33 +156,47 @@ namespace MSBuildAbstractions
 
             // Exclude shared project references since they show up as imports.
             var imports = project.Imports.Where(i => i.Label != MSBuildFacts.SharedProjectsImportLabel);
-            if (imports.Count() == 2)
+            var importsCount = imports.Count();
+
+            if (importsCount > 0)
             {
                 var firstImport = project.Imports.First();
-                var lastImport = project.Imports.Last();
-
                 var firstImportFileName = Path.GetFileName(firstImport.Project);
-                var lastImportFileName = Path.GetFileName(lastImport.Project);
 
-                if (firstImportFileName == FSharpFacts.FSharpTargetsPathVariableName)
+                if (importsCount == 1 && MSBuildFacts.TargetsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase))
                 {
-                    firstImportFileName = Path.GetFileName(FSharpFacts.FSharpTargetsPath);
+                    return ProjectStyle.DefaultSubset;
                 }
-
-                if (lastImportFileName == FSharpFacts.FSharpTargetsPathVariableName)
+                else
                 {
-                    lastImportFileName = Path.GetFileName(FSharpFacts.FSharpTargetsPath);
-                }
 
-                if (MSBuildFacts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
-                    MSBuildFacts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
-                {
-                    if (MSBuildHelpers.IsWPF(project) || MSBuildHelpers.IsWinForms(project))
+                    var lastImport = project.Imports.Last();
+                    var lastImportFileName = Path.GetFileName(lastImport.Project);
+
+                    if (firstImportFileName == FSharpFacts.FSharpTargetsPathVariableName)
                     {
-                        return ProjectStyle.WindowsDesktop;
+                        firstImportFileName = Path.GetFileName(FSharpFacts.FSharpTargetsPath);
                     }
-                    return ProjectStyle.Default;
+
+                    if (lastImportFileName == FSharpFacts.FSharpTargetsPathVariableName)
+                    {
+                        lastImportFileName = Path.GetFileName(FSharpFacts.FSharpTargetsPath);
+                    }
+
+                    if (MSBuildFacts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
+                        MSBuildFacts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
+                    {
+                        if (MSBuildHelpers.IsWPF(project) || MSBuildHelpers.IsWinForms(project))
+                        {
+                            return ProjectStyle.WindowsDesktop;
+                        }
+                        return ProjectStyle.Default;
+                    }
                 }
+            }
+            else
+            {
+                return ProjectStyle.Custom;
             }
 
             return ProjectStyle.DefaultWithCustomTargets;

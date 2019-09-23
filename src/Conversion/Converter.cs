@@ -62,7 +62,7 @@ namespace Conversion
         {
             var projectStyle = _sdkBaselineProject.ProjectStyle;
 
-            if (projectStyle == ProjectStyle.Default || projectStyle == ProjectStyle.WindowsDesktop)
+            if (projectStyle == ProjectStyle.Default || projectStyle == ProjectStyle.DefaultSubset || projectStyle == ProjectStyle.WindowsDesktop)
             {
                 foreach (var import in _projectRootElement.Imports)
                 {
@@ -226,6 +226,13 @@ namespace Conversion
 
                         itemGroup.RemoveChild(item);
                     }
+                    else if (ProjectItemHelpers.IsReferenceComingFromOldNuGet(item))
+                    {
+                        // We've already converted it to PackageReference.
+                        // Yes, this might mean their references are broken, since this might not have been convertable to PackageReference.
+                        // That's probably fine!
+                        itemGroup.RemoveChild(item);
+                    }
                     else if (IsDesktopRemovableItem(_sdkBaselineProject, itemGroup, item))
                     {
                         itemGroup.RemoveChild(item);
@@ -272,7 +279,7 @@ namespace Conversion
             var path = Path.Combine(_projectRootElement.DirectoryPath, packagesConfigItem.Include);
 
             var packageReferences = PackagesConfigConverter.Convert(path);
-            if (packageReferences is object && packageReferences.Any())
+            if (packageReferences is { } && packageReferences.Any())
             {
                 var groupForPackageRefs = _projectRootElement.AddItemGroup();
                 foreach (var pkgref in packageReferences)
@@ -294,7 +301,7 @@ namespace Conversion
                     };
 
                     // TODO: some way to make Version not explicitly metadata
-                    var item = groupForPackageRefs.AddItem(PackageFacts.PackageReferenceItemType, pkgref.ID, metadata);
+                    groupForPackageRefs.AddItem(PackageFacts.PackageReferenceItemType, pkgref.ID, metadata);
                 }
 
                 // If the only references we had are already in the SDK, we're done.
@@ -321,7 +328,7 @@ namespace Conversion
                 return _sdkBaselineProject.GlobalProperties.First(p => p.Equals("TargetFramework", StringComparison.OrdinalIgnoreCase));
             }
 
-            var propGroup = MSBuildHelpers.GetOrCreateEmptyPropertyGroup(_sdkBaselineProject, _projectRootElement);
+            var propGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroup(_sdkBaselineProject, _projectRootElement);
 
             var targetFrameworkElement = _projectRootElement.CreatePropertyElement("TargetFramework");
 
@@ -387,7 +394,7 @@ namespace Conversion
             {
                 foreach (var prop in a.Properties)
                 {
-                    if (prop.Parent is object)
+                    if (prop.Parent is { })
                     {
                         a.RemoveChild(prop);
                     }
@@ -400,18 +407,18 @@ namespace Conversion
 
                 foreach (var prop in b.Properties)
                 {
-                    if (prop.Parent is object)
+                    if (prop.Parent is { })
                     {
                         b.RemoveChild(prop);
                     }
                 }
 
-                if (a.Parent is object)
+                if (a.Parent is { })
                 {
                     _projectRootElement.RemoveChild(a);
                 }
 
-                if (b.Parent is object)
+                if (b.Parent is { })
                 {
                     _projectRootElement.RemoveChild(b);
                 }

@@ -57,9 +57,9 @@ namespace PackageConversion
                 };
             static string VersionWithoutSuffix(string nugetVersion) => nugetVersion.Split('-').First();
             static bool ValidPackageNode(XElement pkgNode) =>
-                pkgNode.Attribute(PackageFacts.PackageReferenceIDName) is object
+                pkgNode.Attribute(PackageFacts.PackageReferenceIDName) is { }
                 && !string.IsNullOrWhiteSpace(pkgNode.Attribute(PackageFacts.PackageReferenceIDName).Value)
-                && pkgNode.Attribute(PackageFacts.PackageReferenceVersionName) is object
+                && pkgNode.Attribute(PackageFacts.PackageReferenceVersionName) is { }
                 && Version.TryParse(VersionWithoutSuffix(pkgNode.Attribute(PackageFacts.PackageReferenceVersionName).Value), out var version);
 
             var packagesNode =

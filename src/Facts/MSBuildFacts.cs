@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace Facts
@@ -124,6 +125,11 @@ namespace Facts
             "ProjectReference"
         );
 
+        public static ImmutableArray<Guid> LegacyWebProjectTypeGuids => ImmutableArray.Create(
+            Guid.Parse("{349c5851-65df-11da-9384-00065b846f21}"),
+            Guid.Parse("{fae04ec0-301f-11d3-bf4b-00c04f79efbc}")
+        );
+
         public const string DefaultSDKAttribute = "Microsoft.NET.Sdk";
         public const string LowestFrameworkVersionWithSystemValueTuple = "net47";
         public const string SharedProjectsImportLabel = "Shared";
@@ -148,5 +154,6 @@ namespace Facts
         public const string DocumentationFileNodeName = "DocumentationFile";
         public const string DefaultDocumentationFileLocation = @"bin\$(Configuration)\$(AssemblyName).XML";
         public const string CSharpFileSuffix = ".cs";
+        public const string ProjectTypeGuidsNodeName = "ProjectTypeGuids";
     }
 }

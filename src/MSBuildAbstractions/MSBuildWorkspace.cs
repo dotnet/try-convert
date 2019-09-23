@@ -33,6 +33,12 @@ namespace MSBuildAbstractions
                     continue;
                 }
 
+                if (root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsLegacyWebProjectTypeGuidsProperty)))
+                {
+                    Console.WriteLine($"'{path}' is a legacy web project, which is unsupported by this tool.");
+                    continue;
+                }
+
                 var configurations = DetermineConfigurations(root);
 
                 var unconfiguredProject = new UnconfiguredProject(configurations);

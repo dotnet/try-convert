@@ -111,7 +111,7 @@ namespace MSBuildAbstractions
 
         public ICollection<IProjectItem> Items => _project.Items.Select(i => new MSBuildProjectItem(i)).ToArray();
 
-        public IProjectProperty GetProperty(string name) => _project.GetProperty(name) is object ? new MSBuildProjectProperty(_project.GetProperty(name)) : null;
+        public IProjectProperty GetProperty(string name) => _project.GetProperty(name) is { } ? new MSBuildProjectProperty(_project.GetProperty(name)) : null;
 
         public string GetPropertyValue(string name) => _project.GetPropertyValue(name);
     }

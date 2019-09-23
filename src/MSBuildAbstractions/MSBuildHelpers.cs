@@ -1,5 +1,6 @@
 ﻿using Facts;
 using Microsoft.Build.Construction;
+using Microsoft.Build.Evaluation;
 using Microsoft.Build.Locator;
 using System;
 using System.Collections.Generic;
@@ -237,15 +238,19 @@ namespace MSBuildAbstractions
         /// <summary>
         /// Gets the top-level property group, and if it doesn't exist, creates it.
         /// </summary>
-        public static ProjectPropertyGroupElement GetOrCreateEmptyPropertyGroup(BaselineProject baselineProject, IProjectRootElement projectRootElement)
+        public static ProjectPropertyGroupElement GetOrCreateTopLevelPropertyGroup(BaselineProject baselineProject, IProjectRootElement projectRootElement)
         {
             bool IsAfterFirstImport(ProjectPropertyGroupElement propertyGroup)
             {
-                if (baselineProject.ProjectStyle == ProjectStyle.Default || baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop)
+                if (baselineProject.ProjectStyle == ProjectStyle.Default
+                    || baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop
+                    || baselineProject.ProjectStyle == ProjectStyle.DefaultSubset)
+                {
                     return true;
+                }
 
-                var firstImport = projectRootElement.Imports.Where(i => i.Label != MSBuildFacts.SharedProjectsImportLabel).First();
-                return propertyGroup.Location.Line > firstImport.Location.Line;
+                var firstImport = projectRootElement.Imports.Where(i => i.Label != MSBuildFacts.SharedProjectsImportLabel).FirstOrDefault();
+                return firstImport is { } && propertyGroup.Location.Line > firstImport.Location.Line;
             }
 
             return projectRootElement.PropertyGroups.FirstOrDefault(pg => pg.Condition == "" && IsAfterFirstImport(pg))

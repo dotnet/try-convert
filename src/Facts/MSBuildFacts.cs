@@ -155,5 +155,6 @@ namespace Facts
         public const string DefaultDocumentationFileLocation = @"bin\$(Configuration)\$(AssemblyName).XML";
         public const string CSharpFileSuffix = ".cs";
         public const string ProjectTypeGuidsNodeName = "ProjectTypeGuids";
+        public const string HintPathNodeName = "HintPath";
     }
 }

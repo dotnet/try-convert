@@ -42,6 +42,15 @@ namespace MSBuildAbstractions
             MSBuildFacts.DefaultItemsThatHavePackageEquivalents.ContainsKey(item.Include);
 
         /// <summary>
+        /// Checks if a reference is coming from an old-stlye NuGet package.
+        /// </summary>
+        public static bool IsReferenceComingFromOldNuGet(ProjectItemElement item) =>
+            item.ElementName.Equals(MSBuildFacts.MSBuildReferenceName)
+            && item.Metadata.Any(pme => pme.ElementName.Equals(MSBuildFacts.HintPathNodeName, StringComparison.OrdinalIgnoreCase)
+                                        && pme.Value.ContainsIgnoreCase("packages")
+                                        && pme.Value.ContainsIgnoreCase($"\\lib\\"));
+
+        /// <summary>
         /// Checks if a given item is a well-known item that has unnecessary metadata.
         /// </summary>
         public static bool CanItemMetadataBeRemoved(ProjectItemElement item) =>

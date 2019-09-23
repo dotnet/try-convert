@@ -3,9 +3,14 @@
     public enum ProjectStyle
     {
         /// <summary>
-        /// The project has an import of Common.props and CSharp.targets. 
+        /// The project has an import of two defaults. Typically Common.props and CSharp.targets or FSharp.targets, etc. 
         /// </summary>
         Default,
+
+        /// <summary>
+        /// Using one of the two defaults, typically CSharp.targets or FSharp.targets.
+        /// </summary>
+        DefaultSubset,
 
         /// <summary>
         /// The project imports props and targets but not the default ones. 

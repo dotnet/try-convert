@@ -39,6 +39,11 @@ namespace MSBuildAbstractions
                     continue;
                 }
 
+                if (MSBuildHelpers.IsProjectReferencingSystemWeb(root))
+                {
+                    Console.WriteLine($"'{path}' references System.Web, which is unsupported on .NET Core. You may have significant work remaining after conversion.");
+                }
+
                 var configurations = DetermineConfigurations(root);
 
                 var unconfiguredProject = new UnconfiguredProject(configurations);

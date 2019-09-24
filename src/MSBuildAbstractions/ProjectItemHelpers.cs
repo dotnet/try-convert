@@ -108,5 +108,12 @@ namespace MSBuildAbstractions
             item.ElementName.Equals(MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase)
             && item.Include.Equals(MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase)
             && MSBuildHelpers.FrameworkHasAValueTuple(tfm);
+
+        /// <summary>
+        /// Checks if a given item is a reference to System.Web, which is 100% incompatible with .NET Core.
+        /// </summary>
+        public static bool IsReferencingSystemWeb(ProjectItemElement item) =>
+            item.ElementName.Equals(MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase)
+            && item.Include.Equals(MSBuildFacts.SystemWebReferenceName, StringComparison.OrdinalIgnoreCase);
     }
 }

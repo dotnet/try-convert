@@ -266,6 +266,10 @@ namespace MSBuildAbstractions
                    && groupA.Properties.All(propA => groupB.Properties.Any(propB => ProjectPropertyHelpers.ArePropertiesEqual(propA, propB)));
         }
 
+        /// <summary>
+        /// Checks if there is a reference to System.Web, which is unsupported on .NET Core, in the given project.
+        /// </summary>
+        public static bool IsProjectReferencingSystemWeb(MSBuildProjectRootElement root) => root.ItemGroups.Any(ig => ig.Items.Any(ProjectItemHelpers.IsReferencingSystemWeb));
 
         /// <summary>
         /// Unquote string. It simply removes the starting and ending "'", and checks they are present before.

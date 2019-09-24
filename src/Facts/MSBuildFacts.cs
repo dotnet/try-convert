@@ -156,5 +156,6 @@ namespace Facts
         public const string CSharpFileSuffix = ".cs";
         public const string ProjectTypeGuidsNodeName = "ProjectTypeGuids";
         public const string HintPathNodeName = "HintPath";
+        public const string SystemWebReferenceName = "System.Web";
     }
 }

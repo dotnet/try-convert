@@ -7,6 +7,42 @@
 
 This is a tool that will help in migrating .NET Framework projects to .NET Core (or .NET SDK-style if you're not ready for .NET Core yet).
 
+## How to build
+
+Simple: clone the repo and run
+
+```
+build.cmd
+```
+
+## How to use the tool
+
+To use the tool locally, you need to build it from source. Once it's built, the tool will live under:
+
+```
+/artifacts/bin/try-convert/Debug/netcoreapp3.0/try-convert.exe
+```
+
+Alternatively, you can look at the following directory and copy that into somewhere else on your machine:
+
+```
+mv /artifacts/bin/try-convert/Debug/netcoreapp3.0/publish C:/Users/<user>/try-convert
+```
+
+You can invoke the tool from the publish directory as well.
+
+```
+Usage:
+  try-format [options]
+
+Options:
+  -p, --project <P>          The path to a project to convert
+  -w, --workspace <W>        The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.
+  -m, --msbuild-path <M>     The path to an MSBuild.exe, if you prefer to use that
+  --diff-only <DIFF-ONLY>    Produces a diff of the project to convert; no conversion is done
+  --no-backup <NO-BACKUP>    Converts projects and does not create a backup of the originals.
+```
+
 ## Support policy
 
 **This tool is not supported in any way.** Nobody will be on the hook for fixing any issues with it, nor is anyone who builds this tool obliged to add any requested features.

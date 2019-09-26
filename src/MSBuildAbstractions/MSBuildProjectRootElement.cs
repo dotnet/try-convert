@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Linq;
 using Microsoft.Build.Construction;
 
 namespace MSBuildAbstractions
@@ -10,6 +11,8 @@ namespace MSBuildAbstractions
         string DefaultTargets { get; set; }
         string DirectoryPath { get; }
         string FullPath { get; }
+        string RawXml { get; }
+        XDocument Xml { get; }
         ICollection<ProjectImportElement> Imports { get; }
         ICollection<ProjectImportGroupElement> ImportGroups { get; }
         ICollection<ProjectPropertyGroupElement> PropertyGroups { get; }
@@ -36,8 +39,10 @@ namespace MSBuildAbstractions
         public string ToolsVersion { get => _rootElement.ToolsVersion; set => _rootElement.ToolsVersion = value; }
         public string Sdk { get => _rootElement.Sdk; set => _rootElement.Sdk = value; }
         public string DefaultTargets { get => _rootElement.DefaultTargets; set => _rootElement.DefaultTargets = value; }
-        public string DirectoryPath { get => _rootElement.DirectoryPath; }
-        public string FullPath { get => _rootElement.FullPath; }
+        public string DirectoryPath => _rootElement.DirectoryPath;
+        public string FullPath => _rootElement.FullPath;
+        public string RawXml => _rootElement.RawXml;
+        public XDocument Xml => XDocument.Parse(_rootElement.RawXml);
         public ICollection<ProjectImportElement> Imports => _rootElement.Imports;
         public ICollection<ProjectImportGroupElement> ImportGroups => _rootElement.ImportGroups;
         public ICollection<ProjectPropertyGroupElement> PropertyGroups => _rootElement.PropertyGroups;

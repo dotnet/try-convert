@@ -33,7 +33,23 @@ namespace Conversion
         public void Convert(string outputPath)
         {
             ConvertProjectFile();
-            _projectRootElement.Save(outputPath);
+            var projectXml = _projectRootElement.Xml;
+
+            // remove all use of xmlns attributes
+            projectXml.Descendants().Attributes().Where(x => x.IsNamespaceDeclaration).Remove();
+            foreach (var element in projectXml.Descendants())
+            {
+                element.Name = element.Name.LocalName;
+            }
+
+            // do not write out xml declaration header
+            var settings = new XmlWriterSettings
+            {
+                OmitXmlDeclaration = true,
+                Indent = true
+            };
+            using var writer = XmlWriter.Create(outputPath, settings);
+            projectXml.Save(writer);
         }
 
         internal IProjectRootElement ConvertProjectFile()

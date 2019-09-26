@@ -1,9 +1,12 @@
 ﻿using Facts;
+
 using Microsoft.Build.Construction;
+
 using MSBuildAbstractions;
+
 using PackageConversion;
+
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -257,14 +260,8 @@ namespace Conversion
 
         private void AddPackage(string packageName, string packageVersion)
         {
-            var groupForPackageRefs = MSBuildHelpers.GetOrCreatePackageReferencesItemGroup(_projectRootElement);
-
-            var metadata = new List<KeyValuePair<string, string>>()
-            {
-                new KeyValuePair<string, string>("Version", packageVersion)
-            };
-
-            groupForPackageRefs.AddItem(PackageFacts.PackageReferenceItemType, packageName, metadata);
+            var packageReferencesItemGroup = MSBuildHelpers.GetOrCreatePackageReferencesItemGroup(_projectRootElement);
+            AddPackageReferenceElement(packageReferencesItemGroup, packageName, packageVersion);
         }
 
         private void AddConvertedPackages(string tfm)
@@ -294,14 +291,7 @@ namespace Conversion
                         continue;
                     }
 
-                    // TODO: more metadata?
-                    var metadata = new List<KeyValuePair<string, string>>()
-                    {
-                        new KeyValuePair<string, string>("Version", pkgref.Version)
-                    };
-
-                    // TODO: some way to make Version not explicitly metadata
-                    groupForPackageRefs.AddItem(PackageFacts.PackageReferenceItemType, pkgref.ID, metadata);
+                    AddPackageReferenceElement(groupForPackageRefs, pkgref.ID, pkgref.Version);
                 }
 
                 // If the only references we had are already in the SDK, we're done.
@@ -312,6 +302,12 @@ namespace Conversion
             }
 
             packagesConfigItemGroup.RemoveChild(packagesConfigItem);
+        }
+
+        private static void AddPackageReferenceElement(ProjectItemGroupElement packageReferencesItemGroup, string packageName, string packageVersion)
+        {
+            var packageReference = packageReferencesItemGroup.AddItem(PackageFacts.PackageReferenceItemType, packageName);
+            packageReference.GetXml().SetAttribute("Version", packageVersion);
         }
 
         private string AddTargetFrameworkProperty()

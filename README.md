@@ -33,7 +33,7 @@ You can invoke the tool from the publish directory as well.
 
 ```
 Usage:
-  try-format [options]
+  try-convert [options]
 
 Options:
   -p, --project <P>          The path to a project to convert

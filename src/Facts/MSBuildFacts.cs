@@ -129,7 +129,6 @@ namespace Facts
             { "System.ComponentModel.DataAnnotations", "4.6.0" },
             { "System.Configuration.ConfigurationManager", "4.6.0" },
             { "System.Data.DataSetExtensions", "4.5.0" },
-            { "System.Data.DataSetExtensions", "4.5.0" },
             { "System.Data.Odbc", "4.6.0" },
             { "System.Data.OleDb", "4.6.0" },
             { "System.Data.SqlClient", "4.7.0" },

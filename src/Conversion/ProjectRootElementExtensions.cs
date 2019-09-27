@@ -226,8 +226,9 @@ namespace Conversion
                                             differ => differ.GetItemsDiff()
                                                             .Where(diff => MSBuildFacts.GlobbedItemTypes.Contains(diff.ItemType, StringComparer.OrdinalIgnoreCase))
                                                             .SelectMany(diff => diff.IntroducedItems))
-                                          .Distinct(ProjectItemComparer.IncludeComparer);
-
+                                          .Distinct(ProjectItemComparer.IncludeComparer)
+                                          .Where(x => StringComparer.OrdinalIgnoreCase.Compare(x.ItemType, "None") != 0);
+            
             if (introducedItems.Any())
             {
                 var itemGroup = projectRootElement.AddItemGroup();

@@ -1,14 +1,15 @@
 ﻿using Facts;
+
 using Microsoft.Build.Construction;
+
 using MSBuildAbstractions;
+
 using PackageConversion;
+
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Xml.Linq;
 
 namespace Conversion
 {
@@ -216,6 +217,29 @@ namespace Conversion
                            || ProjectItemHelpers.DesktopReferencesNeedsRemoval(item)
                            || ProjectItemHelpers.IsDesktopRemovableGlobbedItem(sdkBaselineProject.ProjectStyle, item));
             }
+        }
+
+        public static IProjectRootElement AddItemRemovesForIntroducedItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs)
+        {
+            var introducedItems = differs.Values
+                                          .SelectMany(
+                                            differ => differ.GetItemsDiff()
+                                                            .Where(diff => MSBuildFacts.GlobbedItemTypes.Contains(diff.ItemType, StringComparer.OrdinalIgnoreCase))
+                                                            .SelectMany(diff => diff.IntroducedItems))
+                                          .Distinct(ProjectItemComparer.IncludeComparer);
+
+            if (introducedItems.Any())
+            {
+                var itemGroup = projectRootElement.AddItemGroup();
+                foreach (var introducedItem in introducedItems)
+                {
+                    var item = itemGroup.AddItem(introducedItem.ItemType, introducedItem.EvaluatedInclude);
+                    item.Include = null;
+                    item.Remove = introducedItem.EvaluatedInclude;
+                }
+            }
+
+            return projectRootElement;
         }
 
 

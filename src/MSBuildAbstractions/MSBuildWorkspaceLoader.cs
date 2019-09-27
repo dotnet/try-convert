@@ -30,16 +30,6 @@ namespace MSBuildAbstractions
 
         public MSBuildWorkspace LoadWorkspace(string path, bool noBackup)
         {
-            static bool IsSupportedProjectType(ProjectInSolution project)
-            {
-                if (project.ProjectType != SolutionProjectType.KnownToBeMSBuildFormat)
-                {
-                    Console.WriteLine($"{project.AbsolutePath} is not a supported solution item and will be skipped.");
-                }
-
-                return project.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat;
-            }
-
             var projectPaths =
                 _workspaceType switch
                 {
@@ -52,6 +42,17 @@ namespace MSBuildAbstractions
                 };
 
             return new MSBuildWorkspace(projectPaths, noBackup);
+
+            static bool IsSupportedProjectType(ProjectInSolution project)
+            {
+                if (project.ProjectType != SolutionProjectType.KnownToBeMSBuildFormat &&
+                    project.ProjectType != SolutionProjectType.SolutionFolder)
+                {
+                    Console.WriteLine($"{project.AbsolutePath} is not a supported solution item and will be skipped.");
+                }
+
+                return project.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat;
+            }
         }
 
         public IProjectRootElement GetRootElementFromProjectFile(string projectFilePath = "")

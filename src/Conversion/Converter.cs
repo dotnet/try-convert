@@ -1,4 +1,4 @@
-﻿using Facts;
+using Facts;
 
 using Microsoft.Build.Construction;
 
@@ -71,6 +71,7 @@ namespace Conversion
                 .AddCommonPropertiesToTopLevelPropertyGroup()
                 .AddConvertedPackages(tfm)
                 .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)
+                .AddItemRemovesForIntroducedItems(_differs)
                 .ModifyProjectElement();
         }
 

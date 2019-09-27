@@ -42,13 +42,20 @@ namespace Conversion
                 element.Name = element.Name.LocalName;
             }
 
+            // Do not keep comments as the entire file is changing
+            var readerSettings = new XmlReaderSettings()
+            {
+                IgnoreComments = true
+            };
+            projectXml = XDocument.Load(XmlReader.Create(projectXml.CreateReader(), readerSettings));
+
             // do not write out xml declaration header
-            var settings = new XmlWriterSettings
+            var writerSettings = new XmlWriterSettings
             {
                 OmitXmlDeclaration = true,
-                Indent = true
+                Indent = true,
             };
-            using var writer = XmlWriter.Create(outputPath, settings);
+            using var writer = XmlWriter.Create(outputPath, writerSettings);
             projectXml.Save(writer);
         }
 

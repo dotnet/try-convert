@@ -35,6 +35,18 @@ namespace Conversion
                 element.Name = element.Name.LocalName;
             }
 
+            // remove all use of ProductVersion
+            // this is a property that is used by VS to detect which version of
+            // Visual Studio opened this project last and is no longer needed
+            projectXml.Descendants().Elements().Where(x => x.Name == "ProductVersion").Remove();
+            projectXml.Descendants().Elements().Where(x => x.Name == "FileUpgradeFlags").Remove();
+            projectXml.Descendants().Elements().Where(x => x.Name == "UpgradeBackupLocation").Remove();
+
+            // Remove properties that do nothing if they are not set
+            projectXml.Descendants().Elements().Where(x => x.Name == "ApplicationIcon" && string.IsNullOrEmpty(x.Value)).Remove();
+            projectXml.Descendants().Elements().Where(x => x.Name == "PreBuildEvent" && string.IsNullOrEmpty(x.Value)).Remove();
+            projectXml.Descendants().Elements().Where(x => x.Name == "PostBuildEvent" && string.IsNullOrEmpty(x.Value)).Remove();
+
             // Do not keep comments as the entire file is changing
             var readerSettings = new XmlReaderSettings()
             {

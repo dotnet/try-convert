@@ -21,6 +21,14 @@ namespace MSBuildAbstractions
 
             foreach (var path in paths)
             {
+                var fileExtension = Path.GetExtension(path);
+                if ((StringComparer.OrdinalIgnoreCase.Compare(fileExtension, ".csproj") != 0) &&
+                    (StringComparer.OrdinalIgnoreCase.Compare(fileExtension, ".vbproj") != 0))
+                {
+                    Console.WriteLine($"'{path}' is not a .NET project, skipping it.");
+                    continue;
+                }
+
                 if (!noBackup)
                 {
                     File.Copy(path, path + ".old");

@@ -24,7 +24,6 @@ namespace Facts
         /// </remarks>
         public static ImmutableArray<string> KnownWPFReferences => ImmutableArray.Create(
             "System.Xaml",
-            "WindowsBase",
             "PresentationCore",
             "PresentationFramework"
         );
@@ -41,6 +40,10 @@ namespace Facts
             "System.Windows.Forms",
             "System.Deployment",
             "System.Drawing"
+        );
+
+        public static ImmutableArray<string> KnownDesktopReferences => ImmutableArray.Create(
+            "WindowsBase"
         );
 
         public const string WinSDKAttribute = "Microsoft.NET.Sdk.WindowsDesktop";

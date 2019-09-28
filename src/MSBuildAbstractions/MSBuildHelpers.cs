@@ -173,7 +173,7 @@ namespace MSBuildAbstractions
         public static bool IsWPF(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
-            return DesktopFacts.KnownWPFReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            return DesktopFacts.KnownWPFReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -182,7 +182,22 @@ namespace MSBuildAbstractions
         public static bool IsWinForms(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
-            return DesktopFacts.KnownWinFormsReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            return DesktopFacts.KnownWinFormsReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Determines if a given project references Desktop assemblies.
+        /// </summary>
+        public static bool IsDesktop(IProjectRootElement projectRoot)
+        {
+            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
+            return DesktopFacts.KnownDesktopReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+        }
+
+        public static bool HasWPFOrWinForms(ProjectPropertyGroupElement propGroup)
+        {
+            return (propGroup.Properties.Any(p => StringComparer.OrdinalIgnoreCase.Compare(p.Name, DesktopFacts.UseWPFPropertyName) == 0) ||
+                    propGroup.Properties.Any(p => StringComparer.OrdinalIgnoreCase.Compare(p.Name, DesktopFacts.UseWinFormsPropertyName) == 0));
         }
 
         /// <summary>

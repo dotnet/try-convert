@@ -26,7 +26,7 @@ namespace Conversion
                     projectRootElement.RemoveChild(import);
                 }
 
-                if (MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement))
+                if (MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement))
                 {
                     projectRootElement.Sdk = DesktopFacts.WinSDKAttribute;
                 }
@@ -311,17 +311,13 @@ namespace Conversion
             if (!baselineProject.GlobalProperties.Contains(DesktopFacts.UseWinFormsPropertyName, StringComparer.OrdinalIgnoreCase)
                 && MSBuildHelpers.IsWinForms(projectRootElement))
             {
-                var useWinForms = projectRootElement.CreatePropertyElement(DesktopFacts.UseWinFormsPropertyName);
-                useWinForms.Value = "true";
-                propGroup.AppendChild(useWinForms);
+                MSBuildHelpers.AddUseWinForms(propGroup);
             }
 
             if (!baselineProject.GlobalProperties.Contains(DesktopFacts.UseWPFPropertyName, StringComparer.OrdinalIgnoreCase)
                 && MSBuildHelpers.IsWPF(projectRootElement))
             {
-                var useWPF = projectRootElement.CreatePropertyElement(DesktopFacts.UseWPFPropertyName);
-                useWPF.Value = "true";
-                propGroup.AppendChild(useWPF);
+                MSBuildHelpers.AddUseWPF(propGroup);
             }
 
             return projectRootElement;

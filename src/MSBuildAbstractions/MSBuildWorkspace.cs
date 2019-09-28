@@ -132,6 +132,12 @@ namespace MSBuildAbstractions
                 {
                     MSBuildHelpers.AddUseWPF(propGroup);
                 }
+                
+                // User is referencing WindowsBase only
+                if (MSBuildHelpers.IsDesktop(root) && !MSBuildHelpers.HasWPFOrWinForms(propGroup))
+                {
+                    MSBuildHelpers.AddUseWinForms(propGroup);
+                }
             }
 
             // Create a new collection because a project with this name has already been loaded into the global collection.
@@ -199,7 +205,7 @@ namespace MSBuildAbstractions
                     if (MSBuildFacts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
                         MSBuildFacts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
                     {
-                        if (MSBuildHelpers.IsWPF(project) || MSBuildHelpers.IsWinForms(project))
+                        if (MSBuildHelpers.IsWPF(project) || MSBuildHelpers.IsWinForms(project) || MSBuildHelpers.IsDesktop(project))
                         {
                             return ProjectStyle.WindowsDesktop;
                         }

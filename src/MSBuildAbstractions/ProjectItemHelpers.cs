@@ -1,4 +1,4 @@
-using Facts;
+﻿using Facts;
 using Microsoft.Build.Construction;
 using System;
 using System.Collections.Generic;
@@ -34,7 +34,7 @@ namespace MSBuildAbstractions
             && MSBuildFacts.GlobbedItemTypes.Contains(item.ElementName, StringComparer.OrdinalIgnoreCase)
             && (item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
                                          && pme.Value.Equals(DesktopFacts.FormSubTypeValue, StringComparison.OrdinalIgnoreCase)) ||
-                item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.DependentUponName, StringComparison.OrdinalIgnoreCase) && pme.Value.EndsWith(".xaml")));
+                item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.DependentUponName, StringComparison.OrdinalIgnoreCase) && pme.Value.EndsWith(DesktopFacts.XamlFileExtension)));
 
         /// <summary>
         /// Checks if a given item is a well-known reference that can be converted to PackageReference.

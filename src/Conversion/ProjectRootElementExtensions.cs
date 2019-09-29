@@ -261,6 +261,12 @@ namespace Conversion
 
             var packagesConfigItem = MSBuildHelpers.GetPackagesConfigItem(packagesConfigItemGroup);
             var path = Path.Combine(projectRootElement.DirectoryPath, packagesConfigItem.Include);
+            if (!File.Exists(path))
+            {
+                // packages.config element is listed in the project file
+                // but it does not exist on disk
+                return projectRootElement;
+            }
 
             var packageReferences = PackagesConfigConverter.Convert(path);
             if (packageReferences is { } && packageReferences.Any())

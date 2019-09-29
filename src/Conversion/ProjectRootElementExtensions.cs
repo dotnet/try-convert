@@ -148,7 +148,7 @@ namespace Conversion
                     {
                         var packageName = item.Include;
                         var version = MSBuildFacts.DefaultItemsThatHavePackageEquivalents[packageName];
-
+                        version = NugetHelpers.GetLatestVersionForPackageNameAsync(packageName).GetAwaiter().GetResult();
                         projectRootElement.AddPackage(packageName, version);
                         itemGroup.RemoveChild(item);
                     }

@@ -24,10 +24,6 @@ namespace MSBuildAbstractions
             var response = await httpClient.GetAsync(string.Format(searchUrl, packageName));
             var result = await response.Content.ReadAsStreamAsync();
             version = GetVersionFromQueryResponse(result);
-            if (version is null)
-            {
-                throw new Exception($"Unable to find package version for '{packageName}'");
-            }
             packageToVersionCache[packageName] = version;
             return version;
 

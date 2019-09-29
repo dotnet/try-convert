@@ -103,9 +103,6 @@ namespace Facts
             // F# explicitly references this in old-style projects; it's not needed now
             "mscorlib",
 
-            // Microsoft.CSharp is already shipped as a part of the .NET SDK
-            "Microsoft.CSharp",
-
             // App.config is now deprecated, user needs to use to appsettings.json
             "App.config",
 

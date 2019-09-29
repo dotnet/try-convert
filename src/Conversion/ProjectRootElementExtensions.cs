@@ -147,7 +147,21 @@ namespace Conversion
                     else if (ProjectItemHelpers.IsReferenceConvertibleToPackageReference(item))
                     {
                         var packageName = item.Include;
-                        var version = MSBuildFacts.DefaultItemsThatHavePackageEquivalents[packageName];
+                        string version = null;
+                        try
+                        {
+                            version = NugetHelpers.GetLatestVersionForPackageNameAsync(packageName).GetAwaiter().GetResult();
+                        }
+                        catch (Exception)
+                        {
+                            // Network failure of come kind
+                        }
+
+                        if (version is null)
+                        {
+                            // fall back to hard-coded version in the event of a network failure
+                            version = MSBuildFacts.DefaultItemsThatHavePackageEquivalents[packageName];
+                        }
 
                         projectRootElement.AddPackage(packageName, version);
                         itemGroup.RemoveChild(item);

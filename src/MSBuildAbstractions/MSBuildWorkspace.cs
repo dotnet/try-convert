@@ -2,6 +2,7 @@
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -22,46 +23,39 @@ namespace MSBuildAbstractions
             foreach (var path in paths)
             {
                 var fileExtension = Path.GetExtension(path);
-                if ((StringComparer.OrdinalIgnoreCase.Compare(fileExtension, ".csproj") != 0) &&
+                if ((StringComparer.OrdinalIgnoreCase.Compare(fileExtension, ".fsproj") != 0) &&
+                    (StringComparer.OrdinalIgnoreCase.Compare(fileExtension, ".csproj") != 0) &&
                     (StringComparer.OrdinalIgnoreCase.Compare(fileExtension, ".vbproj") != 0))
                 {
                     Console.WriteLine($"'{path}' is not a .NET project, skipping it.");
                     continue;
                 }
 
-                if (!noBackup)
-                {
-                    File.Copy(path, path + ".old");
-                }
-
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
-                if (root.Sdk.ContainsIgnoreCase(MSBuildFacts.DefaultSDKAttribute))
+                if (IsSupportedProjectType(root))
                 {
-                    Console.WriteLine($"'{path}' is already a .NET SDK-style project, so it won't be converted.");
-                    continue;
+                    if (!noBackup)
+                    {
+                        File.Copy(path, path + ".old");
+                    }
+
+                    // Let them know about System.Web
+                    if (MSBuildHelpers.IsProjectReferencingSystemWeb(root))
+                    {
+                        Console.WriteLine($"'{root.FullPath}' references System.Web, which is unsupported on .NET Core. You may have significant work remaining after conversion.");
+                    }
+
+                    var configurations = DetermineConfigurations(root);
+
+                    var unconfiguredProject = new UnconfiguredProject(configurations);
+                    unconfiguredProject.LoadProjects(collection, globalProperties, path);
+
+                    var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations);
+                    root.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
+
+                    var item = new MSBuildWorkspaceItem(root, unconfiguredProject, baseline);
+                    items.Add(item);
                 }
-
-                if (root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsLegacyWebProjectTypeGuidsProperty)))
-                {
-                    Console.WriteLine($"'{path}' is a legacy web project, which is unsupported by this tool.");
-                    continue;
-                }
-
-                if (MSBuildHelpers.IsProjectReferencingSystemWeb(root))
-                {
-                    Console.WriteLine($"'{path}' references System.Web, which is unsupported on .NET Core. You may have significant work remaining after conversion.");
-                }
-
-                var configurations = DetermineConfigurations(root);
-
-                var unconfiguredProject = new UnconfiguredProject(configurations);
-                unconfiguredProject.LoadProjects(collection, globalProperties, path);
-
-                var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations);
-                root.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
-
-                var item = new MSBuildWorkspaceItem(root, unconfiguredProject, baseline);
-                items.Add(item);
             }
 
             WorkspaceItems = items.ToImmutable();
@@ -219,6 +213,67 @@ namespace MSBuildAbstractions
             }
 
             return ProjectStyle.DefaultWithCustomTargets;
+        }
+
+        private bool IsSupportedProjectType(MSBuildProjectRootElement root)
+        {
+            if (root.Sdk.ContainsIgnoreCase(MSBuildFacts.DefaultSDKAttribute))
+            {
+                Console.WriteLine($"'{root.FullPath}' is already a .NET SDK-style project, so it won't be converted.");
+                return false;
+            }
+
+            if (!root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsSupportedOutputType)))
+            {
+                Console.WriteLine($"{root.FullPath} does not have a supported OutputType.");
+                return false;
+            }
+
+            if (MSBuildHelpers.IsDesktop(root)
+                && MSBuildHelpers.HasProjectTypeGuidsNode(root)
+                && (!root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.AllProjectTypeGuidsAreDesktopProjectTypeGuids))))
+            {
+                var allSupportedProjectTypeGuids = DesktopFacts.KnownSupportedDesktopProjectTypeGuids.Select(ptg => ptg.ToString());
+                var allReadProjectTypeGuids = MSBuildHelpers.GetAllProjectTypeGuids(root);
+
+                Console.WriteLine($"{root.FullPath} is an unsupported project type. Not all project type guids are supported.");
+
+                PrintGuidMessage(allSupportedProjectTypeGuids, allReadProjectTypeGuids);
+
+                return false;
+            }
+
+            if (root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsLegacyWebProjectTypeGuidsProperty)))
+            {
+                Console.WriteLine($"'{root.FullPath}' is a legacy web project, which is unsupported by this tool.");
+                return false;
+            }
+
+            if (MSBuildHelpers.HasProjectTypeGuidsNode(root)
+                && !MSBuildHelpers.IsDesktop(root)
+                && (!root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.AllProjectTypeGuidsAreLanguageProjectTypeGuids))))
+            {
+                Console.WriteLine($"{root.FullPath} is an unsupported project type.");
+                return false;
+            }
+
+            // It's supported
+            return true;
+
+            static void PrintGuidMessage(IEnumerable<string> allSupportedProjectTypeGuids, IEnumerable<string> allReadProjectTypeGuids)
+            {
+                Console.WriteLine("All supported project type guids:");
+                foreach (var guid in allSupportedProjectTypeGuids)
+                {
+                    Console.WriteLine($"\t{guid}");
+                }
+
+                Console.WriteLine("All given project type guids:");
+                foreach (var guid in allReadProjectTypeGuids)
+                {
+                    Console.WriteLine($"\t{guid}");
+                }
+            }
         }
     }
 }

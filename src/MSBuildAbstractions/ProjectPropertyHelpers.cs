@@ -63,9 +63,34 @@ namespace MSBuildAbstractions
             && a.Value.Equals(b.Value, StringComparison.OrdinalIgnoreCase)
             && a.Condition.Equals(b.Condition, StringComparison.OrdinalIgnoreCase);
 
+        /// <summary>
+        /// Checks if a property is '<ProjectTypeGuids>'
+        /// </summary>
+        public static bool IsProjectTypeGuidsNode(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSBuildFacts.ProjectTypeGuidsNodeName, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Determines if a property lists the default project type GUIds for legacy web projects.
+        /// </summary>
         public static bool IsLegacyWebProjectTypeGuidsProperty(ProjectPropertyElement prop) =>
-            prop.ElementName.Equals(MSBuildFacts.ProjectTypeGuidsNodeName, StringComparison.OrdinalIgnoreCase)
-            && prop.Value.Split(';').Where(guidString => Guid.TryParse(guidString, out var _))
-                                    .All(guidString => MSBuildFacts.LegacyWebProjectTypeGuids.Contains(Guid.Parse(guidString)));
+            IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').Any(guidString => MSBuildFacts.LegacyWebProjectTypeGuids.Contains(Guid.Parse(guidString)));
+
+        /// <summary>
+        /// Checks if a given OutputType node is wither a library, exe, or WinExe.
+        /// </summary>
+        public static bool IsSupportedOutputType(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSBuildFacts.OutputTypeNodeName, StringComparison.OrdinalIgnoreCase)
+            && (prop.Value.Equals(MSBuildFacts.LibraryOutputType, StringComparison.OrdinalIgnoreCase)
+                || prop.Value.Equals(MSBuildFacts.ExeOutputType, StringComparison.OrdinalIgnoreCase)
+                || prop.Value.Equals(MSBuildFacts.WinExeOutputType, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>
+        /// Checks if a given property defines project type guids for C#, VB.NET, or F#.
+        /// </summary>
+        public static bool AllProjectTypeGuidsAreLanguageProjectTypeGuids(ProjectPropertyElement prop) =>
+            IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').All(guidString => MSBuildFacts.LanguageProjectTypeGuids.Contains(Guid.Parse(guidString)));
+
+        public static bool AllProjectTypeGuidsAreDesktopProjectTypeGuids(ProjectPropertyElement prop) =>
+            IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').All(guidString => DesktopFacts.KnownSupportedDesktopProjectTypeGuids.Contains(Guid.Parse(guidString)));
     }
 }

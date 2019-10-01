@@ -170,8 +170,18 @@ namespace Facts
         );
 
         public static ImmutableArray<Guid> LegacyWebProjectTypeGuids => ImmutableArray.Create(
-            Guid.Parse("{349c5851-65df-11da-9384-00065b846f21}"),
-            Guid.Parse("{fae04ec0-301f-11d3-bf4b-00c04f79efbc}")
+            Guid.Parse("{349c5851-65df-11da-9384-00065b846f21}"), // ASP.NET MVC 5
+            Guid.Parse("{E3E379DF-F4C6-4180-9B81-6769533ABE47}"), // ASP.NET MVC 4
+            Guid.Parse("{E53F8FEA-EAE0-44A6-8774-FFD645390401}"), // ASP.NET MVC 3
+            Guid.Parse("{F85E285D-A4E0-4152-9332-AB1D724D3325}"), // ASP.NET MVC 2
+            Guid.Parse("{603C0E0B-DB56-11DC-BE95-000D561079B0}"), // ASP.NET MVC 1
+            Guid.Parse("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") // ASP.NET 5
+        );
+
+        public static ImmutableArray<Guid> LanguageProjectTypeGuids => ImmutableArray.Create(
+            Guid.Parse("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"), // C#
+            Guid.Parse("{F2A71F9B-5D33-465A-A702-920D77279786}"), // VB.NET
+            Guid.Parse("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") // F#
         );
 
         public const string DefaultSDKAttribute = "Microsoft.NET.Sdk";
@@ -201,5 +211,8 @@ namespace Facts
         public const string ProjectTypeGuidsNodeName = "ProjectTypeGuids";
         public const string HintPathNodeName = "HintPath";
         public const string SystemWebReferenceName = "System.Web";
+        public const string LibraryOutputType = "Library";
+        public const string ExeOutputType = "Exe";
+        public const string WinExeOutputType = "WinExe";
     }
 }

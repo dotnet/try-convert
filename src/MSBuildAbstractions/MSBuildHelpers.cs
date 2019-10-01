@@ -168,6 +168,19 @@ namespace MSBuildAbstractions
             itemGroup.Items.Where(item => item.ElementName.Equals(MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
+        /// Checks if a root has a project type guids node.
+        /// </summary>
+        public static bool HasProjectTypeGuidsNode(IProjectRootElement root) =>
+            root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsProjectTypeGuidsNode));
+
+        /// <summary>
+        /// Gets a flat list of all project type guids.
+        /// </summary>
+        public static IEnumerable<string> GetAllProjectTypeGuids(IProjectRootElement root) =>
+            root.PropertyGroups.SelectMany(pg => pg.Properties.Where(prop => prop.ElementName.Equals(MSBuildFacts.ProjectTypeGuidsNodeName))
+                                                              .SelectMany(prop => prop.Value.Split(';')));
+
+        /// <summary>
         /// Determines if a given project is a WPF project by looking at its references.
         /// </summary>
         public static bool IsWPF(IProjectRootElement projectRoot)

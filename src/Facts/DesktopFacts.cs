@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 
 namespace Facts
 {
@@ -44,6 +45,11 @@ namespace Facts
 
         public static ImmutableArray<string> KnownDesktopReferences => ImmutableArray.Create(
             "WindowsBase"
+        );
+
+        public static ImmutableArray<Guid> KnownSupportedDesktopProjectTypeGuids => ImmutableArray.Create(
+            Guid.Parse("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"), // C#
+            Guid.Parse("{60DC8134-EBA5-43B8-BCC9-BB4BC16C2548}") // WPF
         );
 
         public const string WinSDKAttribute = "Microsoft.NET.Sdk.WindowsDesktop";

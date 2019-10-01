@@ -36,14 +36,14 @@ namespace MSBuildAbstractions
                     MSBuildWorkspaceType.Project => ImmutableArray.Create(path),
                     MSBuildWorkspaceType.Solution =>
                         SolutionFile.Parse(_workspacePath).ProjectsInOrder
-                            .Where(IsSupportedProjectType)
+                            .Where(IsSupportedSolutionItemType)
                             .Select(p => p.AbsolutePath).ToImmutableArray(),
                     _ => throw new InvalidOperationException("Somehow, an enum that isn't possible was passed in here.")
                 };
 
             return new MSBuildWorkspace(projectPaths, noBackup);
 
-            static bool IsSupportedProjectType(ProjectInSolution project)
+            static bool IsSupportedSolutionItemType(ProjectInSolution project)
             {
                 if (project.ProjectType != SolutionProjectType.KnownToBeMSBuildFormat &&
                     project.ProjectType != SolutionProjectType.SolutionFolder)

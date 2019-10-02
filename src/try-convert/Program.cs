@@ -13,7 +13,7 @@ namespace TryConvert
     {
         private static async Task<int> Main(string[] args)
         {
-            var parser = new CommandLineBuilder(new Command("try-format", handler: CommandHandler.Create(typeof(Program).GetMethod(nameof(Run)))))
+            var parser = new CommandLineBuilder(new Command("try-convert", handler: CommandHandler.Create(typeof(Program).GetMethod(nameof(Run)))))
                 .UseParseDirective()
                 .UseHelp()
                 .UseDebugDirective()

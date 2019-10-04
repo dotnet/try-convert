@@ -56,6 +56,30 @@ namespace MSBuild.Abstractions
             && prop.Value.Equals(MSBuildFacts.DefaultDocumentationFileLocation, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
+        /// Checks if a property is any of the unencessary test properties. This is only good to do <em>after</em> the loading phase where we discard inapplicable test projects.
+        /// </summary>
+        public static bool IsUnnecessaryTestProperty(ProjectPropertyElement prop) =>
+            IsUITestExtensionsPackagesReferencePath(prop) ||
+            prop.ElementName.Equals(MSTestFacts.IsCodedUITestNodeName, StringComparison.OrdinalIgnoreCase) ||
+            prop.ElementName.Equals(MSTestFacts.TestProjectTypeNodeName, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if a property is the old NuGetPackageImportStamp property that used to be for some reason starting with VS 2013, but seems to no longer be required, but is still<em>stamped</em>(har har har...) into test project files and maybe others (lol).
+        /// </summary>
+        public static bool IsEmptyNuGetPackageImportStamp(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSBuildFacts.NuGetPackageImportStampNodeName, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if a property is a default ReferencePath property that MSTest stamps into the project file.
+        /// </summary>
+        public static bool IsUITestExtensionsPackagesReferencePath(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSBuildFacts.ReferencePathNodeName, StringComparison.OrdinalIgnoreCase)
+            && prop.Value.ContainsIgnoreCase(MSTestFacts.UITestExtensionPackagesReferencePathFileName);
+
+        public static bool IsOutputTypeNode(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSBuildFacts.OutputTypeNodeName, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
         /// Determines if the name and value of two properties are identical.
         /// </summary>
         public static bool ArePropertiesEqual(ProjectPropertyElement a, ProjectPropertyElement b) =>
@@ -90,7 +114,32 @@ namespace MSBuild.Abstractions
         public static bool AllProjectTypeGuidsAreLanguageProjectTypeGuids(ProjectPropertyElement prop) =>
             IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').All(guidString => MSBuildFacts.LanguageProjectTypeGuids.Contains(Guid.Parse(guidString)));
 
+        /// <summary>
+        /// Checks if all projecttypeguids specified are known desktop project type guids.
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <returns></returns>
         public static bool AllProjectTypeGuidsAreDesktopProjectTypeGuids(ProjectPropertyElement prop) =>
             IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').All(guidString => DesktopFacts.KnownSupportedDesktopProjectTypeGuids.Contains(Guid.Parse(guidString)));
+
+        /// <summary>
+        /// Checks if all projecttypeguids specified are known desktop project type guids.
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        public static bool AllProjectTypeGuidsAreLegacyTestProjectTypeGuids(ProjectPropertyElement prop) =>
+            IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').All(guidString => MSTestFacts.KnownOldMSTestProjectTypeGuids.Contains(Guid.Parse(guidString)));
+
+        /// <summary>
+        /// Checks if a given property specifies IsCodedUITest=True, which is not only unsupported for .NET Core but is also deprecated after VS 2019.
+        /// </summary>
+        public static bool IsCodedUITest(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSTestFacts.IsCodedUITestNodeName, StringComparison.OrdinalIgnoreCase) && prop.Value.Equals("True", StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if a test property is TestProjectType=UnitTest
+        /// </summary>
+        public static bool IsUnitTestType(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSTestFacts.TestProjectTypeNodeName, StringComparison.OrdinalIgnoreCase) && prop.Value.Equals(MSTestFacts.UnitTestTestProjectType, StringComparison.OrdinalIgnoreCase);
     }
 }

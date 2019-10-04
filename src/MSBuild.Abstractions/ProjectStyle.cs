@@ -25,6 +25,11 @@
         /// <summary>
         /// The project is WPF or WinForms, and will use the WinDesktop framework reference
         /// </summary>
-        WindowsDesktop
+        WindowsDesktop,
+
+        /// <summary>
+        /// The project is an MSTest project that pulls in a lot of unnecessary imports.
+        /// </summary>
+        MSTest
     }
 }

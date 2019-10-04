@@ -41,12 +41,6 @@ namespace MSBuild.Abstractions
                         File.Copy(path, path + ".old");
                     }
 
-                    // Let them know about System.Web
-                    if (MSBuildHelpers.IsProjectReferencingSystemWeb(root))
-                    {
-                        Console.WriteLine($"'{root.FullPath}' references System.Web, which is unsupported on .NET Core. You may have significant work remaining after conversion.");
-                    }
-
                     var configurations = DetermineConfigurations(root);
 
                     var unconfiguredProject = new UnconfiguredProject(configurations);
@@ -93,6 +87,7 @@ namespace MSBuild.Abstractions
             {
                 case ProjectStyle.Default:
                 case ProjectStyle.DefaultSubset:
+                case ProjectStyle.MSTest:
                     rootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
                     break;
                 case ProjectStyle.WindowsDesktop:
@@ -184,7 +179,6 @@ namespace MSBuild.Abstractions
                 }
                 else
                 {
-
                     var lastImport = project.Imports.Last();
                     var lastImportFileName = Path.GetFileName(lastImport.Project);
 
@@ -201,9 +195,19 @@ namespace MSBuild.Abstractions
                     if (MSBuildFacts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
                         MSBuildFacts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
                     {
-                        return MSBuildHelpers.IsWPF(project) || MSBuildHelpers.IsWinForms(project) || MSBuildHelpers.IsDesktop(project)
-                            ? ProjectStyle.WindowsDesktop
-                            : ProjectStyle.Default;
+                        if (MSBuildHelpers.IsWPF(project) || MSBuildHelpers.IsWinForms(project) || MSBuildHelpers.IsDesktop(project))
+                        {
+                            return ProjectStyle.WindowsDesktop;
+                        }
+                        else if (MSTestFacts.MSTestProps.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
+                                 MSTestFacts.MSTestTargets.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
+                        {
+                            return ProjectStyle.MSTest;
+                        }
+                        else
+                        {
+                            return ProjectStyle.Default;
+                        }
                     }
                 }
             }
@@ -229,32 +233,63 @@ namespace MSBuild.Abstractions
                 return false;
             }
 
-            if (MSBuildHelpers.IsDesktop(root)
-                && MSBuildHelpers.HasProjectTypeGuidsNode(root)
-                && (!root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.AllProjectTypeGuidsAreDesktopProjectTypeGuids))))
+            // Lots of wild old project types have project type guids that the old project system uses to light things up!
+            if (MSBuildHelpers.HasProjectTypeGuidsNode(root))
             {
-                var allSupportedProjectTypeGuids = DesktopFacts.KnownSupportedDesktopProjectTypeGuids.Select(ptg => ptg.ToString());
-                var allReadProjectTypeGuids = MSBuildHelpers.GetAllProjectTypeGuids(root);
+                // Check if it's an acceptable desktop type and reject those that aren't
+                if (MSBuildHelpers.IsDesktop(root))
+                {
+                    if (!root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.AllProjectTypeGuidsAreDesktopProjectTypeGuids)))
+                    {
+                        var allSupportedProjectTypeGuids = DesktopFacts.KnownSupportedDesktopProjectTypeGuids.Select(ptg => ptg.ToString());
+                        var allReadProjectTypeGuids = MSBuildHelpers.GetAllProjectTypeGuids(root);
 
-                Console.WriteLine($"{root.FullPath} is an unsupported project type. Not all project type guids are supported.");
+                        Console.WriteLine($"{root.FullPath} is an unsupported project type. Not all project type guids are supported.");
 
-                PrintGuidMessage(allSupportedProjectTypeGuids, allReadProjectTypeGuids);
+                        PrintGuidMessage(allSupportedProjectTypeGuids, allReadProjectTypeGuids);
 
-                return false;
+                        return false;
+                    }
+                }
+                // Reject if it's a web project
+                else if (root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsLegacyWebProjectTypeGuidsProperty)))
+                {
+                    Console.WriteLine($"'{root.FullPath}' is a legacy web project, which is unsupported by this tool.");
+                    return false;
+                }
+                // Check if it's a valid MSTest project type.
+                else if (MSBuildHelpers.IsNETFrameworkMSTestProject(root))
+                {
+                    if (!root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.AllProjectTypeGuidsAreLegacyTestProjectTypeGuids)))
+                    {
+                        Console.WriteLine($"'{root.FullPath}' has invalid Project Type Guids for test projects and is not supported.");
+                        return false;
+                    }
+
+                    if (root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsCodedUITest)))
+                    {
+                        Console.WriteLine($"'{root.FullPath}' is a coded UI test. Coded UI tests are deprecated and not convertable to .NET Core.");
+                        return false;
+                    }
+
+                    if (!root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsUnitTestType)))
+                    {
+                        Console.WriteLine($"'{root.FullPath}' is an unsupported MSTest test type. Only Unit Tests are supported.");
+                        return false;
+                    }
+                }
+                // If it still has project type guids, bail if it's anything other than a language GUID because it probably wouldn't work on .NET Core
+                else if (!root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.AllProjectTypeGuidsAreLanguageProjectTypeGuids)))
+                {
+                    Console.WriteLine($"{root.FullPath} is an unsupported project type.");
+                    return false;
+                }
             }
 
-            if (root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsLegacyWebProjectTypeGuidsProperty)))
+            // Let them know about System.Web while we're here
+            if (MSBuildHelpers.IsProjectReferencingSystemWeb(root))
             {
-                Console.WriteLine($"'{root.FullPath}' is a legacy web project, which is unsupported by this tool.");
-                return false;
-            }
-
-            if (MSBuildHelpers.HasProjectTypeGuidsNode(root)
-                && !MSBuildHelpers.IsDesktop(root)
-                && (!root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.AllProjectTypeGuidsAreLanguageProjectTypeGuids))))
-            {
-                Console.WriteLine($"{root.FullPath} is an unsupported project type.");
-                return false;
+                Console.WriteLine($"'{root.FullPath}' references System.Web, which is unsupported on .NET Core. You may have significant work remaining after conversion.");
             }
 
             // It's supported

@@ -175,7 +175,7 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static bool IsWPF(IProjectRootElement projectRoot)
         {
-            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
+            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
             return DesktopFacts.KnownWPFReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
@@ -184,7 +184,7 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static bool IsWinForms(IProjectRootElement projectRoot)
         {
-            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
+            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
             return DesktopFacts.KnownWinFormsReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
@@ -193,8 +193,19 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static bool IsDesktop(IProjectRootElement projectRoot)
         {
-            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include);
+            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
             return DesktopFacts.KnownDesktopReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Determines if a project is a .NET Framework MSTest project by looking at its references.
+        /// </summary>
+        /// <param name="root"></param>
+        /// <returns></returns>
+        public static bool IsNETFrameworkMSTestProject(IProjectRootElement projectRoot)
+        {
+            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
+            return MSTestFacts.MSTestReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
         public static bool HasWPFOrWinForms(ProjectPropertyGroupElement propGroup)

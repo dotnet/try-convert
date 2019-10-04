@@ -17,7 +17,10 @@ namespace MSBuild.Conversion.Project
         {
             var projectStyle = baselineProject.ProjectStyle;
 
-            if (projectStyle == ProjectStyle.Default || projectStyle == ProjectStyle.DefaultSubset || projectStyle == ProjectStyle.WindowsDesktop)
+            if (projectStyle == ProjectStyle.Default
+                || projectStyle == ProjectStyle.DefaultSubset
+                || projectStyle == ProjectStyle.WindowsDesktop
+                || projectStyle == ProjectStyle.MSTest)
             {
                 foreach (var import in projectRootElement.Imports)
                 {
@@ -62,7 +65,7 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement RemoveUnnecessaryPropertiesNotInSDKByDefault(this IProjectRootElement projectRootElement)
+        public static IProjectRootElement RemoveUnnecessaryPropertiesNotInSDKByDefault(this IProjectRootElement projectRootElement, ProjectStyle projectStyle)
         {
             foreach (var propGroup in projectRootElement.PropertyGroups)
             {
@@ -96,6 +99,19 @@ namespace MSBuild.Conversion.Project
                     {
                         propGroup.RemoveChild(prop);
                     }
+                    else if (ProjectPropertyHelpers.IsUnnecessaryTestProperty(prop))
+                    {
+                        propGroup.RemoveChild(prop);
+                    }
+                    else if (ProjectPropertyHelpers.IsEmptyNuGetPackageImportStamp(prop))
+                    {
+                        propGroup.RemoveChild(prop);
+                    }
+                    else if (projectStyle == ProjectStyle.MSTest && ProjectPropertyHelpers.IsOutputTypeNode(prop))
+                    {
+                        // Old MSTest projects specify library, but this is not valid since tests on .NET Core are netcoreapp projects.
+                        propGroup.RemoveChild(prop);
+                    }
                 }
 
                 if (propGroup.Properties.Count == 0)
@@ -113,7 +129,7 @@ namespace MSBuild.Conversion.Project
             }
         }
 
-        public static IProjectRootElement RemoveOrUpdateItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string tfm)
+        public static IProjectRootElement RemoveOrUpdateItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, ProjectStyle projectStyle, string tfm)
         {
             foreach (var itemGroup in projectRootElement.ItemGroups)
             {
@@ -250,6 +266,27 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
+        public static IProjectRootElement RemoveUnnecessaryTargetsIfTheyExist(this IProjectRootElement projectRootElement)
+        {
+            var targets = projectRootElement.Targets;
+            if (targets.Count == 0)
+            {
+                return projectRootElement;
+            }
+
+            foreach (var target in targets)
+            {
+                // Old target dropped into project files that checked if a .dll was in a hint path specified as a reference above.
+                // This is from the old days when NuGet and MSBuild pretended the other didn't exist.
+                // It's not necessary anymore.
+                if (target.Name.Equals(PackageFacts.EnsureNuGetPackageBuildImportsName, StringComparison.OrdinalIgnoreCase))
+                {
+                    projectRootElement.RemoveChild(target);
+                }
+            }
+
+            return projectRootElement;
+        }
 
         public static IProjectRootElement AddPackage(this IProjectRootElement projectRootElement, string packageName, string packageVersion)
         {
@@ -258,7 +295,7 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement AddConvertedPackages(this IProjectRootElement projectRootElement, string tfm)
+        public static IProjectRootElement ConvertAndAddPackages(this IProjectRootElement projectRootElement, ProjectStyle projectStlye, string tfm)
         {
             var packagesConfigItemGroup = MSBuildHelpers.GetPackagesConfigItemGroup(projectRootElement);
             if (packagesConfigItemGroup is null)
@@ -292,6 +329,12 @@ namespace MSBuild.Conversion.Project
                     }
 
                     AddPackageReferenceElement(groupForPackageRefs, pkgref.ID, pkgref.Version);
+                }
+
+                if (projectStlye == ProjectStyle.MSTest
+                    && !projectRootElement.ItemGroups.Any(ig => ig.Items.Any(item => ProjectItemHelpers.IsSpecificPacakgeReference(item, MSTestFacts.MSTestSDKPackageName))))
+                {
+                    AddPackageReferenceElement(groupForPackageRefs, MSTestFacts.MSTestSDKPackageName, MSTestFacts.MSTestSDKDev16FloatingVersion);
                 }
 
                 // If the only references we had are already in the SDK, we're done.
@@ -389,7 +432,7 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement AddGenerateAssemblyInfo(this IProjectRootElement projectRootElement)
+        public static IProjectRootElement AddGenerateAssemblyInfoAsFalse(this IProjectRootElement projectRootElement)
         {
             // Don't create a new prop group; put the desktop properties in the same group as where TFM is located
             var propGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroupWithTFM(projectRootElement);
@@ -425,9 +468,9 @@ namespace MSBuild.Conversion.Project
 
             var targetFrameworkElement = projectRootElement.CreatePropertyElement("TargetFramework");
 
-            if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop)
+            if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop || baselineProject.ProjectStyle == ProjectStyle.MSTest)
             {
-                targetFrameworkElement.Value = MSBuildFacts.NETCoreDesktopTFM;
+                targetFrameworkElement.Value = MSBuildFacts.NetCoreAppTFM;
             }
             else
             {

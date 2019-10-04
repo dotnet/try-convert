@@ -12,7 +12,10 @@ namespace MSBuild.Conversion.Facts
         /// <summary>
         /// Props files which are known to be imported in standard projects created from templates that can be converted to use the SDK
         /// </summary>
-        public static ImmutableArray<string> PropsConvertibleToSDK => ImmutableArray.Create("Microsoft.Common.props");
+        public static ImmutableArray<string> PropsConvertibleToSDK => ImmutableArray.Create(
+            "Microsoft.Common.props",
+            "MSTest.TestAdapter.props"
+        );
 
         /// <summary>
         /// Targets files which are known to be imported in standard projects created from templates that can be converted to use the SDK.
@@ -22,7 +25,8 @@ namespace MSBuild.Conversion.Facts
             "Microsoft.VisualBasic.targets",
             "Microsoft.Portable.CSharp.targets",
             "Microsoft.Portable.VisualBasic.targets",
-            "Microsoft.FSharp.Targets"
+            "Microsoft.FSharp.Targets",
+            "MSTest.TestAdapter.targets"
         );
 
         /// <summary>
@@ -187,7 +191,7 @@ namespace MSBuild.Conversion.Facts
         public const string DefaultSDKAttribute = "Microsoft.NET.Sdk";
         public const string LowestFrameworkVersionWithSystemValueTuple = "net47";
         public const string SharedProjectsImportLabel = "Shared";
-        public const string NETCoreDesktopTFM = "netcoreapp3.0";
+        public const string NetCoreAppTFM = "netcoreapp3.0";
         public const string SystemValueTupleName = "System.ValueTuple";
         public const string DefineConstantsName = "DefineConstants";
         public const string OutputPathName = "OutputPath";
@@ -214,5 +218,7 @@ namespace MSBuild.Conversion.Facts
         public const string LibraryOutputType = "Library";
         public const string ExeOutputType = "Exe";
         public const string WinExeOutputType = "WinExe";
+        public const string NuGetPackageImportStampNodeName = "NuGetPackageImportStamp";
+        public const string ReferencePathNodeName = "ReferencePath";
     }
 }

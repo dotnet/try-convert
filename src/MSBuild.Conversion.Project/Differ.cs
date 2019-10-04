@@ -1,4 +1,4 @@
-﻿using MSBuildAbstractions;
+﻿using MSBuild.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;

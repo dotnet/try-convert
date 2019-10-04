@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace MSBuildAbstractions
+namespace MSBuild.Abstractions
 {
     public static class NugetHelpers
     {

@@ -4,7 +4,7 @@ using System;
 using System.Reflection;
 using System.Xml;
 
-namespace MSBuildAbstractions
+namespace MSBuild.Abstractions
 {
     public static class MsBuildExtensions
     {

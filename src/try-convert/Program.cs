@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using System.CommandLine;
 using Conversion;
-using MSBuildAbstractions;
+using MSBuild.Abstractions;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.IO;

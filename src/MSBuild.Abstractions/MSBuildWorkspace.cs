@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
-namespace MSBuildAbstractions
+namespace MSBuild.Abstractions
 {
     public class MSBuildWorkspace
     {

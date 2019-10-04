@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 
-namespace MSBuildAbstractions
+namespace MSBuild.Abstractions
 {
     public class MSBuildWorkspaceLoader
     {

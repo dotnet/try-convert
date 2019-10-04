@@ -2,7 +2,7 @@
 using System.Xml.Linq;
 using Microsoft.Build.Construction;
 
-namespace MSBuildAbstractions
+namespace MSBuild.Abstractions
 {
     public interface IProjectRootElement
     {

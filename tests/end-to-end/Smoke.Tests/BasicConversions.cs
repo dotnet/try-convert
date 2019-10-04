@@ -1,6 +1,6 @@
 using Conversion;
 using Microsoft.Build.Construction;
-using MSBuildAbstractions;
+using MSBuild.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;

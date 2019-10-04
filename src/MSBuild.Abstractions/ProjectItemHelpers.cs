@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace MSBuildAbstractions
+namespace MSBuild.Abstractions
 {
     /// <summary>
     /// Helper functions for working with ProjectItemElements

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Build.Evaluation;
 
-namespace MSBuildAbstractions
+namespace MSBuild.Abstractions
 {
     /// <summary>
     /// Interface used to Mock access to MSBuild's Project apis.

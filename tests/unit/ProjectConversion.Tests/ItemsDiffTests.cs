@@ -2,10 +2,10 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Conversion;
-using MSBuildAbstractions.Tests.Mocks;
+using MSBuild.Abstractions.Tests.Mocks;
 using Xunit;
 
-namespace MSBuildAbstractions.Tests
+namespace MSBuild.Abstractions.Tests
 {
     public class ItemsDiffTests
     {

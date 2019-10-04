@@ -1,4 +1,4 @@
-﻿using MSBuildAbstractions;
+﻿using MSBuild.Abstractions;
 using System.Collections.Immutable;
 using System.Linq;
 

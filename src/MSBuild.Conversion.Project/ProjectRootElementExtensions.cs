@@ -2,7 +2,7 @@
 
 using Microsoft.Build.Construction;
 
-using MSBuildAbstractions;
+using MSBuild.Abstractions;
 
 using PackageConversion;
 

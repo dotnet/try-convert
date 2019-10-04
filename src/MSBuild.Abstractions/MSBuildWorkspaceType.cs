@@ -1,4 +1,4 @@
-﻿namespace MSBuildAbstractions
+﻿namespace MSBuild.Abstractions
 {
     public enum MSBuildWorkspaceType
     {

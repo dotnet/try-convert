@@ -2,7 +2,7 @@
 using System.Linq;
 using Moq;
 
-namespace MSBuildAbstractions.Tests.Mocks
+namespace MSBuild.Abstractions.Tests.Mocks
 {
     internal class IProjectFactory
     {

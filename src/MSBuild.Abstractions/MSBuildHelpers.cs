@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace MSBuildAbstractions
+namespace MSBuild.Abstractions
 {
     /// <summary>
     /// Static helper methods for working with general MSBuildisms.

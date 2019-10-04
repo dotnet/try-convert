@@ -12,5 +12,6 @@ namespace MSBuild.Conversion.Facts
         public const string PackageReferenceIDName = "id";
         public const string PackageReferenceVersionName = "version";
         public const string PackageReferencePackagesNodeName = "packages";
+        public const string EnsureNuGetPackageBuildImportsName = "EnsureNuGetPackageBuildImports";
     }
 }

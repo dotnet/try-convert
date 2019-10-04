@@ -69,14 +69,15 @@ namespace MSBuild.Conversion.Project
             return _projectRootElement
                 .ChangeImports(_sdkBaselineProject)
                 .RemoveDefaultedProperties(_sdkBaselineProject, _differs)
-                .RemoveUnnecessaryPropertiesNotInSDKByDefault()
+                .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle)
                 .AddTargetFrameworkProperty(_sdkBaselineProject, out var tfm)
-                .AddGenerateAssemblyInfo()
+                .AddGenerateAssemblyInfoAsFalse()
                 .AddDesktopProperties(_sdkBaselineProject)
                 .AddCommonPropertiesToTopLevelPropertyGroup()
                 .AddConvertedPackages(tfm)
-                .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)
+                .RemoveOrUpdateItems(_differs, _sdkBaselineProject, _sdkBaselineProject.ProjectStyle, tfm)
                 .AddItemRemovesForIntroducedItems(_differs)
+                .RemoveUnnecessaryTargetsIfTheyExist()
                 .ModifyProjectElement();
         }
 

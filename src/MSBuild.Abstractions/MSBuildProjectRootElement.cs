@@ -17,6 +17,7 @@ namespace MSBuild.Abstractions
         ICollection<ProjectImportGroupElement> ImportGroups { get; }
         ICollection<ProjectPropertyGroupElement> PropertyGroups { get; }
         ICollection<ProjectItemGroupElement> ItemGroups { get; }
+        ICollection<ProjectTargetElement> Targets { get; }
 
         ProjectPropertyElement CreatePropertyElement(string propertyName);
         ProjectPropertyGroupElement AddPropertyGroup();
@@ -47,6 +48,7 @@ namespace MSBuild.Abstractions
         public ICollection<ProjectImportGroupElement> ImportGroups => _rootElement.ImportGroups;
         public ICollection<ProjectPropertyGroupElement> PropertyGroups => _rootElement.PropertyGroups;
         public ICollection<ProjectItemGroupElement> ItemGroups => _rootElement.ItemGroups;
+        public ICollection<ProjectTargetElement> Targets => _rootElement.Targets;
 
         public ProjectItemGroupElement AddItemGroup() => _rootElement.AddItemGroup();
 

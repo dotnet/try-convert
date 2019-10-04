@@ -64,7 +64,7 @@ namespace MSBuild.Abstractions
             prop.ElementName.Equals(MSTestFacts.TestProjectTypeNodeName, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Checks if a property is the old NuGetPackageImportStamp property that used to be required in VS 2013, is no longer required, but is still<em>stamped</em>(har har har...) into test project files (lol).
+        /// Checks if a property is the old NuGetPackageImportStamp property that used to be for some reason starting with VS 2013, but seems to no longer be required, but is still<em>stamped</em>(har har har...) into test project files and maybe others (lol).
         /// </summary>
         public static bool IsEmptyNuGetPackageImportStamp(ProjectPropertyElement prop) =>
             prop.ElementName.Equals(MSBuildFacts.NuGetPackageImportStampNodeName, StringComparison.OrdinalIgnoreCase);

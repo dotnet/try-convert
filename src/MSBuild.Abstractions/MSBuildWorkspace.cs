@@ -234,7 +234,7 @@ namespace MSBuild.Abstractions
             // Lots of wild old project types have project type guids that the old project system uses to light things up!
             if (MSBuildHelpers.HasProjectTypeGuidsNode(root))
             {
-                // Check if it's an acceptable desktop type
+                // Check if it's an acceptable desktop type and reject those that aren't
                 if (MSBuildHelpers.IsDesktop(root))
                 {
                     if (!root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.AllProjectTypeGuidsAreDesktopProjectTypeGuids)))

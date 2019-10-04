@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace Facts
+namespace MSBuild.Conversion.Facts
 {
     /// <summary>
     /// A bunch of values regarding MSBuild project files.

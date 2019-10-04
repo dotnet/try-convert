@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Facts
+namespace MSBuild.Conversion.Facts
 {
     /// <summary>
     /// A bunch of known values regarding legacy F# projects.

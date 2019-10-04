@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 
-namespace Facts
+namespace MSBuild.Conversion.Facts
 {
     /// <summary>
     ///  A bunch of known values regarding desktop projects.

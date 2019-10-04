@@ -1,4 +1,4 @@
-﻿using Facts;
+﻿using MSBuild.Conversion.Facts;
 
 using Microsoft.Build.Construction;
 
@@ -434,7 +434,7 @@ namespace Conversion
 
             if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop)
             {
-                targetFrameworkElement.Value = Facts.MSBuildFacts.NETCoreDesktopTFM;
+                targetFrameworkElement.Value = MSBuildFacts.NETCoreDesktopTFM;
             }
             else
             {

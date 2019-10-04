@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PackageConversion
+namespace MSBuild.Conversion.Package
 {
     public class PackagesConfigHasNoPackagesException : Exception
     {

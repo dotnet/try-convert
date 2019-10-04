@@ -4,7 +4,7 @@ using Microsoft.Build.Construction;
 
 using MSBuild.Abstractions;
 
-using PackageConversion;
+using MSBuild.Conversion.Package;
 
 using System;
 using System.Collections.Immutable;

@@ -1,4 +1,4 @@
-﻿namespace PackageConversion
+﻿namespace MSBuild.Conversion.Package
 {
     public class PackagesConfigPackage
     {

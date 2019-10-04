@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace PackageConversion
+namespace MSBuild.Conversion.Package
 {
     internal static class PackagesConfigParser
     {

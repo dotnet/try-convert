@@ -1,9 +1,10 @@
-﻿using MSBuild.Abstractions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+
+using MSBuild.Abstractions;
 
 namespace MSBuild.Conversion.Project
 {
@@ -58,13 +59,14 @@ namespace MSBuild.Conversion.Project
             var addedRemovedGroups = from og in oldItemGroups
                                      from ng in newItemGroups
                                      where og.Key.Equals(ng.Key, StringComparison.OrdinalIgnoreCase)
-                                     select new {
-                                                 ItemType = og.Key,
-                                                 DefaultedItems = ng.Intersect(og, ProjectItemComparer.MetadataComparer),
-                                                 IntroducedItems = ng.Except(og, ProjectItemComparer.IncludeComparer),
-                                                 NotDefaultedItems = og.Except(ng, ProjectItemComparer.IncludeComparer),
-                                                 ChangedItems = GetChangedItems(og, ng),
-                                                };
+                                     select new
+                                     {
+                                         ItemType = og.Key,
+                                         DefaultedItems = ng.Intersect(og, ProjectItemComparer.MetadataComparer),
+                                         IntroducedItems = ng.Except(og, ProjectItemComparer.IncludeComparer),
+                                         NotDefaultedItems = og.Except(ng, ProjectItemComparer.IncludeComparer),
+                                         ChangedItems = GetChangedItems(og, ng),
+                                     };
 
             var builder = ImmutableArray.CreateBuilder<ItemsDiff>();
 

@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Xml.Linq;
+
 using Xunit;
 
 namespace MSBuild.Conversion.Package.Tests

@@ -1,8 +1,8 @@
-﻿using Microsoft.Build.Construction;
-
-using System;
+﻿using System;
 using System.Reflection;
 using System.Xml;
+
+using Microsoft.Build.Construction;
 
 namespace MSBuild.Abstractions
 {
@@ -32,7 +32,7 @@ namespace MSBuild.Abstractions
 
             static PropertyInfo GetPropertyInfo(Type type, string propertyName)
             {
-                PropertyInfo propInfo = null;
+                PropertyInfo propInfo;
                 do
                 {
                     propInfo = type.GetProperty(propertyName,

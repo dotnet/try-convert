@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.CommandLine;
-using MSBuild.Conversion.Project;
-using MSBuild.Abstractions;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.IO;
+using System.Threading.Tasks;
+
+using MSBuild.Abstractions;
+using MSBuild.Conversion.Project;
 
 namespace MSBuild.Conversion
 {
@@ -22,10 +23,10 @@ namespace MSBuild.Conversion
                 .UseParseErrorReporting()
                 .UseExceptionHandler()
                 .AddOption(new Option(new[] { "-p", "--project" }, "The path to a project to convert", new Argument<string>()))
-                .AddOption(new Option(new [] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.", new Argument<string>()))
+                .AddOption(new Option(new[] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.", new Argument<string>()))
                 .AddOption(new Option(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that", new Argument<string>()))
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done", new Argument<bool>()))
-                .AddOption(new Option(new[] { "--no-backup"}, "Converts projects and does not create a backup of the originals.", new Argument<bool>()))
+                .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.", new Argument<bool>()))
                 .Build();
 
             return await parser.InvokeAsync(args.Length > 0 ? args : new string[] { "-h" }).ConfigureAwait(false);
@@ -49,7 +50,7 @@ namespace MSBuild.Conversion
                 }
 
                 var currentDirectory = Environment.CurrentDirectory;
-                string workspacePath = string.Empty;
+                var workspacePath = string.Empty;
                 MSBuildWorkspaceType workspaceType;
 
                 if (!string.IsNullOrWhiteSpace(project))

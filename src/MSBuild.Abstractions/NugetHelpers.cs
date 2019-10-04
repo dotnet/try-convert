@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
@@ -9,22 +8,22 @@ namespace MSBuild.Abstractions
 {
     public static class NugetHelpers
     {
-        private const string searchUrl = "https://api-v2v3search-0.nuget.org/query?q={0}&prerelease=false&semVerLevel=2.0.0&take=1";
+        private const string SearchUrl = "https://api-v2v3search-0.nuget.org/query?q={0}&prerelease=false&semVerLevel=2.0.0&take=1";
 
-        private static readonly Dictionary<string, string> packageToVersionCache = new Dictionary<string, string>();
-        private static readonly HttpClient httpClient = new HttpClient();
+        private static readonly Dictionary<string, string> s_packageToVersionCache = new Dictionary<string, string>();
+        private static readonly HttpClient s_httpClient = new HttpClient();
 
         public static async ValueTask<string> GetLatestVersionForPackageNameAsync(string packageName)
         {
-            if(packageToVersionCache.TryGetValue(packageName, out var version))
+            if (s_packageToVersionCache.TryGetValue(packageName, out var version))
             {
                 return version;
             }
 
-            var response = await httpClient.GetAsync(string.Format(searchUrl, packageName));
+            var response = await s_httpClient.GetAsync(string.Format(SearchUrl, packageName));
             var result = await response.Content.ReadAsStreamAsync();
             version = GetVersionFromQueryResponse(result);
-            packageToVersionCache[packageName] = version;
+            s_packageToVersionCache[packageName] = version;
             return version;
 
             static string GetVersionFromQueryResponse(Stream result)

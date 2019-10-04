@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using MSBuild.Abstractions;
+
 using MSBuild.Abstractions.Tests.Mocks;
+
 using Xunit;
 
 namespace MSBuild.Abstractions.Tests
@@ -48,7 +48,7 @@ namespace MSBuild.Abstractions.Tests
                 properties.Add("TargetFrameworkVersion", targetFrameworkVersion);
 
             var project = IProjectFactory.Create(properties);
-            
+
             Assert.Throws<InvalidOperationException>(() => ProjectExtensions.GetTargetFramework(project));
         }
 

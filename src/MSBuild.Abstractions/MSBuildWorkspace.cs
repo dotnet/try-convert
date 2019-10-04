@@ -1,11 +1,13 @@
-﻿using MSBuild.Conversion.Facts;
-using Microsoft.Build.Construction;
-using Microsoft.Build.Evaluation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+
+using Microsoft.Build.Construction;
+using Microsoft.Build.Evaluation;
+
+using MSBuild.Conversion.Facts;
 
 namespace MSBuild.Abstractions
 {
@@ -126,7 +128,7 @@ namespace MSBuild.Abstractions
                 {
                     MSBuildHelpers.AddUseWPF(propGroup);
                 }
-                
+
                 // User is referencing WindowsBase only
                 if (MSBuildHelpers.IsDesktop(root) && !MSBuildHelpers.HasWPFOrWinForms(propGroup))
                 {
@@ -199,11 +201,9 @@ namespace MSBuild.Abstractions
                     if (MSBuildFacts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
                         MSBuildFacts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
                     {
-                        if (MSBuildHelpers.IsWPF(project) || MSBuildHelpers.IsWinForms(project) || MSBuildHelpers.IsDesktop(project))
-                        {
-                            return ProjectStyle.WindowsDesktop;
-                        }
-                        return ProjectStyle.Default;
+                        return MSBuildHelpers.IsWPF(project) || MSBuildHelpers.IsWinForms(project) || MSBuildHelpers.IsDesktop(project)
+                            ? ProjectStyle.WindowsDesktop
+                            : ProjectStyle.Default;
                     }
                 }
             }

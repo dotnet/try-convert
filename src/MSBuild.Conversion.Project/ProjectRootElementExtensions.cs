@@ -1,15 +1,13 @@
-﻿using MSBuild.Conversion.Facts;
+﻿using System;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 
 using Microsoft.Build.Construction;
 
 using MSBuild.Abstractions;
-
+using MSBuild.Conversion.Facts;
 using MSBuild.Conversion.Package;
-
-using System;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
 
 namespace MSBuild.Conversion.Project
 {
@@ -26,14 +24,9 @@ namespace MSBuild.Conversion.Project
                     projectRootElement.RemoveChild(import);
                 }
 
-                if (MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement))
-                {
-                    projectRootElement.Sdk = DesktopFacts.WinSDKAttribute;
-                }
-                else
-                {
-                    projectRootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
-                }
+                projectRootElement.Sdk = MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement)
+                    ? DesktopFacts.WinSDKAttribute
+                    : MSBuildFacts.DefaultSDKAttribute;
             }
 
             return projectRootElement;
@@ -242,7 +235,7 @@ namespace MSBuild.Conversion.Project
                                                             .SelectMany(diff => diff.IntroducedItems))
                                           .Distinct(ProjectItemComparer.IncludeComparer)
                                           .Where(x => StringComparer.OrdinalIgnoreCase.Compare(x.ItemType, "None") != 0);
-            
+
             if (introducedItems.Any())
             {
                 var itemGroup = projectRootElement.AddItemGroup();

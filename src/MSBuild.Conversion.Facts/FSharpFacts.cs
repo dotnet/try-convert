@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MSBuild.Conversion.Facts
+﻿namespace MSBuild.Conversion.Facts
 {
     /// <summary>
     /// A bunch of known values regarding legacy F# projects.

@@ -1,6 +1,6 @@
 # dotnet try-convert
 
-This is a sample tool that will help in migrating .NET Framework projects to .NET Core.
+This is a simple tool that will help in migrating .NET Framework projects to .NET Core.
 
 ## Status
 
@@ -72,9 +72,9 @@ It loads a given project and evaluates it to get a list of all properties and it
 It does the second evaluation in the same project folder so that items that are automatically picked up by globbing will be known as well. It then applies rules about well-known properties and items, finally producing a diff of the two states to identify the following:
 
 * Properties that can now be removed from the project because they are already implicitly defined by the SDK and the project had the default value
-* Properties that need to be kept in the project either because they override the default or it's a property not defined in the SDK.
+* Properties that need to be kept in the project either because they override the default or are not defined in the SDK.
 * Items that can be removed because they are implicitly brought in by globs in the SDK
-* Items that need to be changed to the Update syntax because although they're brought by the SDK, there is extra metadata being added.
+* Items that need to be changed to the `Update` syntax because although they're brought in by the SDK, there is extra metadata being added.
 * Items that need to be kept because they are are not implicit in the SDK.
 
 This diff is used to convert a given project file.

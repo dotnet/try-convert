@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Facts\Facts.csproj" />
+    <ProjectReference Include="..\MSBuild.Conversion.Facts\MSBuild.Conversion.Facts.csproj" />
   </ItemGroup>
 
 </Project>

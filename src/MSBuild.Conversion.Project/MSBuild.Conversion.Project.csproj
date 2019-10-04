@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Facts\Facts.csproj" />
-    <ProjectReference Include="..\MSBuildAbstractions\MSBuildAbstractions.csproj" />
-    <ProjectReference Include="..\PackageConversion\PackageConversion.csproj" />
+    <ProjectReference Include="..\MSBuild.Conversion.Facts\MSBuild.Conversion.Facts.csproj" />
+    <ProjectReference Include="..\MSBuild.Abstractions\MSBuild.Abstractions.csproj" />
+    <ProjectReference Include="..\MSBuild.Conversion.Package\MSBuild.Conversion.Package.csproj" />
   </ItemGroup>
 
   <ItemGroup>

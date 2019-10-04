@@ -10,7 +10,7 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\PackageConversion\PackageConversion.csproj" />
+    <ProjectReference Include="..\..\..\src\MSBuild.Conversion.Package\MSBuild.Conversion.Package.csproj" />
   </ItemGroup>
 
 </Project>

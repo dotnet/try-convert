@@ -16,6 +16,7 @@
       from $(RoslynPortableRuntimeIdentifiers) work or make sense in this context.
     -->
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
+    <RootNamespace>MSBuild.Conversion</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

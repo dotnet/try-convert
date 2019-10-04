@@ -7,7 +7,7 @@ using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.IO;
 
-namespace TryConvert
+namespace MSBuild.Conversion
 {
     internal class Program
     {

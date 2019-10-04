@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.CommandLine;
-using Conversion;
+using MSBuild.Conversion.Project;
 using MSBuild.Abstractions;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;

@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Conversion
+namespace MSBuild.Conversion.Project
 {
     public struct ItemsDiff
     {

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Conversion
+namespace MSBuild.Conversion.Project
 {
     public class Converter
     {

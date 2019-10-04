@@ -11,7 +11,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
-namespace Conversion
+namespace MSBuild.Conversion.Project
 {
     public static class ProjectRootElementExtensions
     {

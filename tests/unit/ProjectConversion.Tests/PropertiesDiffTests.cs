@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Linq;
-using Conversion;
+using MSBuild.Conversion.Project;
 using MSBuild.Abstractions.Tests.Mocks;
 using Xunit;
 

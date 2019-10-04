@@ -1,10 +1,12 @@
-using MSBuild.Conversion.Project;
-using Microsoft.Build.Construction;
-using MSBuild.Abstractions;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
+using Microsoft.Build.Construction;
+
+using MSBuild.Abstractions;
+using MSBuild.Conversion.Project;
+
 using Xunit;
 
 namespace SmokeTests
@@ -25,8 +27,8 @@ namespace SmokeTests
         public void ConvertsWpfFrameworkTemplate()
         {
             MSBuildHelpers.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");
-            var projectToConvertPath = Path.Combine("..", "..", "..", "..","..", "tests", "TestData", "SmokeTests.WpfFramework", "SmokeTests.WpfFramework.csproj");
-            var projectBaselinePath = Path.Combine("..", "..", "..", "..", "..", "tests","TestData", "SmokeTests.WpfCoreBaseline", "SmokeTests.WpfCoreBaseline.csproj");
+            var projectToConvertPath = Path.Combine("..", "..", "..", "..", "..", "tests", "TestData", "SmokeTests.WpfFramework", "SmokeTests.WpfFramework.csproj");
+            var projectBaselinePath = Path.Combine("..", "..", "..", "..", "..", "tests", "TestData", "SmokeTests.WpfCoreBaseline", "SmokeTests.WpfCoreBaseline.csproj");
 
             AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
@@ -35,8 +37,8 @@ namespace SmokeTests
         public void ConvertsWinformsFrameworkTemplate()
         {
             MSBuildHelpers.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");
-            var projectToConvertPath = Path.Combine("..", "..", "..", "..", "..", "tests","TestData", "SmokeTests.WinformsFramework", "SmokeTests.WinformsFramework.csproj");
-            var projectBaselinePath = Path.Combine("..", "..", "..", "..", "..", "tests","TestData", "SmokeTests.WinformsCoreBaseline", "SmokeTests.WinformsCoreBaseline.csproj");
+            var projectToConvertPath = Path.Combine("..", "..", "..", "..", "..", "tests", "TestData", "SmokeTests.WinformsFramework", "SmokeTests.WinformsFramework.csproj");
+            var projectBaselinePath = Path.Combine("..", "..", "..", "..", "..", "tests", "TestData", "SmokeTests.WinformsCoreBaseline", "SmokeTests.WinformsCoreBaseline.csproj");
 
             AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
@@ -73,7 +75,7 @@ namespace SmokeTests
 
             if (baselinePropGroups.Count > 0)
             {
-                for (int i = 0; i < baselinePropGroups.Count; i++)
+                for (var i = 0; i < baselinePropGroups.Count; i++)
                 {
                     var baselineProps = new List<ProjectPropertyElement>(baselinePropGroups[i].Properties);
                     var convertedProps = new List<ProjectPropertyElement>(convertedPropGroups[i].Properties);
@@ -82,7 +84,7 @@ namespace SmokeTests
 
                     if (baselineProps.Count > 0)
                     {
-                        for (int j = 0; j < baselineProps.Count; j++)
+                        for (var j = 0; j < baselineProps.Count; j++)
                         {
                             var baselineProp = baselineProps[j];
                             var convertedProp = convertedProps[j];
@@ -105,7 +107,7 @@ namespace SmokeTests
 
             if (baselineItemGroups.Count > 0)
             {
-                for (int i = 0; i < baselineItemGroups.Count; i++)
+                for (var i = 0; i < baselineItemGroups.Count; i++)
                 {
                     var baselineItems = new List<ProjectItemElement>(baselineItemGroups[i].Items);
                     var convertedItems = new List<ProjectItemElement>(convertedItemGroups[i].Items);
@@ -114,7 +116,7 @@ namespace SmokeTests
 
                     if (baselineItems.Count > 1)
                     {
-                        for (int j = 0; j < baselineItems.Count; j++)
+                        for (var j = 0; j < baselineItems.Count; j++)
                         {
                             var baselineItem = baselineItems[j];
                             var convertedItem = convertedItems[j];

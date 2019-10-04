@@ -1,14 +1,15 @@
-﻿using MSBuild.Conversion.Facts;
-using Microsoft.Build.Construction;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Locator;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+
+using Microsoft.Build.Construction;
+using Microsoft.Build.Locator;
+
+using MSBuild.Conversion.Facts;
 
 namespace MSBuild.Abstractions
 {
@@ -20,7 +21,7 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// matches $(name) pattern
         /// </summary>
-        private static readonly Regex DimensionNameInConditionRegex = new Regex(@"^\$\(([^\$\(\)]*)\)$");
+        private static readonly Regex s_dimensionNameInConditionRegex = new Regex(@"^\$\(([^\$\(\)]*)\)$");
 
         /// <summary>
         /// Converts configuration dimensional value vector to a msbuild condition
@@ -36,10 +37,10 @@ namespace MSBuild.Abstractions
                 return string.Empty; // no condition. Returns empty string to match MSBuild.
             }
 
-            string left = string.Empty;
-            string right = string.Empty;
+            var left = string.Empty;
+            var right = string.Empty;
 
-            foreach (string key in dimensionalValues.Keys)
+            foreach (var key in dimensionalValues.Keys)
             {
                 if (!string.IsNullOrEmpty(left))
                 {
@@ -51,7 +52,7 @@ namespace MSBuild.Abstractions
                 right += dimensionalValues[key];
             }
 
-            string condition = "'" + left + "'=='" + right + "'";
+            var condition = "'" + left + "'=='" + right + "'";
             return condition;
         }
 
@@ -65,12 +66,7 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static string GetConfigurationName(string condition)
         {
-            if (ConditionToDimensionValues(condition, out var dimensionValues))
-            {
-                return GetConfigurationName(dimensionValues);
-            }
-
-            return "";
+            return ConditionToDimensionValues(condition, out var dimensionValues) ? GetConfigurationName(dimensionValues) : "";
         }
 
         /// <summary>
@@ -93,7 +89,7 @@ namespace MSBuild.Abstractions
                 return true;
             }
 
-            int equalPos = condition.IndexOf("==", StringComparison.OrdinalIgnoreCase);
+            var equalPos = condition.IndexOf("==", StringComparison.OrdinalIgnoreCase);
             if (equalPos <= 0)
             {
                 return false;
@@ -108,8 +104,8 @@ namespace MSBuild.Abstractions
                 return false;
             }
 
-            string[] dimensionNamesInCondition = left.Split(new char[] { '|' });
-            string[] dimensionValuesInCondition = right.Split(new char[] { '|' });
+            var dimensionNamesInCondition = left.Split(new char[] { '|' });
+            var dimensionValuesInCondition = right.Split(new char[] { '|' });
 
             // number of keys need to match number of values
             if (dimensionNamesInCondition.Length == 0 || dimensionNamesInCondition.Length != dimensionValuesInCondition.Length)
@@ -117,18 +113,18 @@ namespace MSBuild.Abstractions
                 return false;
             }
 
-            Dictionary<string, string> parsedDimensionalValues = new Dictionary<string, string>(dimensionNamesInCondition.Length);
+            var parsedDimensionalValues = new Dictionary<string, string>(dimensionNamesInCondition.Length);
 
-            for (int i = 0; i < dimensionNamesInCondition.Length; i++)
+            for (var i = 0; i < dimensionNamesInCondition.Length; i++)
             {
                 // matches "$(name)" patern.
-                Match match = DimensionNameInConditionRegex.Match(dimensionNamesInCondition[i]);
+                var match = s_dimensionNameInConditionRegex.Match(dimensionNamesInCondition[i]);
                 if (!match.Success)
                 {
                     return false;
                 }
 
-                string dimensionName = match.Groups[1].ToString();
+                var dimensionName = match.Groups[1].ToString();
                 if (string.IsNullOrEmpty(dimensionName))
                 {
                     return false;
@@ -146,19 +142,13 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static bool FrameworkHasAValueTuple(string tfm)
         {
-            if (tfm is null
+            return tfm is null
                 || tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude)
-                || tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude))
-            {
-                return false;
-            }
-
-            if (!tfm.StartsWith("net", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            return tfm.StartsWith(MSBuildFacts.LowestFrameworkVersionWithSystemValueTuple);
+                || tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
+                ? false
+                : !tfm.StartsWith("net", StringComparison.OrdinalIgnoreCase)
+                    ? false
+                    : tfm.StartsWith(MSBuildFacts.LowestFrameworkVersionWithSystemValueTuple);
         }
 
         /// <summary>
@@ -216,7 +206,7 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Checks if a given TFM is not .NET Framework.
         /// </summary>
-        public static bool IsNotNetFramework(string tfm) => 
+        public static bool IsNotNetFramework(string tfm) =>
             !tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
             && !tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude);
 
@@ -248,7 +238,7 @@ namespace MSBuild.Abstractions
         public static ProjectPropertyGroupElement GetOrCreateTopLevelPropertyGroupWithTFM(IProjectRootElement rootElement) =>
             rootElement.PropertyGroups.Single(pg => pg.Properties.Any(p => p.ElementName.Equals(MSBuildFacts.TargetFrameworkNodeName, StringComparison.OrdinalIgnoreCase)))
             ?? rootElement.AddPropertyGroup();
-        
+
         /// <summary>
         /// Finds the item group where PackageReferences are specified. Usually there is only one.
         /// </summary>
@@ -306,12 +296,12 @@ namespace MSBuild.Abstractions
         /// <returns>true if string is successfuly unquoted</returns>
         private static bool UnquoteString(ref string s)
         {
-            if (s.Length < 2 || s[0] != '\'' || s[s.Length - 1] != '\'')
+            if (s.Length < 2 || s[0] != '\'' || s[^1] != '\'')
             {
                 return false;
             }
 
-            s = s.Substring(1, s.Length - 2);
+            s = s[1..^1];
             return true;
         }
 
@@ -368,7 +358,7 @@ namespace MSBuild.Abstractions
         private static VisualStudioInstance SelectVisualStudioInstance(VisualStudioInstance[] visualStudioInstances)
         {
             Console.WriteLine("Multiple installs of MSBuild detected please select one:");
-            for (int i = 0; i < visualStudioInstances.Length; i++)
+            for (var i = 0; i < visualStudioInstances.Length; i++)
             {
                 Console.WriteLine($"Instance {i + 1}");
                 Console.WriteLine($"    Name: {visualStudioInstances[i].Name}");
@@ -379,7 +369,7 @@ namespace MSBuild.Abstractions
             while (true)
             {
                 var userResponse = Console.ReadLine();
-                if (int.TryParse(userResponse, out int instanceNumber) &&
+                if (int.TryParse(userResponse, out var instanceNumber) &&
                     instanceNumber > 0 &&
                     instanceNumber <= visualStudioInstances.Length)
                 {

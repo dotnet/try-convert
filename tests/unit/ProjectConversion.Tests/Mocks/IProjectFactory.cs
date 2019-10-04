@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+
 using Moq;
 
 namespace MSBuild.Abstractions.Tests.Mocks
@@ -9,7 +10,7 @@ namespace MSBuild.Abstractions.Tests.Mocks
         /// <summary>
         /// Expected format here is "A=B;C=D"
         /// </summary>
-        public static IProject Create(string projectProperties, string propertiesInFile="")
+        public static IProject Create(string projectProperties, string propertiesInFile = "")
         {
             var lines = projectProperties.Split(';');
             return Create(lines.Select(p => p.Split('=')).ToDictionary(a => a[0], a => a[1]), propertiesInFile.Split(';'));
@@ -50,20 +51,14 @@ namespace MSBuild.Abstractions.Tests.Mocks
             return mock.Object;
         }
 
-        public static IProject Create(IDictionary<string, string> projectProperties, IEnumerable<string> propertiesInFile=null)
+        public static IProject Create(IDictionary<string, string> projectProperties, IEnumerable<string> propertiesInFile = null)
         {
             var mock = new Mock<IProject>();
 
             mock.Setup(m => m.GetPropertyValue(It.IsAny<string>())).Returns((string prop) => projectProperties.ContainsKey(prop) ? projectProperties[prop] : "");
 
-            mock.Setup(m => m.GetProperty(It.IsAny<string>())).Returns((string prop) => 
-            {
-                if (projectProperties.ContainsKey(prop))
-                {
-                    return MockProperty(prop, projectProperties[prop], propertiesInFile?.Contains(prop));
-                }
-                return null;
-            });
+            mock.Setup(m => m.GetProperty(It.IsAny<string>())).Returns(
+                (string prop) => projectProperties.ContainsKey(prop) ? MockProperty(prop, projectProperties[prop], propertiesInFile?.Contains(prop)) : null);
 
             mock.SetupGet(m => m.Properties).Returns(projectProperties.Select(kvp => MockProperty(kvp.Key, kvp.Value, propertiesInFile?.Contains(kvp.Key))).ToArray());
 
@@ -75,7 +70,7 @@ namespace MSBuild.Abstractions.Tests.Mocks
             var projectProperty = new Mock<IProjectProperty>();
             projectProperty.SetupGet(pp => pp.Name).Returns(propName);
             projectProperty.SetupGet(pp => pp.EvaluatedValue).Returns(propValue);
-            projectProperty.SetupGet(pp => pp.IsDefinedInProject).Returns(isDefinedInProject??false);
+            projectProperty.SetupGet(pp => pp.IsDefinedInProject).Returns(isDefinedInProject ?? false);
             return projectProperty.Object;
         }
     }

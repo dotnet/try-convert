@@ -1,9 +1,9 @@
-﻿using MSBuild.Conversion.Facts;
-using Microsoft.Build.Construction;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
+
+using Microsoft.Build.Construction;
+
+using MSBuild.Conversion.Facts;
 
 namespace MSBuild.Abstractions
 {

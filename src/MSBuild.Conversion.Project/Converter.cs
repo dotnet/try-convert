@@ -1,10 +1,10 @@
-﻿using MSBuild.Abstractions;
-
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+
+using MSBuild.Abstractions;
 
 namespace MSBuild.Conversion.Project
 {
@@ -12,7 +12,7 @@ namespace MSBuild.Conversion.Project
     {
         private readonly UnconfiguredProject _project;
         private readonly BaselineProject _sdkBaselineProject;
-        private IProjectRootElement _projectRootElement;
+        private readonly IProjectRootElement _projectRootElement;
         private readonly ImmutableDictionary<string, Differ> _differs;
 
         public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, IProjectRootElement projectRootElement)

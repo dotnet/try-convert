@@ -1,7 +1,9 @@
 ﻿using System.Collections.Immutable;
 using System.Linq;
-using MSBuild.Conversion.Project;
+
 using MSBuild.Abstractions.Tests.Mocks;
+using MSBuild.Conversion.Project;
+
 using Xunit;
 
 namespace MSBuild.Abstractions.Tests
@@ -30,7 +32,7 @@ namespace MSBuild.Abstractions.Tests
             }
             else
             {
-                Assert.Equal(diff.DefaultedProperties.Select(p=> p.Name), expectedDefaultedProps.Split(';'));
+                Assert.Equal(diff.DefaultedProperties.Select(p => p.Name), expectedDefaultedProps.Split(';'));
             }
 
             if (expectedNotDefaultedProps == null)

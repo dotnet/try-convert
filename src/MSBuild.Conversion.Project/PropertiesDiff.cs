@@ -1,6 +1,7 @@
-﻿using MSBuild.Abstractions;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
+
+using MSBuild.Abstractions;
 
 namespace MSBuild.Conversion.Project
 {

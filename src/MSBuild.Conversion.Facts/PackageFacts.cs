@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MSBuild.Conversion.Facts
+﻿namespace MSBuild.Conversion.Facts
 {
     /// <summary>
     /// A bunch of known values regarding NuGet.

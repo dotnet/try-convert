@@ -65,7 +65,7 @@ namespace MSBuild.Conversion.Facts
 
             // This is so unlikely to be changed from the default that we can just remove it
             "SchemaVersion",
-            
+
             // This is set by F# legacy templates, but since we default to 64-bit on .NET Core this is unlikely to ever be meaningful
             "Prefer32Bit",
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+
 using Microsoft.Build.Evaluation;
 
 namespace MSBuild.Abstractions
@@ -56,8 +57,8 @@ namespace MSBuild.Abstractions
 
         public string UnevaluatedValue => _property.UnevaluatedValue;
 
-        public bool IsDefinedInProject => !_property.IsImported && 
-                                          !_property.IsEnvironmentProperty && 
+        public bool IsDefinedInProject => !_property.IsImported &&
+                                          !_property.IsEnvironmentProperty &&
                                           !_property.IsGlobalProperty &&
                                           !_property.IsReservedProperty;
     }
@@ -86,7 +87,7 @@ namespace MSBuild.Abstractions
         {
             _projectMetadata = projectMetadata;
         }
-        
+
         public string Name => _projectMetadata.Name;
 
         public string UnevaluatedValue => _projectMetadata.UnevaluatedValue;

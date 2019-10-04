@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using MSBuild.Conversion.Project;
+
 using MSBuild.Abstractions.Tests.Mocks;
+using MSBuild.Conversion.Project;
+
 using Xunit;
 
 namespace MSBuild.Abstractions.Tests

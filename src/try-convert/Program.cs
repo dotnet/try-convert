@@ -28,7 +28,7 @@ namespace TryConvert
                 .AddOption(new Option(new[] { "--no-backup"}, "Converts projects and does not create a backup of the originals.", new Argument<bool>()))
                 .Build();
 
-            return await parser.InvokeAsync(args).ConfigureAwait(false);
+            return await parser.InvokeAsync(args.Length > 0 ? args : new string[] { "-h" }).ConfigureAwait(false);
         }
 
         public static int Run(string project, string workspace, string msbuildPath, bool diffOnly, bool noBackup)

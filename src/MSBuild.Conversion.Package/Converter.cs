@@ -10,6 +10,6 @@ namespace MSBuild.Conversion.Package
         /// </summary>
         /// <param name="path">The path on disk to a specific packages.config file.</param>
         public static IEnumerable<PackageReferencePackage> Convert(string path) =>
-            PackagesConfigParser.Parse(path).Select(pkg =>  new PackageReferencePackage(pkg));
+            PackagesConfigParser.Parse(path).Select(pkg => new PackageReferencePackage(pkg));
     }
 }

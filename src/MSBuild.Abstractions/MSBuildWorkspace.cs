@@ -1,11 +1,13 @@
-﻿using MSBuild.Conversion.Facts;
-using Microsoft.Build.Construction;
-using Microsoft.Build.Evaluation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+
+using Microsoft.Build.Construction;
+using Microsoft.Build.Evaluation;
+
+using MSBuild.Conversion.Facts;
 
 namespace MSBuild.Abstractions
 {

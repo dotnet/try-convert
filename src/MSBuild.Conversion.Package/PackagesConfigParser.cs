@@ -1,11 +1,11 @@
-﻿using MSBuild.Conversion.Facts;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Xml;
 using System.Xml.Linq;
+
+using MSBuild.Conversion.Facts;
 
 namespace MSBuild.Conversion.Package
 {

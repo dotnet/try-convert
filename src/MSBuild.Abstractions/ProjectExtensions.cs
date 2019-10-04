@@ -1,9 +1,11 @@
-﻿using MSBuild.Conversion.Facts;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
+using MSBuild.Conversion.Facts;
+
+using Newtonsoft.Json.Linq;
 
 namespace MSBuild.Abstractions
 {
@@ -72,15 +74,15 @@ namespace MSBuild.Abstractions
 
         private static string GetTargetFrameworkFromProjectJson(IProject project)
         {
-            string projectFolder = project.GetPropertyValue("MSBuildProjectDirectory");
-            string projectJsonPath = Path.Combine(projectFolder, "project.json");
+            var projectFolder = project.GetPropertyValue("MSBuildProjectDirectory");
+            var projectJsonPath = Path.Combine(projectFolder, "project.json");
 
-            string projectJsonContents = File.ReadAllText(projectJsonPath);
+            var projectJsonContents = File.ReadAllText(projectJsonPath);
 
-            JObject json = JObject.Parse(projectJsonContents);
+            var json = JObject.Parse(projectJsonContents);
 
             var frameworks = json["frameworks"];
-            string tf = ((JProperty)frameworks.Single()).Name;
+            var tf = ((JProperty)frameworks.Single()).Name;
             return tf;
         }
     }

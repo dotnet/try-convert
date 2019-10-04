@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuild.Conversion.Package"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8F861E7D-283E-46F9-9A6A-DBF1BE8BC978}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conversion.Tests", "tests\unit\Conversion.Tests\Conversion.Tests.csproj", "{30EE0DE2-7BED-4868-AE20-4BD27553380B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectConversion.Tests", "tests\unit\ProjectConversion.Tests\ProjectConversion.Tests.csproj", "{30EE0DE2-7BED-4868-AE20-4BD27553380B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageConversion.Tests", "tests\unit\PackageConversion.Tests\PackageConversion.Tests.csproj", "{A3DDB4B7-F48E-40FA-A638-B03EECB48255}"
 EndProject

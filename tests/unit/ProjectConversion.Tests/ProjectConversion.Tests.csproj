@@ -7,12 +7,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildVersion)" />
+    <PackageReference Include="Moq" Version="$(MoqVersion)" />
     <PackageReference Include="System.Collections.Immutable" Version="$(SystemCollectionsImmutableVersion)" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\MSBuild.Conversion.Project\MSBuild.Conversion.Project.csproj" />
-    <ProjectReference Include="..\..\..\src\MSBuild.Abstractions\MSBuild.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>

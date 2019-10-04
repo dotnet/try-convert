@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.CommandLine;
-using Conversion;
-using MSBuildAbstractions;
+using MSBuild.Conversion.Project;
+using MSBuild.Abstractions;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
 using System.IO;
 
-namespace TryConvert
+namespace MSBuild.Conversion
 {
     internal class Program
     {

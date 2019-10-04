@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="1.0.1" />
+    <PackageReference Include="coverlet.collector" Version="$(CoverletCollectorVersion)" />
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\PackageConversion\PackageConversion.csproj" />
+    <ProjectReference Include="..\..\..\src\MSBuild.Conversion.Package\MSBuild.Conversion.Package.csproj" />
   </ItemGroup>
 
 </Project>

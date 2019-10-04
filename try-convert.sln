@@ -7,17 +7,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FEF77564-162
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "try-convert", "src\try-convert\try-convert.csproj", "{861A048E-B8C9-4079-A1D2-4851DA080648}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conversion", "src\Conversion\Conversion.csproj", "{E52FB3B5-193A-4B97-BC12-3E5A71F66405}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuild.Conversion.Project", "src\MSBuild.Conversion.Project\MSBuild.Conversion.Project.csproj", "{E52FB3B5-193A-4B97-BC12-3E5A71F66405}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Facts", "src\Facts\Facts.csproj", "{43A09B9A-E593-4CD0-8054-C6B26C858FC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuild.Conversion.Facts", "src\MSBuild.Conversion.Facts\MSBuild.Conversion.Facts.csproj", "{43A09B9A-E593-4CD0-8054-C6B26C858FC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuildAbstractions", "src\MSBuildAbstractions\MSBuildAbstractions.csproj", "{BBFD697D-0D71-4C11-87BD-0628439EA160}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuild.Abstractions", "src\MSBuild.Abstractions\MSBuild.Abstractions.csproj", "{BBFD697D-0D71-4C11-87BD-0628439EA160}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageConversion", "src\PackageConversion\PackageConversion.csproj", "{5580495A-5A6D-444F-9985-16098C78793E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuild.Conversion.Package", "src\MSBuild.Conversion.Package\MSBuild.Conversion.Package.csproj", "{5580495A-5A6D-444F-9985-16098C78793E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8F861E7D-283E-46F9-9A6A-DBF1BE8BC978}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conversion.Tests", "tests\unit\Conversion.Tests\Conversion.Tests.csproj", "{30EE0DE2-7BED-4868-AE20-4BD27553380B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectConversion.Tests", "tests\unit\ProjectConversion.Tests\ProjectConversion.Tests.csproj", "{30EE0DE2-7BED-4868-AE20-4BD27553380B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageConversion.Tests", "tests\unit\PackageConversion.Tests\PackageConversion.Tests.csproj", "{A3DDB4B7-F48E-40FA-A638-B03EECB48255}"
 EndProject

@@ -15,8 +15,15 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Checks if a given item is a PackageReference node.
         /// </summary>
-        public static bool IsPackageReference(ProjectItemElement element)
-            => element.ElementName.Equals(PackageFacts.PackageReferenceItemType, StringComparison.OrdinalIgnoreCase);
+        public static bool IsPackageReference(ProjectItemElement element) =>
+            element.ElementName.Equals(PackageFacts.PackageReferenceItemType, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if a given item is a specific PackageReference.
+        /// </summary>
+        public static bool IsSpecificPacakgeReference(ProjectItemElement element, string packageName) =>
+            element.ElementName.Equals(PackageFacts.PackageReferenceItemType, StringComparison.OrdinalIgnoreCase)
+            && element.Include.Equals(packageName, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Checks if a given item needs to be removed because it either only runs on desktop .NET or is automatically pulled in as a reference and is thus unnecessary.

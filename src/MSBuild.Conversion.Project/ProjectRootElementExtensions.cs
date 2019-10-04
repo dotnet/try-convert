@@ -295,7 +295,7 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement AddConvertedPackages(this IProjectRootElement projectRootElement, string tfm)
+        public static IProjectRootElement ConvertAndAddPackages(this IProjectRootElement projectRootElement, ProjectStyle projectStlye, string tfm)
         {
             var packagesConfigItemGroup = MSBuildHelpers.GetPackagesConfigItemGroup(projectRootElement);
             if (packagesConfigItemGroup is null)
@@ -329,6 +329,12 @@ namespace MSBuild.Conversion.Project
                     }
 
                     AddPackageReferenceElement(groupForPackageRefs, pkgref.ID, pkgref.Version);
+                }
+
+                if (projectStlye == ProjectStyle.MSTest
+                    && !projectRootElement.ItemGroups.Any(ig => ig.Items.Any(item => ProjectItemHelpers.IsSpecificPacakgeReference(item, MSTestFacts.MSTestSDKPackageName))))
+                {
+                    AddPackageReferenceElement(groupForPackageRefs, MSTestFacts.MSTestSDKPackageName, MSTestFacts.MSTestSDKDev16FloatingVersion);
                 }
 
                 // If the only references we had are already in the SDK, we're done.

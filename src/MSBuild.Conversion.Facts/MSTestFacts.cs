@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 
-namespace Facts
+namespace MSBuild.Conversion.Facts
 {
     public static class MSTestFacts
     {

@@ -6,7 +6,6 @@
     <!-- Build release-only package. -->
     <PreReleaseVersionLabel />
   </PropertyGroup>
-
   <!--
     Nuget package versions
   -->
@@ -20,15 +19,13 @@
     <SystemConfigurationConfigurationManagerVersion>4.6.0</SystemConfigurationConfigurationManagerVersion>
     <SystemSecurityPrincipalWindowsVersion>4.6.0</SystemSecurityPrincipalWindowsVersion>
   </PropertyGroup>
- 
-   <!--
+  <!--
     Nuget package versions for tests
   -->
   <PropertyGroup>
     <CoverletCollectorVersion>1.0.1</CoverletCollectorVersion>
     <MoqVersion>4.13.0</MoqVersion>
   </PropertyGroup>
-    
   <PropertyGroup>
     <DiscoverEditorConfigFiles>true</DiscoverEditorConfigFiles>
   </PropertyGroup>

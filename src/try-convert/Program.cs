@@ -77,7 +77,7 @@ namespace MSBuild.Conversion
                     if (diffOnly)
                     {
                         var differ = new Differ(item.UnconfiguredProject.FirstConfiguredProject, item.SdkBaselineProject.Project.FirstConfiguredProject);
-                        differ.GenerateReport(workspacePath);
+                        differ.GenerateReport(Directory.GetParent(workspacePath).FullName);
                     }
                     else
                     {

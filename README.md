@@ -2,6 +2,12 @@
 
 This is a simple tool that will help in migrating .NET Framework projects to .NET Core.
 
+## How to use it
+
+Head over here: https://github.com/dotnet/try-convert/releases
+
+Instructions for installation as a global tool come with every release.
+
 ## Status
 
 | |Unit Tests (Debug)|Unit Tests (Release)|

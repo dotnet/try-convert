@@ -220,5 +220,10 @@ namespace MSBuild.Conversion.Facts
         public const string WinExeOutputType = "WinExe";
         public const string NuGetPackageImportStampNodeName = "NuGetPackageImportStamp";
         public const string ReferencePathNodeName = "ReferencePath";
+        public const string LegacyTargetFrameworkPropertyNodeName = "TargetFrameworkIdentifier";
+        public const string LegacyTargetFrameworkVersionNodeName = "TargetFrameworkVersion";
+        public const string LegacyTargetFrameworkProfileNodeName = "TargetFrameworkProfile";
+        public const string NETPortableTFValuePrefix = ".NETPortable";
+        public const string PCLv5value = "v5.0";
     }
 }

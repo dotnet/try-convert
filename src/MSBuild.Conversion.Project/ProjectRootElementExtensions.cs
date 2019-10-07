@@ -15,21 +15,21 @@ namespace MSBuild.Conversion.Project
     {
         public static IProjectRootElement ChangeImports(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {
-            var projectStyle = baselineProject.ProjectStyle;
-
-            if (projectStyle == ProjectStyle.Default
-                || projectStyle == ProjectStyle.DefaultSubset
-                || projectStyle == ProjectStyle.WindowsDesktop
-                || projectStyle == ProjectStyle.MSTest)
+            switch (baselineProject.ProjectStyle)
             {
-                foreach (var import in projectRootElement.Imports)
-                {
-                    projectRootElement.RemoveChild(import);
-                }
+                case ProjectStyle.Default:
+                case ProjectStyle.DefaultSubset:
+                case ProjectStyle.WindowsDesktop:
+                case ProjectStyle.MSTest:
+                    foreach (var import in projectRootElement.Imports)
+                    {
+                        projectRootElement.RemoveChild(import);
+                    }
 
-                projectRootElement.Sdk = MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement)
-                    ? DesktopFacts.WinSDKAttribute
-                    : MSBuildFacts.DefaultSDKAttribute;
+                    projectRootElement.Sdk = MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement)
+                        ? DesktopFacts.WinSDKAttribute
+                        : MSBuildFacts.DefaultSDKAttribute;
+                    break;
             }
 
             return projectRootElement;
@@ -129,7 +129,7 @@ namespace MSBuild.Conversion.Project
             }
         }
 
-        public static IProjectRootElement RemoveOrUpdateItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, ProjectStyle projectStyle, string tfm)
+        public static IProjectRootElement RemoveOrUpdateItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string tfm)
         {
             foreach (var itemGroup in projectRootElement.ItemGroups)
             {
@@ -351,7 +351,7 @@ namespace MSBuild.Conversion.Project
         private static void AddPackageReferenceElement(ProjectItemGroupElement packageReferencesItemGroup, string packageName, string packageVersion)
         {
             var packageReference = packageReferencesItemGroup.AddItem(PackageFacts.PackageReferenceItemType, packageName);
-            packageReference.GetXml().SetAttribute("Version", packageVersion);
+            packageReference.GetXml().SetAttribute(PackageFacts.VersionAttribute, packageVersion);
         }
 
         public static IProjectRootElement AddDesktopProperties(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
@@ -457,16 +457,16 @@ namespace MSBuild.Conversion.Project
                 return string.Join("", parts);
             }
 
-            if (baselineProject.GlobalProperties.Contains("TargetFramework", StringComparer.OrdinalIgnoreCase))
+            if (baselineProject.GlobalProperties.Contains(MSBuildFacts.TargetFrameworkNodeName, StringComparer.OrdinalIgnoreCase))
             {
                 // The original project had a TargetFramework property. No need to add it again.
-                targetFrameworkMoniker = baselineProject.GlobalProperties.First(p => p.Equals("TargetFramework", StringComparison.OrdinalIgnoreCase));
+                targetFrameworkMoniker = baselineProject.GlobalProperties.First(p => p.Equals(MSBuildFacts.TargetFrameworkNodeName, StringComparison.OrdinalIgnoreCase));
                 return projectRootElement;
             }
 
             var propGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroup(baselineProject, projectRootElement);
 
-            var targetFrameworkElement = projectRootElement.CreatePropertyElement("TargetFramework");
+            var targetFrameworkElement = projectRootElement.CreatePropertyElement(MSBuildFacts.TargetFrameworkNodeName);
 
             if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop || baselineProject.ProjectStyle == ProjectStyle.MSTest)
             {
@@ -474,7 +474,7 @@ namespace MSBuild.Conversion.Project
             }
             else
             {
-                var rawTFM = baselineProject.Project.FirstConfiguredProject.GetProperty("TargetFramework").EvaluatedValue;
+                var rawTFM = baselineProject.Project.FirstConfiguredProject.GetProperty(MSBuildFacts.TargetFrameworkNodeName).EvaluatedValue;
 
                 // This is pretty much never gonna happen, but it was cheap to write the code
                 targetFrameworkElement.Value = MSBuildHelpers.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;

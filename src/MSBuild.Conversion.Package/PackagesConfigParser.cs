@@ -10,7 +10,8 @@ using MSBuild.Conversion.Facts;
 namespace MSBuild.Conversion.Package
 {
     internal static class PackagesConfigParser
-    {
+    { 
+
         internal static IEnumerable<PackagesConfigPackage> Parse(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -41,27 +42,6 @@ namespace MSBuild.Conversion.Package
 
         internal static IEnumerable<PackagesConfigPackage> ParseDocument(XDocument doc)
         {
-            static PackagesConfigPackage ParsePackageConfig(XElement element) =>
-                new PackagesConfigPackage
-                {
-                    // Required
-                    ID = element.Attribute(PackageFacts.PackageReferenceIDName).Value,
-
-                    // Required
-                    Version = element.Attribute(PackageFacts.PackageReferenceVersionName).Value,
-
-                    // The rest are optional
-                    TargetFramework = element.Attribute("targetFramework") is null ? string.Empty : element.Attribute("targetFramework").Value,
-                    AllowedVersions = element.Attribute("allowedVersions") is null ? string.Empty : element.Attribute("allowedVersions").Value,
-                    DevelopmentDependency = element.Attribute("allowedVersions") is null ? false : bool.Parse(element.Attribute("developmentDependency").Value),
-                };
-            static string VersionWithoutSuffix(string nugetVersion) => nugetVersion.Split('-').First();
-            static bool ValidPackageNode(XElement pkgNode) =>
-                pkgNode.Attribute(PackageFacts.PackageReferenceIDName) is { }
-                && !string.IsNullOrWhiteSpace(pkgNode.Attribute(PackageFacts.PackageReferenceIDName).Value)
-                && pkgNode.Attribute(PackageFacts.PackageReferenceVersionName) is { }
-                && Version.TryParse(VersionWithoutSuffix(pkgNode.Attribute(PackageFacts.PackageReferenceVersionName).Value), out var version);
-
             var packagesNode =
                 from nd in doc.Nodes()
                 where nd.NodeType == XmlNodeType.Element
@@ -83,6 +63,38 @@ namespace MSBuild.Conversion.Package
             }
 
             return packages.Select(ParsePackageConfig);
+
+
+            static PackagesConfigPackage ParsePackageConfig(XElement element) =>
+                new PackagesConfigPackage
+                {
+                    // Required
+                    ID = element.Attribute(PackageFacts.PackagesConfigIDName).Value,
+
+                    // Required
+                    Version = element.Attribute(PackageFacts.PackagesConfigVersionName).Value,
+
+                    // The rest are optional
+                    TargetFramework = element.Attribute(PackageFacts.PackagesConfigTargetFrameworkName) is null
+                                      ? string.Empty
+                                      : element.Attribute(PackageFacts.PackagesConfigTargetFrameworkName).Value,
+
+                    AllowedVersions = element.Attribute(PackageFacts.PackagesConfigAllowedVersionsFrameworkname) is null
+                                      ? string.Empty
+                                      : element.Attribute(PackageFacts.PackagesConfigAllowedVersionsFrameworkname).Value,
+
+                    DevelopmentDependency = element.Attribute(PackageFacts.PackagesConfigDevelopmentDependencyName) is null
+                                            ? false :
+                                            bool.Parse(element.Attribute(PackageFacts.PackagesConfigDevelopmentDependencyName).Value),
+                };
+
+            static string VersionWithoutSuffix(string nugetVersion) => nugetVersion.Split('-').First();
+
+            static bool ValidPackageNode(XElement pkgNode) =>
+                pkgNode.Attribute(PackageFacts.PackagesConfigIDName) is { }
+                && !string.IsNullOrWhiteSpace(pkgNode.Attribute(PackageFacts.PackagesConfigIDName).Value)
+                && pkgNode.Attribute(PackageFacts.PackagesConfigVersionName) is { }
+                && Version.TryParse(VersionWithoutSuffix(pkgNode.Attribute(PackageFacts.PackagesConfigVersionName).Value), out var version);
         }
     }
 }

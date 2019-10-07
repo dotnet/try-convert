@@ -75,7 +75,7 @@ namespace MSBuild.Conversion.Project
                 .AddDesktopProperties(_sdkBaselineProject)
                 .AddCommonPropertiesToTopLevelPropertyGroup()
                 .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
-                .RemoveOrUpdateItems(_differs, _sdkBaselineProject, _sdkBaselineProject.ProjectStyle, tfm)
+                .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)
                 .AddItemRemovesForIntroducedItems(_differs)
                 .RemoveUnnecessaryTargetsIfTheyExist()
                 .ModifyProjectElement();

@@ -23,19 +23,19 @@ namespace MSBuild.Abstractions
 
         public static string GetTargetFramework(this IProject project)
         {
-            var tf = project.GetPropertyValue("TargetFramework");
-            if (!string.IsNullOrEmpty(tf))
+            var tf = project.GetPropertyValue(MSBuildFacts.TargetFrameworkNodeName);
+            if (!string.IsNullOrWhiteSpace(tf))
             {
                 return tf;
             }
 
-            var tfi = project.GetPropertyValue("TargetFrameworkIdentifier");
-            if (tfi == "")
+            var tfi = project.GetPropertyValue(MSBuildFacts.LegacyTargetFrameworkPropertyNodeName);
+            if (string.IsNullOrWhiteSpace(tfi))
             {
-                throw new InvalidOperationException("TargetFrameworkIdentifier is not set!");
+                throw new InvalidOperationException($"{MSBuildFacts.LegacyTargetFrameworkPropertyNodeName} is not set!");
             }
 
-            var tfv = project.GetPropertyValue("TargetFrameworkVersion");
+            var tfv = project.GetPropertyValue(MSBuildFacts.LegacyTargetFrameworkVersionNodeName);
 
             tf = tfi switch
             {
@@ -43,13 +43,14 @@ namespace MSBuild.Abstractions
                 ".NETStandard" => "netstandard",
                 ".NETCoreApp" => "netcoreapp",
                 ".NETPortable" => "netstandard",
-                _ => throw new InvalidOperationException($"Unknown TargetFrameworkIdentifier {tfi}"),
+                _ => throw new InvalidOperationException($"Unknown {MSBuildFacts.LegacyTargetFrameworkPropertyNodeName}: {tfi}"),
             };
-            if (tfi == ".NETPortable")
-            {
-                var profile = project.GetPropertyValue("TargetFrameworkProfile");
 
-                if (profile == string.Empty && tfv == "v5.0")
+            if (tfi.Equals(MSBuildFacts.NETPortableTFValuePrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                var profile = project.GetPropertyValue(MSBuildFacts.LegacyTargetFrameworkProfileNodeName);
+
+                if (string.IsNullOrWhiteSpace(profile) && tfv.Equals(MSBuildFacts.PCLv5value, StringComparison.OrdinalIgnoreCase))
                 {
                     tf = GetTargetFrameworkFromProjectJson(project);
                 }
@@ -63,7 +64,7 @@ namespace MSBuild.Abstractions
             {
                 if (tfv == "")
                 {
-                    throw new InvalidOperationException("TargetFrameworkVersion is not set!");
+                    throw new InvalidOperationException($"{MSBuildFacts.LegacyTargetFrameworkVersionNodeName} is not set!");
                 }
 
                 tf += tfv.TrimStart('v');

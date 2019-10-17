@@ -288,7 +288,7 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement AddPackage(this IProjectRootElement projectRootElement, string packageName, string packageVersion)
+        private static IProjectRootElement AddPackage(this IProjectRootElement projectRootElement, string packageName, string packageVersion)
         {
             var packageReferencesItemGroup = MSBuildHelpers.GetOrCreatePackageReferencesItemGroup(projectRootElement);
             AddPackageReferenceElement(packageReferencesItemGroup, packageName, packageVersion);

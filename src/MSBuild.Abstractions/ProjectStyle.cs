@@ -13,12 +13,7 @@
         DefaultSubset,
 
         /// <summary>
-        /// The project imports props and targets but not the default ones. 
-        /// </summary>
-        DefaultWithCustomTargets,
-
-        /// <summary>
-        /// Has more imports and the shape is unknown.
+        /// Not using any default targets or props.
         /// </summary>
         Custom,
 

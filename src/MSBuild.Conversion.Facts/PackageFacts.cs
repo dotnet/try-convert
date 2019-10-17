@@ -9,7 +9,7 @@
         public const string PackageReferenceItemType = "PackageReference";
         public const string PackagesConfigIDName = "id";
         public const string PackagesConfigVersionName = "version";
-        public const string PackageReferencePackagesNodeName = "packages";
+        public const string PackagesConfigPackagesNodeName = "packages";
         public const string PackagesConfigTargetFrameworkName = "targetFramework";
         public const string PackagesConfigAllowedVersionsFrameworkname = "allowedVersions";
         public const string PackagesConfigDevelopmentDependencyName = "developmentDependency";

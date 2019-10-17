@@ -47,7 +47,7 @@ namespace MSBuild.Conversion.Package
                 where nd.NodeType == XmlNodeType.Element
                 select nd as XElement;
 
-            if (packagesNode is null || !packagesNode.Any(node => node.Name.LocalName.Equals(PackageFacts.PackageReferencePackagesNodeName)))
+            if (packagesNode is null || !packagesNode.Any(node => node.Name.LocalName.Equals(PackageFacts.PackagesConfigPackagesNodeName)))
             {
                 throw new PackagesConfigHasNoPackagesException("Parsed XML document has no '<packages>' element.");
             }

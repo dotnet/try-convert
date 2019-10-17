@@ -254,7 +254,7 @@ namespace MSBuild.Abstractions
         /// Finds the item group where PackageReferences are specified. Usually there is only one.
         /// </summary>
         public static ProjectItemGroupElement GetOrCreatePackageReferencesItemGroup(IProjectRootElement rootElement) =>
-            rootElement.ItemGroups.SingleOrDefault(ig => ig.Items.All(i => i.ElementName.Equals(PackageFacts.PackageReferencePackagesNodeName, StringComparison.OrdinalIgnoreCase)))
+            rootElement.ItemGroups.FirstOrDefault(ig => ig.Items.All(i => i.ElementName.Equals(PackageFacts.PackageReferenceItemType, StringComparison.OrdinalIgnoreCase)))
             ?? rootElement.AddItemGroup();
 
         /// <summary>

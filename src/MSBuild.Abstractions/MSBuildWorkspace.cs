@@ -93,17 +93,6 @@ namespace MSBuild.Abstractions
                 case ProjectStyle.WindowsDesktop:
                     rootElement.Sdk = DesktopFacts.WinSDKAttribute;
                     break;
-                case ProjectStyle.DefaultWithCustomTargets:
-                    var imports = root.Imports;
-
-                    void CopyImport(ProjectImportElement import)
-                    {
-                        var newImport = rootElement.AddImport(import.Project);
-                        newImport.Condition = import.Condition;
-                    }
-                    CopyImport(imports.First());
-                    CopyImport(imports.Last());
-                    break;
                 default:
                     throw new NotSupportedException("This project has custom imports in a manner that's not supported.");
             }
@@ -157,20 +146,25 @@ namespace MSBuild.Abstractions
             return new BaselineProject(newProject, propertiesInTheBaseline, projectStyle);
         }
 
-        private ProjectStyle GetProjectStyle(IProjectRootElement project)
+        private ProjectStyle GetProjectStyle(IProjectRootElement projectRootElement)
         {
-            if (project.ImportGroups.Any())
+            if (projectRootElement.ImportGroups.Any())
             {
                 return ProjectStyle.Custom;
             }
 
             // Exclude shared project references since they show up as imports.
-            var imports = project.Imports.Where(i => i.Label != MSBuildFacts.SharedProjectsImportLabel);
+            // Also exclude any imports that a Nuget package could have brought alone.
+            var imports = projectRootElement.Imports.Where(i => i.Label != MSBuildFacts.SharedProjectsImportLabel && !MSBuildHelpers.IsTargetFromNuGetPackage(i));
             var importsCount = imports.Count();
 
-            if (importsCount > 0)
+            if (importsCount <= 0)
             {
-                var firstImport = project.Imports.First();
+                return ProjectStyle.Custom;
+            }
+            else
+            {
+                var firstImport = imports.First();
                 var firstImportFileName = Path.GetFileName(firstImport.Project);
 
                 if (importsCount == 1 && MSBuildFacts.TargetsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase))
@@ -179,7 +173,7 @@ namespace MSBuild.Abstractions
                 }
                 else
                 {
-                    var lastImport = project.Imports.Last();
+                    var lastImport = imports.Last();
                     var lastImportFileName = Path.GetFileName(lastImport.Project);
 
                     if (firstImportFileName == FSharpFacts.FSharpTargetsPathVariableName)
@@ -195,7 +189,7 @@ namespace MSBuild.Abstractions
                     if (MSBuildFacts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
                         MSBuildFacts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
                     {
-                        if (MSBuildHelpers.IsWPF(project) || MSBuildHelpers.IsWinForms(project) || MSBuildHelpers.IsDesktop(project))
+                        if (MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement))
                         {
                             return ProjectStyle.WindowsDesktop;
                         }
@@ -209,14 +203,13 @@ namespace MSBuild.Abstractions
                             return ProjectStyle.Default;
                         }
                     }
-                }
+                    else
+                    {
+                        // It's something else, no idea what though
+                        return ProjectStyle.Custom;
+                    }
+                }                
             }
-            else
-            {
-                return ProjectStyle.Custom;
-            }
-
-            return ProjectStyle.DefaultWithCustomTargets;
         }
 
         private bool IsSupportedProjectType(MSBuildProjectRootElement root)

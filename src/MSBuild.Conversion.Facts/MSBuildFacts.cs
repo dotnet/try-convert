@@ -225,5 +225,8 @@ namespace MSBuild.Conversion.Facts
         public const string LegacyTargetFrameworkProfileNodeName = "TargetFrameworkProfile";
         public const string NETPortableTFValuePrefix = ".NETPortable";
         public const string PCLv5value = "v5.0";
+        public const string TargetsSuffix = ".targets";
+        public const string PropsSuffix = ".props";
+        public const string PackagesSubstring = @"\packages";
     }
 }

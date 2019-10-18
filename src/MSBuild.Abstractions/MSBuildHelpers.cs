@@ -265,6 +265,14 @@ namespace MSBuild.Abstractions
             !projectMetadata.Name.Equals(MSBuildFacts.RequiredTargetFrameworkNodeName, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
+        /// Checks if an import is a target that comes from the packages directory (which would mean it's probably brought in via a NuGet package).
+        /// </summary>
+        public static bool IsTargetFromNuGetPackage(ProjectImportElement import) =>
+            import.Project.ContainsIgnoreCase(MSBuildFacts.PackagesSubstring)
+            && (import.Project.EndsWith(MSBuildFacts.TargetsSuffix, StringComparison.OrdinalIgnoreCase)
+                 || import.Project.EndsWith(MSBuildFacts.PropsSuffix, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>
         /// Gets the top-level property group, and if it doesn't exist, creates it.
         /// </summary>
         public static ProjectPropertyGroupElement GetOrCreateTopLevelPropertyGroup(BaselineProject baselineProject, IProjectRootElement projectRootElement)

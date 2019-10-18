@@ -23,8 +23,6 @@ Simple: clone the repo and run
 build.cmd
 ```
 
-## How to use the tool
-
 To use the tool locally, you need to build it from source. Once it's built, the tool will live under:
 
 ```

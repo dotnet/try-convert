@@ -155,7 +155,7 @@ namespace MSBuild.Conversion.Project
                     }
                     else if (ProjectItemHelpers.IsReferenceConvertibleToPackageReference(item))
                     {
-                        var packageName = item.Include;
+                        string packageName = NugetHelpers.FindPackageNameFromReferenceName(item.Include);
                         string version = null;
                         try
                         {

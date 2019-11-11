@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.VisualBasic;
 
 namespace MSBuild.Abstractions
 {
@@ -41,6 +43,16 @@ namespace MSBuild.Abstractions
 
                 return null;
             }
+        }
+
+        public static string FindPackageNameFromReferenceName(string referenceName)
+        {
+            if (StringComparer.OrdinalIgnoreCase.Compare(referenceName, "System.ComponentModel.DataAnnotations")==0)
+            {
+                return "System.ComponentModel.Annotations";
+            }
+
+            return referenceName;
         }
     }
 }

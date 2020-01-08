@@ -4,9 +4,15 @@ This is a simple tool that will help in migrating .NET Framework projects to .NE
 
 ## How to use it
 
-Head over here: https://github.com/dotnet/try-convert/releases
+Install it as a global tool here:
 
-Instructions for installation as a global tool come with every release.
+```
+dotnet tool install -g try-convert
+```
+
+Because this is for converting older .NET Framework (Windows) projects, the tool only works on Windows.
+
+If you're using the tool again, make sure you've got the latest release: https://github.com/dotnet/try-convert/releases
 
 ## Status
 

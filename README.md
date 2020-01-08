@@ -14,6 +14,18 @@ Because this is for converting older .NET Framework (Windows) projects, the tool
 
 If you're using the tool again, make sure you've got the latest release: https://github.com/dotnet/try-convert/releases
 
+```
+Usage:
+  try-convert [options]
+
+Options:
+  -p, --project <P>          The path to a project to convert
+  -w, --workspace <W>        The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.
+  -m, --msbuild-path <M>     The path to an MSBuild.exe, if you prefer to use that
+  --diff-only <DIFF-ONLY>    Produces a diff of the project to convert; no conversion is done
+  --no-backup <NO-BACKUP>    Converts projects and does not create a backup of the originals.
+```
+
 ## Status
 
 | |Unit Tests (Debug)|Unit Tests (Release)|
@@ -42,18 +54,6 @@ mv /artifacts/bin/try-convert/Debug/netcoreapp3.0/publish C:/Users/<user>/try-co
 ```
 
 You can invoke the tool from the publish directory as well.
-
-```
-Usage:
-  try-convert [options]
-
-Options:
-  -p, --project <P>          The path to a project to convert
-  -w, --workspace <W>        The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.
-  -m, --msbuild-path <M>     The path to an MSBuild.exe, if you prefer to use that
-  --diff-only <DIFF-ONLY>    Produces a diff of the project to convert; no conversion is done
-  --no-backup <NO-BACKUP>    Converts projects and does not create a backup of the originals.
-```
 
 ## Support policy
 

@@ -13,7 +13,7 @@ namespace SmokeTests
 {
     public class BasicSmokeTests
     {
-        [Fact(Skip = "Need to fix asserts")]
+        [Fact]
         public void ConvertsLegacyFSharpConsole()
         {
             MSBuildHelpers.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");
@@ -23,7 +23,7 @@ namespace SmokeTests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
 
-        [Fact(Skip = "Need to fix asserts")]
+        [Fact]
         public void ConvertsWpfFrameworkTemplate()
         {
             MSBuildHelpers.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");
@@ -33,7 +33,7 @@ namespace SmokeTests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
 
-        [Fact(Skip = "Need to fix asserts")]
+        [Fact]
         public void ConvertsWinformsFrameworkTemplate()
         {
             MSBuildHelpers.HookAssemblyResolveForMSBuild(@"C:\Program Files (x86)\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin");

@@ -26,7 +26,7 @@ namespace SmokeTests
             solutionPathFixture.SetCurrentDirectory();
         }
 
-        [Fact]
+        [Fact(Skip = "Legacy F# support is not installed on any build machines")]
         public void ConvertsLegacyFSharpConsole()
         {
             var projectToConvertPath = GetFSharpProjectPath("SmokeTests.LegacyFSharpConsole");

@@ -191,7 +191,7 @@ namespace MSBuild.Conversion.Facts
         public const string DefaultSDKAttribute = "Microsoft.NET.Sdk";
         public const string LowestFrameworkVersionWithSystemValueTuple = "net47";
         public const string SharedProjectsImportLabel = "Shared";
-        public const string NetCoreAppTFM = "netcoreapp3.0";
+        public const string NetCoreAppTFM = "netcoreapp3.1";
         public const string SystemValueTupleName = "System.ValueTuple";
         public const string DefineConstantsName = "DefineConstants";
         public const string OutputPathName = "OutputPath";

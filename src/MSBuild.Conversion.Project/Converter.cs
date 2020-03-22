@@ -23,9 +23,9 @@ namespace MSBuild.Conversion.Project
             _differs = GetDiffers();
         }
 
-        public void Convert(string outputPath)
+        public void Convert(string defaultTFM, string outputPath)
         {
-            ConvertProjectFile();
+            ConvertProjectFile(defaultTFM);
             var projectXml = _projectRootElement.Xml;
 
             // remove all use of xmlns attributes
@@ -64,13 +64,13 @@ namespace MSBuild.Conversion.Project
             projectXml.Save(writer);
         }
 
-        internal IProjectRootElement ConvertProjectFile()
+        internal IProjectRootElement ConvertProjectFile(string defaultTFM)
         {
             return _projectRootElement
                 .ChangeImports(_sdkBaselineProject)
                 .RemoveDefaultedProperties(_sdkBaselineProject, _differs)
                 .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle)
-                .AddTargetFrameworkProperty(_sdkBaselineProject, out var tfm)
+                .AddTargetFrameworkProperty(_sdkBaselineProject, defaultTFM, out var tfm)
                 .AddGenerateAssemblyInfoAsFalse()
                 .AddDesktopProperties(_sdkBaselineProject)
                 .AddCommonPropertiesToTopLevelPropertyGroup()

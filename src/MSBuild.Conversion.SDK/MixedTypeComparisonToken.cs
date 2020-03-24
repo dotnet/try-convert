@@ -18,13 +18,13 @@
         private VersionSubtokenType _tokenType;
         private int _numericValue;
         private string _stringValue;
-        private string _rawToken;
+        private readonly string _rawToken;
 
         private void EnsureParsed()
         {
             if (_tokenType == VersionSubtokenType.Unknown)
             {
-                if (int.TryParse(_rawToken, out int numericValue))
+                if (int.TryParse(_rawToken, out var numericValue))
                 {
                     _numericValue = numericValue;
                     _tokenType = VersionSubtokenType.Numeric;
@@ -56,11 +56,7 @@
             get
             {
                 EnsureParsed();
-                if (TokenType != VersionSubtokenType.Numeric)
-                {
-                    return default(double);
-                }
-                return _numericValue;
+                return TokenType != VersionSubtokenType.Numeric ? default : _numericValue;
             }
         }
 
@@ -69,11 +65,7 @@
             get
             {
                 EnsureParsed();
-                if (TokenType != VersionSubtokenType.String)
-                {
-                    return string.Empty;
-                }
-                return _stringValue;
+                return TokenType != VersionSubtokenType.String ? string.Empty : _stringValue;
             }
         }
 

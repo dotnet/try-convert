@@ -24,7 +24,7 @@ namespace MSBuild.Conversion
             }
         }
 
-        private static Regex _partSplitterRegex = new Regex(@"
+        private static readonly Regex s_partSplitterRegex = new Regex(@"
             (\.)            # literal dot - parenthesised so the dot tokens are included in the split results.
             |               # The dot MUST be above the zero-width assertions, otherwise it will not necessarily be split / captured.
             (?<=\d)(?=\D)   # digit / non-digit boundary
@@ -36,7 +36,7 @@ namespace MSBuild.Conversion
         {
             if (_parts == null)
             {
-                _parts = _partSplitterRegex.Split(_rawString)
+                _parts = s_partSplitterRegex.Split(_rawString)
                                                     .Where(x => !string.IsNullOrEmpty(x))
                                                     .Select(x => new MixedTypeComparisonToken(x))
                                                     .ToList();
@@ -60,10 +60,10 @@ namespace MSBuild.Conversion
                 return components1.Parts.Count != 0 ? 1 : -1;
             }
 
-            int checkLength = Math.Min(components1.Parts.Count, components2.Parts.Count);
-            for (int i = 0; i < checkLength; i++)
+            var checkLength = Math.Min(components1.Parts.Count, components2.Parts.Count);
+            for (var i = 0; i < checkLength; i++)
             {
-                int partResult = components1.Parts[i].CompareTo(components2.Parts[i]);
+                var partResult = components1.Parts[i].CompareTo(components2.Parts[i]);
                 if (partResult != 0)
                 {
                     return partResult;

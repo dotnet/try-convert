@@ -10,8 +10,8 @@ namespace MSBuild.Conversion
             _hashCode = originalText?.GetHashCode() ?? 0;
             OriginalText = originalText;
         }
-        private static readonly char[] LeadingVersionChars = { 'v', 'V' };
-        private static readonly Regex SemanticVersionRegex = new Regex(@"
+        private static readonly char[] s_leadingVersionChars = { 'v', 'V' };
+        private static readonly Regex s_semanticVersionRegex = new Regex(@"
                 [vV]?
                 ([0-9]+)
                 (\.[0-9]+)?
@@ -50,16 +50,16 @@ namespace MSBuild.Conversion
             }
 
             value = value.Trim();
-            var match = SemanticVersionRegex.Match(value);
+            var match = s_semanticVersionRegex.Match(value);
             if (!match.Success)
             {
                 return new SemanticVersion(string.Empty);
             }
 
-            SemanticVersion ver = new SemanticVersion(value);
+            var ver = new SemanticVersion(value);
 
-            int prereleaseStart = value.IndexOf('-');
-            int buildMetadataStart = value.IndexOf('+');
+            var prereleaseStart = value.IndexOf('-');
+            var buildMetadataStart = value.IndexOf('+');
 
             //If the index of the build metadata marker (+) is greater than the index of the prerelease marker (-)
             //  then it is necessarily found in the string because if both were not found they'd be equal
@@ -114,26 +114,23 @@ namespace MSBuild.Conversion
                 }
             }
 
-            string[] versionParts = value.Split('.');
+            var versionParts = value.Split('.');
 
             if (versionParts.Length > 0)
             {
-                int major;
-                int.TryParse(versionParts[0].TrimStart(LeadingVersionChars), out major);
+                int.TryParse(versionParts[0].TrimStart(s_leadingVersionChars), out var major);
                 ver.Major = major;
             }
 
             if (versionParts.Length > 1)
             {
-                int minor;
-                int.TryParse(versionParts[1], out minor);
+                int.TryParse(versionParts[1], out var minor);
                 ver.Minor = minor;
             }
 
             if (versionParts.Length > 2)
             {
-                int patch;
-                int.TryParse(versionParts[2], out patch);
+                int.TryParse(versionParts[2], out var patch);
                 ver.Patch = patch;
             }
 
@@ -151,7 +148,7 @@ namespace MSBuild.Conversion
                 return 1;
             }
 
-            int result = Major.CompareTo(other.Major);
+            var result = Major.CompareTo(other.Major);
 
             if (result != 0)
             {
@@ -201,8 +198,8 @@ namespace MSBuild.Conversion
                 return result;
             }
 
-            string thisOriginalText = OriginalText?.TrimStart(LeadingVersionChars) ?? string.Empty;
-            string otherOriginalText = other.OriginalText?.TrimStart(LeadingVersionChars) ?? string.Empty;
+            var thisOriginalText = OriginalText?.TrimStart(s_leadingVersionChars) ?? string.Empty;
+            var otherOriginalText = other.OriginalText?.TrimStart(s_leadingVersionChars) ?? string.Empty;
 
             return StringComparer.OrdinalIgnoreCase.Compare(thisOriginalText, otherOriginalText);
         }

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 
 using Microsoft.Build.Locator;
@@ -12,8 +10,10 @@ namespace MSBuild.Conversion.SDK
 {
     public static class TargetFrameworkHelper
     {
-        public static string FindHighestInstalledTargetFramework()
+        public static string FindHighestInstalledTargetFramework(bool? allowPreviews)
         {
+            var usePreviewSDK = allowPreviews == true;
+
             // Finds SDK path
             string sdkPath = null;
             try
@@ -37,8 +37,16 @@ namespace MSBuild.Conversion.SDK
                 var templatesVersion = SemanticVersion.Parse(Path.GetFileName(templateDirectory));
                 if (templatesVersion > largestVersion)
                 {
-                    largestVersion = templatesVersion;
-                    templatePath = Path.GetFullPath(templateDirectory);
+                    if (usePreviewSDK)
+                    {
+                        largestVersion = templatesVersion;
+                        templatePath = Path.GetFullPath(templateDirectory);
+                    }
+                    else if (templatesVersion.PrereleaseVersion == null)
+                    {
+                        largestVersion = templatesVersion;
+                        templatePath = Path.GetFullPath(templateDirectory);
+                    }
                 }
             }
 

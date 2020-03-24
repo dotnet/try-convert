@@ -12,10 +12,8 @@ namespace MSBuild.Conversion.SDK
 {
     public static class TargetFrameworkHelper
     {
-        public static string FindHighestInstalledTargetFramework(bool? allowPreviews)
+        public static string FindHighestInstalledTargetFramework(bool usePreviewSDK)
         {
-            var usePreviewSDK = allowPreviews == true;
-
             // Finds SDK path
             string sdkPath = null;
             try

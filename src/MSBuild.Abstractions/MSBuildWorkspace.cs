@@ -199,14 +199,13 @@ namespace MSBuild.Abstractions
                     if (MSBuildFacts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
                         MSBuildFacts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
                     {
-                        if (MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement))
-                        {
-                            return ProjectStyle.WindowsDesktop;
-                        }
-                        else if (MSTestFacts.MSTestProps.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
-                                 MSTestFacts.MSTestTargets.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
+                        if (MSBuildHelpers.IsNETFrameworkMSTestProject(projectRootElement))
                         {
                             return ProjectStyle.MSTest;
+                        }
+                        else if (MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement))
+                        {
+                            return ProjectStyle.WindowsDesktop;
                         }
                         else
                         {

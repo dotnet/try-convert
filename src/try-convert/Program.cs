@@ -130,12 +130,12 @@ namespace MSBuild.Conversion
             var templatesPath = Path.Combine(sdkPath, "templates");
 
             // Find highest SDK path (should include previews?)
-            var largestVersion = Version.Parse("0.0.0.0");
+            var largestVersion = SemanticVersion.Min;
             var templatePath = string.Empty;
             foreach (var templateDirectory in Directory.EnumerateDirectories(templatesPath))
             {
-                if (Version.TryParse(Path.GetFileName(templateDirectory), out var templatesVersion) &&
-                    templatesVersion > largestVersion)
+                var templatesVersion = SemanticVersion.Parse(Path.GetFileName(templateDirectory));
+                if (templatesVersion > largestVersion)
                 {
                     largestVersion = templatesVersion;
                     templatePath = Path.GetFullPath(templateDirectory);

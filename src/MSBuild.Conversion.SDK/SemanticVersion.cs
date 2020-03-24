@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace MSBuild.Conversion
 {
-    internal class SemanticVersion : IComparable<SemanticVersion>, IEquatable<SemanticVersion>
+    public class SemanticVersion : IComparable<SemanticVersion>, IEquatable<SemanticVersion>
     {
         private SemanticVersion(string originalText)
         {
@@ -40,9 +40,9 @@ namespace MSBuild.Conversion
         public SemanticVersionComponentizedString PrereleaseVersionComponents { get; private set; }
         public string OriginalText { get; }
 
-        internal static SemanticVersion Min => new SemanticVersion(null);
+        public static SemanticVersion Min => new SemanticVersion(null);
 
-        internal static SemanticVersion Parse(string value)
+        public static SemanticVersion Parse(string value)
         {
             if (value == null)
             {
@@ -207,31 +207,15 @@ namespace MSBuild.Conversion
             return StringComparer.OrdinalIgnoreCase.Compare(thisOriginalText, otherOriginalText);
         }
 
-        public bool Equals(SemanticVersion other)
-        {
-            return other != null && string.Equals(OriginalText, other.OriginalText, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as SemanticVersion);
-        }
-
-        public override int GetHashCode()
-        {
-            return _hashCode;
-        }
-
+        public bool Equals(SemanticVersion other) => other != null && string.Equals(OriginalText, other.OriginalText, StringComparison.OrdinalIgnoreCase);
+        public override bool Equals(object obj) => Equals(obj as SemanticVersion);
+        public override int GetHashCode() => _hashCode;
         public static bool operator ==(SemanticVersion a, SemanticVersion b) => a?.Equals(b) != null;
         public static bool operator !=(SemanticVersion a, SemanticVersion b) => a?.Equals(b) == false;
         public static bool operator >=(SemanticVersion a, SemanticVersion b) => a?.CompareTo(b) >= 0;
         public static bool operator <=(SemanticVersion a, SemanticVersion b) => a?.CompareTo(b) <= 0;
         public static bool operator >(SemanticVersion a, SemanticVersion b) => a?.CompareTo(b) > 0;
         public static bool operator <(SemanticVersion a, SemanticVersion b) => a?.CompareTo(b) < 0;
-
-        public override string ToString()
-        {
-            return OriginalText;
-        }
+        public override string ToString() => OriginalText;
     }
 }

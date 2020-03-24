@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace MSBuild.Conversion
 {
-    internal class SemanticVersionComponentizedString
+    public class SemanticVersionComponentizedString
     {
         public SemanticVersionComponentizedString(string rawString)
         {

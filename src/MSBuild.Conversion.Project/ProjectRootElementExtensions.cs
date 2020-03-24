@@ -449,7 +449,7 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement AddTargetFrameworkProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject, out string targetFrameworkMoniker)
+        public static IProjectRootElement AddTargetFrameworkProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string defaultTFM, out string targetFrameworkMoniker)
         {
             static string StripDecimals(string tfm)
             {
@@ -470,7 +470,7 @@ namespace MSBuild.Conversion.Project
 
             if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop || baselineProject.ProjectStyle == ProjectStyle.MSTest)
             {
-                targetFrameworkElement.Value = MSBuildFacts.NetCoreAppTFM;
+                targetFrameworkElement.Value = defaultTFM;
             }
             else
             {

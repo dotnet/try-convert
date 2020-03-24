@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using MSBuild.Abstractions;
 using MSBuild.Conversion.Project;
+using MSBuild.Conversion.SDK;
 
 namespace MSBuild.Conversion
 {
@@ -25,6 +26,8 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "-p", "--project" }, "The path to a project to convert", new Argument<string>()))
                 .AddOption(new Option(new[] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.", new Argument<string>()))
                 .AddOption(new Option(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that", new Argument<string>()))
+                .AddOption(new Option(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to", new Argument<string>()))
+                .AddOption(new Option(new[] { "--preview" }, "Use preview SDKs as part of conversion", new Argument<string>()))
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done", new Argument<bool>()))
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.", new Argument<bool>()))
                 .Build();
@@ -32,13 +35,14 @@ namespace MSBuild.Conversion
             return await parser.InvokeAsync(args.Length > 0 ? args : new string[] { "-h" }).ConfigureAwait(false);
         }
 
-        public static int Run(string project, string workspace, string msbuildPath, bool diffOnly, bool noBackup)
+        public static int Run(string project, string workspace, string msbuildPath, string tfm, bool allowPreviews, bool diffOnly, bool noBackup)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
                 Console.WriteLine("Cannot specify both a project and a workspace.");
                 return -1;
             }
+
 
             try
             {
@@ -47,6 +51,20 @@ namespace MSBuild.Conversion
                 {
                     Console.WriteLine("Could not find an MSBuild.");
                     return -1;
+                }
+
+                if (tfm is null)
+                {
+                    tfm = TargetFrameworkHelper.FindHighestInstalledTargetFramework(allowPreviews);
+                }
+                else
+                {
+                    tfm = tfm.Trim();
+                    if(!TargetFrameworkHelper.IsValidTargetFramework(tfm))
+                    {
+                        Console.WriteLine($"Invalid framework specified for --target-framework: '{tfm}'");
+                        return -1;
+                    }
                 }
 
                 var currentDirectory = Environment.CurrentDirectory;
@@ -82,7 +100,7 @@ namespace MSBuild.Conversion
                     else
                     {
                         var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-                        converter.Convert(item.ProjectRootElement.FullPath);
+                        converter.Convert(tfm, item.ProjectRootElement.FullPath);
                     }
                 }
             }

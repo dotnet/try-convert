@@ -12,12 +12,13 @@
   <PropertyGroup>
     <MicrosoftBuildLocatorVersion>1.2.6</MicrosoftBuildLocatorVersion>
     <MicrosoftBuildVersion>16.0.461</MicrosoftBuildVersion>
-    <MicrosoftWin32RegistryVersion>4.6.0</MicrosoftWin32RegistryVersion>
+    <MicrosoftWin32RegistryVersion>4.7.0</MicrosoftWin32RegistryVersion>
     <NewtonsoftJsonVersion>12.0.2</NewtonsoftJsonVersion>
+    <NuGetVersioningVersion>5.5.0</NuGetVersioningVersion>
     <SystemCollectionsImmutableVersion>1.5.0</SystemCollectionsImmutableVersion>
     <SystemCommandLineExperimentalVersion>0.2.0-alpha.19154.3</SystemCommandLineExperimentalVersion>
-    <SystemConfigurationConfigurationManagerVersion>4.6.0</SystemConfigurationConfigurationManagerVersion>
-    <SystemSecurityPrincipalWindowsVersion>4.6.0</SystemSecurityPrincipalWindowsVersion>
+    <SystemConfigurationConfigurationManagerVersion>4.7.0</SystemConfigurationConfigurationManagerVersion>
+    <SystemSecurityPrincipalWindowsVersion>4.7.0</SystemSecurityPrincipalWindowsVersion>
   </PropertyGroup>
   <!--
     Nuget package versions for tests

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <AutoGenerateAssemblyVersion>true</AutoGenerateAssemblyVersion>
 
@@ -31,6 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MSBuild.Conversion.Project\MSBuild.Conversion.Project.csproj" />
     <ProjectReference Include="..\MSBuild.Abstractions\MSBuild.Abstractions.csproj" />
+    <ProjectReference Include="..\MSBuild.Conversion.SDK\MSBuild.Conversion.SDK.csproj" />
   </ItemGroup>
 
 </Project>

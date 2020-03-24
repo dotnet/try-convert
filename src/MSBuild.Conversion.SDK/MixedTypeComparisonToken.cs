@@ -1,13 +1,13 @@
 ﻿namespace MSBuild.Conversion
 {
-    internal enum VersionSubtokenType
+    public enum VersionSubtokenType
     {
         Unknown = 0,
         Numeric,
         String
     }
 
-    internal class MixedTypeComparisonToken
+    public class MixedTypeComparisonToken
     {
         public MixedTypeComparisonToken(string rawToken)
         {

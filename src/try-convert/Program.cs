@@ -56,10 +56,6 @@ namespace MSBuild.Conversion
                 if (tfm is null)
                 {
                     tfm = TargetFrameworkHelper.FindHighestInstalledTargetFramework(allowPreviews);
-                    if (tfm is null)
-                    {
-                        tfm = "netcoreapp3.1";
-                    }
                 }
 
                 var currentDirectory = Environment.CurrentDirectory;

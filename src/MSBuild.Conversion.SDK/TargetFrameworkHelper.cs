@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 using Microsoft.Build.Locator;
 
@@ -12,6 +13,9 @@ namespace MSBuild.Conversion.SDK
 {
     public static class TargetFrameworkHelper
     {
+        /// <summary>
+        /// Determine the TFM to use based on what is installed on the users machine
+        /// </summary>
         public static string FindHighestInstalledTargetFramework(bool usePreviewSDK)
         {
             // Finds SDK path
@@ -72,5 +76,11 @@ namespace MSBuild.Conversion.SDK
             }
 
         }
+
+        /// <summary>
+        /// Regect obviously wrong TFM specifiers 
+        /// </summary>
+        public static bool IsValidTargetFramework(string tfm)
+            => !tfm.Contains("-") && !tfm.Contains(" ") && tfm.Contains("net") && Regex.Match(tfm, "[0-9]").Success;
     }
 }

@@ -57,6 +57,15 @@ namespace MSBuild.Conversion
                 {
                     tfm = TargetFrameworkHelper.FindHighestInstalledTargetFramework(allowPreviews);
                 }
+                else
+                {
+                    tfm = tfm.Trim();
+                    if(!TargetFrameworkHelper.IsValidTargetFramework(tfm))
+                    {
+                        Console.WriteLine($"Invalid framework specified for --target-framework: '{tfm}'");
+                        return -1;
+                    }
+                }
 
                 var currentDirectory = Environment.CurrentDirectory;
                 var workspacePath = string.Empty;

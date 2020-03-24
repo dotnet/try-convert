@@ -14,6 +14,7 @@
     <MicrosoftBuildVersion>16.0.461</MicrosoftBuildVersion>
     <MicrosoftWin32RegistryVersion>4.7.0</MicrosoftWin32RegistryVersion>
     <NewtonsoftJsonVersion>12.0.2</NewtonsoftJsonVersion>
+    <NuGetVersioningVersion>5.5.0</NuGetVersioningVersion>
     <SystemCollectionsImmutableVersion>1.5.0</SystemCollectionsImmutableVersion>
     <SystemCommandLineExperimentalVersion>0.2.0-alpha.19154.3</SystemCommandLineExperimentalVersion>
     <SystemConfigurationConfigurationManagerVersion>4.7.0</SystemConfigurationConfigurationManagerVersion>

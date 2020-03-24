@@ -6,6 +6,8 @@ using System.Text.Json;
 
 using Microsoft.Build.Locator;
 
+using NuGet.Versioning;
+
 namespace MSBuild.Conversion.SDK
 {
     public static class TargetFrameworkHelper
@@ -30,19 +32,19 @@ namespace MSBuild.Conversion.SDK
             var templatesPath = Path.Combine(sdkPath, "templates");
 
             // Find highest SDK path (should include previews?)
-            var largestVersion = SemanticVersion.Min;
+            var largestVersion = NuGetVersion.Parse("0.0.0.0");
             var templatePath = string.Empty;
             foreach (var templateDirectory in Directory.EnumerateDirectories(templatesPath))
             {
-                var templatesVersion = SemanticVersion.Parse(Path.GetFileName(templateDirectory));
-                if (templatesVersion > largestVersion)
+                if (NuGetVersion.TryParse(Path.GetFileName(templateDirectory), out var templatesVersion) &&
+                    templatesVersion > largestVersion)
                 {
                     if (usePreviewSDK)
                     {
                         largestVersion = templatesVersion;
                         templatePath = Path.GetFullPath(templateDirectory);
                     }
-                    else if (templatesVersion.PrereleaseVersion == null)
+                    else if (!templatesVersion.IsPrerelease)
                     {
                         largestVersion = templatesVersion;
                         templatePath = Path.GetFullPath(templateDirectory);

@@ -295,7 +295,7 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement ConvertAndAddPackages(this IProjectRootElement projectRootElement, ProjectStyle projectStlye, string tfm)
+        public static IProjectRootElement ConvertAndAddPackages(this IProjectRootElement projectRootElement, ProjectStyle projectStyle, string tfm)
         {
             var packagesConfigItemGroup = MSBuildHelpers.GetPackagesConfigItemGroup(projectRootElement);
             if (packagesConfigItemGroup is null)
@@ -331,7 +331,7 @@ namespace MSBuild.Conversion.Project
                     AddPackageReferenceElement(groupForPackageRefs, pkgref.ID, pkgref.Version);
                 }
 
-                if (projectStlye == ProjectStyle.MSTest
+                if (projectStyle == ProjectStyle.MSTest
                     && !projectRootElement.ItemGroups.Any(ig => ig.Items.Any(item => ProjectItemHelpers.IsSpecificPacakgeReference(item, MSTestFacts.MSTestSDKPackageName))))
                 {
                     AddPackageReferenceElement(groupForPackageRefs, MSTestFacts.MSTestSDKPackageName, MSTestFacts.MSTestSDKDev16FloatingVersion);

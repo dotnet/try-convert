@@ -88,6 +88,8 @@ namespace MSBuild.Conversion
                 }
 
                 var workspaceLoader = new MSBuildWorkspaceLoader(workspacePath, workspaceType);
+                // do not create backup if --diff-only specified
+                noBackup = noBackup || diffOnly;
                 var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup);
 
                 foreach (var item in msbuildWorkspace.WorkspaceItems)

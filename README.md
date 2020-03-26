@@ -44,13 +44,13 @@ build.cmd
 To use the tool locally, you need to build it from source. Once it's built, the tool will live under:
 
 ```
-/artifacts/bin/try-convert/Debug/netcoreapp3.0/try-convert.exe
+/artifacts/bin/try-convert/Debug/netcoreapp3.1/try-convert.exe
 ```
 
 Alternatively, you can look at the following directory and copy that into somewhere else on your machine:
 
 ```
-mv /artifacts/bin/try-convert/Debug/netcoreapp3.0/publish C:/Users/<user>/try-convert
+mv /artifacts/bin/try-convert/Debug/netcoreapp3.1/publish C:/Users/<user>/try-convert
 ```
 
 You can invoke the tool from the publish directory as well.

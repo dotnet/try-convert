@@ -327,13 +327,13 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Given an optional path to MSBuild, registers an MSBuild.exe to be used for assembly resolution with this tool.
         /// </summary>
-        public static string HookAssemblyResolveForMSBuild(string msbuildPath = null)
+        public static string HookAssemblyResolveForMSBuild(string msbuildPath = "")
         {
             msbuildPath = GetMSBuildPathIfNotSpecified(msbuildPath);
             if (string.IsNullOrWhiteSpace(msbuildPath))
             {
                 Console.WriteLine("Cannot find MSBuild. Please pass in a path to msbuild using -m or run from a developer command prompt.");
-                return null;
+                return string.Empty;
             }
 
             // Since we do not inherit msbuild.deps.json when referencing the SDK copy
@@ -348,7 +348,7 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Given an optional path to MSBuild, finds an MSBuild path. Will query Visual Studio instances and ask for user input if there are multitple ones.
         /// </summary>
-        private static string GetMSBuildPathIfNotSpecified(string msbuildPath = null)
+        private static string GetMSBuildPathIfNotSpecified(string msbuildPath = "")
         {
             // If the user specified a msbuild path use that.
             if (!string.IsNullOrEmpty(msbuildPath))
@@ -371,7 +371,7 @@ namespace MSBuild.Abstractions
                 // Handle selecting the version of MSBuild you want to use.
                 : SelectVisualStudioInstance(visualStudioInstances);
 
-            return instance?.MSBuildPath;
+            return instance != null ? instance.MSBuildPath : string.Empty;
         }
 
         private static VisualStudioInstance SelectVisualStudioInstance(VisualStudioInstance[] visualStudioInstances)

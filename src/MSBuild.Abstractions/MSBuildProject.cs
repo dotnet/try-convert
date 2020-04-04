@@ -15,7 +15,7 @@ namespace MSBuild.Abstractions
 
         ICollection<IProjectItem> Items { get; }
 
-        IProjectProperty GetProperty(string name);
+        IProjectProperty? GetProperty(string name);
 
         string GetPropertyValue(string name);
     }
@@ -112,7 +112,7 @@ namespace MSBuild.Abstractions
 
         public ICollection<IProjectItem> Items => _project.Items.Select(i => new MSBuildProjectItem(i)).ToArray();
 
-        public IProjectProperty GetProperty(string name) => _project.GetProperty(name) is { } ? new MSBuildProjectProperty(_project.GetProperty(name)) : null;
+        public IProjectProperty? GetProperty(string name) => _project.GetProperty(name) is { } ? new MSBuildProjectProperty(_project.GetProperty(name)) : null;
 
         public string GetPropertyValue(string name) => _project.GetPropertyValue(name);
     }

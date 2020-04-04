@@ -22,7 +22,7 @@ namespace MSBuild.Abstractions
         /// <param name="searchDirectory">The base directory to search</param>
         /// <param name="workspacePath">A specific project or solution file to find</param>
         /// </summary>
-        public static (bool isSolution, string workspacePath) FindWorkspace(string searchDirectory, string workspacePath = null)
+        public static (bool isSolution, string workspacePath) FindWorkspace(string searchDirectory, string workspacePath = "")
         {
             if (!string.IsNullOrEmpty(workspacePath))
             {
@@ -88,7 +88,7 @@ namespace MSBuild.Abstractions
         {
             if (!Directory.Exists(searchBase))
             {
-                return null;
+                return string.Empty;
             }
 
             var files = fileSelector(searchBase).ToList();
@@ -99,7 +99,7 @@ namespace MSBuild.Abstractions
 
             return files.Count == 1
                 ? files[0]
-                : null;
+                : string.Empty;
         }
     }
 }

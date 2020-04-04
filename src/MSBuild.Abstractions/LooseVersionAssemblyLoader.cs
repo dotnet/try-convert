@@ -35,7 +35,7 @@ namespace Microsoft.CodeAnalysis.Tools.MSBuild
             };
         }
 
-        private static Assembly TryResolveAssemblyFromPaths(AssemblyLoadContext context, AssemblyName assemblyName, string searchPath)
+        private static Assembly? TryResolveAssemblyFromPaths(AssemblyLoadContext context, AssemblyName assemblyName, string searchPath)
         {
             foreach (var cultureSubfolder in string.IsNullOrEmpty(assemblyName.CultureName)
                 // If no culture is specified, attempt to load directly from
@@ -76,7 +76,7 @@ namespace Microsoft.CodeAnalysis.Tools.MSBuild
         private static Assembly LoadAndCache(AssemblyLoadContext context, string fullPath)
         {
             var assembly = context.LoadFromAssemblyPath(fullPath);
-            var name = assembly.FullName;
+            var name = AssemblyLoadContext.GetAssemblyName(fullPath).FullName;
 
             s_pathsToAssemblies[fullPath] = assembly;
             s_namesToAssemblies[name] = assembly;

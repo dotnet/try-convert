@@ -40,7 +40,7 @@ namespace MSBuild.Abstractions
                     }
                 }
 
-                return null;
+                return string.Empty;
             }
         }
 

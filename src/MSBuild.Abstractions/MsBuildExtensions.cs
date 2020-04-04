@@ -8,11 +8,11 @@ namespace MSBuild.Abstractions
 {
     public static class MsBuildExtensions
     {
-        public static XmlElement GetXml(this ProjectItemElement projectItem)
+        public static XmlElement? GetXml(this ProjectItemElement projectItem)
         {
-            return (XmlElement)GetPropertyValue(projectItem, "XmlElement");
+            return GetPropertyValue(projectItem, "XmlElement") as XmlElement;
 
-            static object GetPropertyValue(object obj, string propertyName)
+            static object? GetPropertyValue(object obj, string propertyName)
             {
                 if (obj == null)
                 {
@@ -27,17 +27,17 @@ namespace MSBuild.Abstractions
                       string.Format("Couldn't find property {0} in type {1}", propertyName, objType.FullName));
                 }
 
-                return propInfo.GetValue(obj, null);
+                return propInfo?.GetValue(obj, null);
             }
 
-            static PropertyInfo GetPropertyInfo(Type type, string propertyName)
+            static PropertyInfo? GetPropertyInfo(Type? type, string propertyName)
             {
-                PropertyInfo propInfo;
+                PropertyInfo? propInfo;
                 do
                 {
-                    propInfo = type.GetProperty(propertyName,
+                    propInfo = type?.GetProperty(propertyName,
                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    type = type.BaseType;
+                    type = type?.BaseType;
                 }
                 while (propInfo == null && type != null);
                 return propInfo;

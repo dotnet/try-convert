@@ -156,7 +156,7 @@ namespace MSBuild.Conversion.Project
                     else if (ProjectItemHelpers.IsReferenceConvertibleToPackageReference(item))
                     {
                         string packageName = NugetHelpers.FindPackageNameFromReferenceName(item.Include);
-                        string version = null;
+                        string version = string.Empty;
                         try
                         {
                             version = NugetHelpers.GetLatestVersionForPackageNameAsync(packageName).GetAwaiter().GetResult();
@@ -166,7 +166,7 @@ namespace MSBuild.Conversion.Project
                             // Network failure of come kind
                         }
 
-                        if (version is null)
+                        if (string.IsNullOrEmpty(version))
                         {
                             // fall back to hard-coded version in the event of a network failure
                             version = MSBuildFacts.DefaultItemsThatHavePackageEquivalents[packageName];
@@ -351,7 +351,7 @@ namespace MSBuild.Conversion.Project
         private static void AddPackageReferenceElement(ProjectItemGroupElement packageReferencesItemGroup, string packageName, string packageVersion)
         {
             var packageReference = packageReferencesItemGroup.AddItem(PackageFacts.PackageReferenceItemType, packageName);
-            packageReference.GetXml().SetAttribute(PackageFacts.VersionAttribute, packageVersion);
+            packageReference.GetXml()?.SetAttribute(PackageFacts.VersionAttribute, packageVersion);
         }
 
         public static IProjectRootElement AddDesktopProperties(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
@@ -444,8 +444,8 @@ namespace MSBuild.Conversion.Project
 
         public static IProjectRootElement ModifyProjectElement(this IProjectRootElement projectRootElement)
         {
-            projectRootElement.ToolsVersion = null;
-            projectRootElement.DefaultTargets = null;
+            projectRootElement.ToolsVersion = string.Empty;
+            projectRootElement.DefaultTargets = string.Empty;
             return projectRootElement;
         }
 
@@ -474,7 +474,13 @@ namespace MSBuild.Conversion.Project
             }
             else
             {
-                var rawTFM = baselineProject.Project.FirstConfiguredProject.GetProperty(MSBuildFacts.TargetFrameworkNodeName).EvaluatedValue;
+                var targetFrameworkProperty = baselineProject.Project.FirstConfiguredProject.GetProperty(MSBuildFacts.TargetFrameworkNodeName);
+
+                var rawTFM = string.Empty;
+                if (targetFrameworkProperty != null)
+                {
+                    rawTFM = targetFrameworkProperty.EvaluatedValue;
+                }
 
                 // This is pretty much never gonna happen, but it was cheap to write the code
                 targetFrameworkElement.Value = MSBuildHelpers.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;

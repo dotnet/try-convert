@@ -129,7 +129,7 @@ namespace MSBuild.Conversion.Project
             }
         }
 
-        public static IProjectRootElement RemoveOrUpdateItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string tfm)
+        public static IProjectRootElement RemoveOrUpdateItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string? tfm)
         {
             foreach (var itemGroup in projectRootElement.ItemGroups)
             {
@@ -156,7 +156,7 @@ namespace MSBuild.Conversion.Project
                     else if (ProjectItemHelpers.IsReferenceConvertibleToPackageReference(item))
                     {
                         string packageName = NugetHelpers.FindPackageNameFromReferenceName(item.Include);
-                        string version = string.Empty;
+                        string? version = null;
                         try
                         {
                             version = NugetHelpers.GetLatestVersionForPackageNameAsync(packageName).GetAwaiter().GetResult();
@@ -166,7 +166,7 @@ namespace MSBuild.Conversion.Project
                             // Network failure of come kind
                         }
 
-                        if (string.IsNullOrEmpty(version))
+                        if (version is null)
                         {
                             // fall back to hard-coded version in the event of a network failure
                             version = MSBuildFacts.DefaultItemsThatHavePackageEquivalents[packageName];
@@ -295,7 +295,7 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement ConvertAndAddPackages(this IProjectRootElement projectRootElement, ProjectStyle projectStyle, string tfm)
+        public static IProjectRootElement ConvertAndAddPackages(this IProjectRootElement projectRootElement, ProjectStyle projectStyle, string? tfm)
         {
             var packagesConfigItemGroup = MSBuildHelpers.GetPackagesConfigItemGroup(projectRootElement);
             if (packagesConfigItemGroup is null)
@@ -318,6 +318,11 @@ namespace MSBuild.Conversion.Project
                 var groupForPackageRefs = projectRootElement.AddItemGroup();
                 foreach (var pkgref in packageReferences)
                 {
+                    if (pkgref.ID == null)
+                    {
+                        continue;
+                    }
+
                     if (pkgref.ID.Equals(MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && MSBuildHelpers.FrameworkHasAValueTuple(tfm))
                     {
                         continue;
@@ -348,10 +353,10 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        private static void AddPackageReferenceElement(ProjectItemGroupElement packageReferencesItemGroup, string packageName, string packageVersion)
+        private static void AddPackageReferenceElement(ProjectItemGroupElement packageReferencesItemGroup, string packageName, string? packageVersion)
         {
             var packageReference = packageReferencesItemGroup.AddItem(PackageFacts.PackageReferenceItemType, packageName);
-            packageReference.GetXml()?.SetAttribute(PackageFacts.VersionAttribute, packageVersion);
+            packageReference.GetXml().SetAttribute(PackageFacts.VersionAttribute, packageVersion);
         }
 
         public static IProjectRootElement AddDesktopProperties(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
@@ -444,15 +449,19 @@ namespace MSBuild.Conversion.Project
 
         public static IProjectRootElement ModifyProjectElement(this IProjectRootElement projectRootElement)
         {
-            projectRootElement.ToolsVersion = string.Empty;
-            projectRootElement.DefaultTargets = string.Empty;
+            projectRootElement.ToolsVersion = null;
+            projectRootElement.DefaultTargets = null;
             return projectRootElement;
         }
 
-        public static IProjectRootElement AddTargetFrameworkProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string defaultTFM, out string targetFrameworkMoniker)
+        public static IProjectRootElement AddTargetFrameworkProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string defaultTFM, out string? targetFrameworkMoniker)
         {
-            static string StripDecimals(string tfm)
+            static string? StripDecimals(string? tfm)
             {
+                if (tfm is null)
+                {
+                    return null;
+                }
                 var parts = tfm.Split('.');
                 return string.Join("", parts);
             }
@@ -474,13 +483,7 @@ namespace MSBuild.Conversion.Project
             }
             else
             {
-                var targetFrameworkProperty = baselineProject.Project.FirstConfiguredProject.GetProperty(MSBuildFacts.TargetFrameworkNodeName);
-
-                var rawTFM = string.Empty;
-                if (targetFrameworkProperty != null)
-                {
-                    rawTFM = targetFrameworkProperty.EvaluatedValue;
-                }
+                var rawTFM = baselineProject.Project.FirstConfiguredProject.GetProperty(MSBuildFacts.TargetFrameworkNodeName)?.EvaluatedValue;
 
                 // This is pretty much never gonna happen, but it was cheap to write the code
                 targetFrameworkElement.Value = MSBuildHelpers.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;

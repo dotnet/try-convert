@@ -8,11 +8,11 @@ namespace MSBuild.Abstractions
 {
     public static class MsBuildExtensions
     {
-        public static XmlElement? GetXml(this ProjectItemElement projectItem)
+        public static XmlElement GetXml(this ProjectItemElement projectItem)
         {
-            return GetPropertyValue(projectItem, "XmlElement") as XmlElement;
+            return (XmlElement)GetPropertyValue(projectItem, "XmlElement");
 
-            static object? GetPropertyValue(object obj, string propertyName)
+            static object GetPropertyValue(object obj, string propertyName)
             {
                 if (obj == null)
                 {
@@ -27,19 +27,26 @@ namespace MSBuild.Abstractions
                       string.Format("Couldn't find property {0} in type {1}", propertyName, objType.FullName));
                 }
 
-                return propInfo?.GetValue(obj, null);
+                var propertyValue = propInfo.GetValue(obj, null);
+                if (propertyValue == null)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(propertyName),
+                      string.Format("Null value for property {0} in type {1}", propertyName, objType.FullName));
+                }
+                return propertyValue;
             }
 
-            static PropertyInfo? GetPropertyInfo(Type? type, string propertyName)
+            static PropertyInfo? GetPropertyInfo(Type type, string propertyName)
             {
                 PropertyInfo? propInfo;
+                Type? baseType = type;
                 do
                 {
-                    propInfo = type?.GetProperty(propertyName,
+                    propInfo = type.GetProperty(propertyName,
                            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    type = type?.BaseType;
+                    baseType = baseType.BaseType;
                 }
-                while (propInfo == null && type != null);
+                while (propInfo == null && baseType != null);
                 return propInfo;
             }
         }

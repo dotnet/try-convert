@@ -35,7 +35,7 @@ namespace MSBuild.Conversion
             return await parser.InvokeAsync(args.Length > 0 ? args : new string[] { "-h" }).ConfigureAwait(false);
         }
 
-        public static int Run(string project, string workspace, string msbuildPath, string tfm, bool allowPreviews, bool diffOnly, bool noBackup)
+        public static int Run(string project, string workspace, string? msbuildPath, string tfm, bool allowPreviews, bool diffOnly, bool noBackup)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {

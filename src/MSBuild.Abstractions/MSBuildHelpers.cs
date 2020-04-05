@@ -140,7 +140,7 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Given a TFM string, determines if that TFM has an explicit System.ValueTuple reference.
         /// </summary>
-        public static bool FrameworkHasAValueTuple(string tfm)
+        public static bool FrameworkHasAValueTuple(string? tfm)
         {
             return tfm is null
                 || tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude)
@@ -217,9 +217,10 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Checks if a given TFM is not .NET Framework.
         /// </summary>
-        public static bool IsNotNetFramework(string tfm) =>
-            !tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
-            && !tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude);
+        public static bool IsNotNetFramework(string? tfm) =>
+            tfm is null
+            || (!tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
+            && !tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude));
 
         /// <summary>
         /// Finds the item group where a packages.config is included. Assumes only one.
@@ -327,13 +328,13 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Given an optional path to MSBuild, registers an MSBuild.exe to be used for assembly resolution with this tool.
         /// </summary>
-        public static string HookAssemblyResolveForMSBuild(string msbuildPath = "")
+        public static string? HookAssemblyResolveForMSBuild(string? msbuildPath = null)
         {
             msbuildPath = GetMSBuildPathIfNotSpecified(msbuildPath);
             if (string.IsNullOrWhiteSpace(msbuildPath))
             {
                 Console.WriteLine("Cannot find MSBuild. Please pass in a path to msbuild using -m or run from a developer command prompt.");
-                return string.Empty;
+                return null;
             }
 
             // Since we do not inherit msbuild.deps.json when referencing the SDK copy
@@ -348,7 +349,7 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Given an optional path to MSBuild, finds an MSBuild path. Will query Visual Studio instances and ask for user input if there are multitple ones.
         /// </summary>
-        private static string GetMSBuildPathIfNotSpecified(string msbuildPath = "")
+        private static string? GetMSBuildPathIfNotSpecified(string? msbuildPath = null)
         {
             // If the user specified a msbuild path use that.
             if (!string.IsNullOrEmpty(msbuildPath))
@@ -371,7 +372,7 @@ namespace MSBuild.Abstractions
                 // Handle selecting the version of MSBuild you want to use.
                 : SelectVisualStudioInstance(visualStudioInstances);
 
-            return instance != null ? instance.MSBuildPath : string.Empty;
+            return instance?.MSBuildPath;
         }
 
         private static VisualStudioInstance SelectVisualStudioInstance(VisualStudioInstance[] visualStudioInstances)

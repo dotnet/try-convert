@@ -16,14 +16,14 @@ namespace MSBuild.Abstractions
             {
                 if (obj == null)
                 {
-                    throw new ArgumentNullException("obj");
+                    throw new ArgumentNullException(nameof(obj));
                 }
 
                 var objType = obj.GetType();
                 var propInfo = GetPropertyInfo(objType, propertyName);
                 if (propInfo == null)
                 {
-                    throw new ArgumentOutOfRangeException("propertyName",
+                    throw new ArgumentOutOfRangeException(nameof(propertyName),
                       string.Format("Couldn't find property {0} in type {1}", propertyName, objType.FullName));
                 }
 

@@ -481,11 +481,13 @@ namespace MSBuild.Conversion.Project
             {
                 var rawTFM = baselineProject.Project.FirstConfiguredProject.GetProperty(MSBuildFacts.TargetFrameworkNodeName)?.EvaluatedValue;
 
-                if (rawTFM != null)
+                if (rawTFM == null)
                 {
-                    // This is pretty much never gonna happen, but it was cheap to write the code
-                    targetFrameworkElement.Value = MSBuildHelpers.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
+                    throw new InvalidOperationException(
+                        $"{MSBuildFacts.TargetFrameworkNodeName} is not set in {nameof(baselineProject.Project.FirstConfiguredProject)}");
                 }
+                // This is pretty much never gonna happen, but it was cheap to write the code
+                targetFrameworkElement.Value = MSBuildHelpers.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
             }
 
             propGroup.PrependChild(targetFrameworkElement);

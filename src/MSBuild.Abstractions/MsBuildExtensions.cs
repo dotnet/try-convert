@@ -21,11 +21,6 @@ namespace MSBuild.Abstractions
 
                 var objType = obj.GetType();
                 var propInfo = GetPropertyInfo(objType, propertyName);
-                if (propInfo == null)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(propertyName),
-                      string.Format("Couldn't find property {0} in type {1}", propertyName, objType.FullName));
-                }
 
                 var propertyValue = propInfo.GetValue(obj, null);
                 if (propertyValue == null)
@@ -36,7 +31,7 @@ namespace MSBuild.Abstractions
                 return propertyValue;
             }
 
-            static PropertyInfo? GetPropertyInfo(Type type, string propertyName)
+            static PropertyInfo GetPropertyInfo(Type type, string propertyName)
             {
                 PropertyInfo? propInfo;
                 Type? baseType = type;
@@ -47,6 +42,12 @@ namespace MSBuild.Abstractions
                     baseType = baseType.BaseType;
                 }
                 while (propInfo == null && baseType != null);
+
+                if (propInfo == null)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(propertyName),
+                      string.Format("Couldn't find property {0} in type {1}", propertyName, type.FullName));
+                }
                 return propInfo;
             }
         }

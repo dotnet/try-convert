@@ -112,7 +112,7 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Checks if an item is an explicit System.ValueTuple and if the given TFM correspondes with an in-box System.ValueTuple type.
         /// </summary>
-        public static bool IsExplicitValueTupleReferenceThatCanBeRemoved(ProjectItemElement item, string? tfm) =>
+        public static bool IsExplicitValueTupleReferenceThatCanBeRemoved(ProjectItemElement item, string tfm) =>
             item.ElementName.Equals(MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase)
             && item.Include.Equals(MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase)
             && MSBuildHelpers.FrameworkHasAValueTuple(tfm);

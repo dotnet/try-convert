@@ -217,10 +217,9 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Checks if a given TFM is not .NET Framework.
         /// </summary>
-        public static bool IsNotNetFramework(string? tfm) =>
-            tfm is null
-            || (!tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
-            && !tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude));
+        public static bool IsNotNetFramework(string tfm) =>
+            !tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
+            && !tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude);
 
         /// <summary>
         /// Finds the item group where a packages.config is included. Assumes only one.

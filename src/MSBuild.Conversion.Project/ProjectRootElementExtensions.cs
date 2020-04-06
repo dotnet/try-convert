@@ -129,7 +129,7 @@ namespace MSBuild.Conversion.Project
             }
         }
 
-        public static IProjectRootElement RemoveOrUpdateItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string? tfm)
+        public static IProjectRootElement RemoveOrUpdateItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string tfm)
         {
             foreach (var itemGroup in projectRootElement.ItemGroups)
             {
@@ -295,7 +295,7 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement ConvertAndAddPackages(this IProjectRootElement projectRootElement, ProjectStyle projectStyle, string? tfm)
+        public static IProjectRootElement ConvertAndAddPackages(this IProjectRootElement projectRootElement, ProjectStyle projectStyle, string tfm)
         {
             var packagesConfigItemGroup = MSBuildHelpers.GetPackagesConfigItemGroup(projectRootElement);
             if (packagesConfigItemGroup is null)
@@ -454,14 +454,10 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement AddTargetFrameworkProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string defaultTFM, out string? targetFrameworkMoniker)
+        public static IProjectRootElement AddTargetFrameworkProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string defaultTFM, out string targetFrameworkMoniker)
         {
-            static string? StripDecimals(string? tfm)
+            static string StripDecimals(string tfm)
             {
-                if (tfm is null)
-                {
-                    return null;
-                }
                 var parts = tfm.Split('.');
                 return string.Join("", parts);
             }
@@ -485,8 +481,11 @@ namespace MSBuild.Conversion.Project
             {
                 var rawTFM = baselineProject.Project.FirstConfiguredProject.GetProperty(MSBuildFacts.TargetFrameworkNodeName)?.EvaluatedValue;
 
-                // This is pretty much never gonna happen, but it was cheap to write the code
-                targetFrameworkElement.Value = MSBuildHelpers.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
+                if (rawTFM != null)
+                {
+                    // This is pretty much never gonna happen, but it was cheap to write the code
+                    targetFrameworkElement.Value = MSBuildHelpers.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
+                }
             }
 
             propGroup.PrependChild(targetFrameworkElement);

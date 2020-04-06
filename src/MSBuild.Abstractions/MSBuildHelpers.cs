@@ -140,10 +140,9 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Given a TFM string, determines if that TFM has an explicit System.ValueTuple reference.
         /// </summary>
-        public static bool FrameworkHasAValueTuple(string? tfm)
+        public static bool FrameworkHasAValueTuple(string tfm)
         {
-            return tfm is null
-                || tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude)
+            return tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude)
                 || tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
                 ? false
                 : !tfm.StartsWith("net", StringComparison.OrdinalIgnoreCase)

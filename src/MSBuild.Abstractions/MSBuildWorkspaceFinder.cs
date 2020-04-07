@@ -22,7 +22,7 @@ namespace MSBuild.Abstractions
         /// <param name="searchDirectory">The base directory to search</param>
         /// <param name="workspacePath">A specific project or solution file to find</param>
         /// </summary>
-        public static (bool isSolution, string workspacePath) FindWorkspace(string searchDirectory, string workspacePath = null)
+        public static (bool isSolution, string workspacePath) FindWorkspace(string searchDirectory, string? workspacePath = null)
         {
             if (!string.IsNullOrEmpty(workspacePath))
             {
@@ -43,14 +43,17 @@ namespace MSBuild.Abstractions
             {
                 throw new FileNotFoundException(string.Format("Both an MSBuild project file and a solution file were found in '{0}'. Please specify which to use with '-w'.", searchDirectory));
             }
-            else if (string.IsNullOrEmpty(foundSolution) && string.IsNullOrEmpty(foundProject))
+
+            if (!string.IsNullOrEmpty(foundSolution) && string.IsNullOrEmpty(foundProject))
             {
-                throw new FileNotFoundException(string.Format("Could not find any an MSBuild project file or solution file in '{0}'. Please specify which to use with '-w'.", searchDirectory));
+                return (true, foundSolution);
+            }
+            else if (!string.IsNullOrEmpty(foundProject) && string.IsNullOrEmpty(foundSolution))
+            {
+                return (false, foundProject);
             }
 
-            return !string.IsNullOrEmpty(foundSolution)
-                ? (true, foundSolution)
-                : (false, foundProject);
+            throw new FileNotFoundException(string.Format("Could not find any an MSBuild project file or solution file in '{0}'. Please specify which to use with '-w'.", searchDirectory));
         }
 
         private static (bool isSolution, string workspacePath) FindFile(string workspacePath)
@@ -84,7 +87,7 @@ namespace MSBuild.Abstractions
             => Directory.EnumerateFileSystemEntries(basePath, "*.*proj", SearchOption.TopDirectoryOnly)
                         .Where(f => !DnxProjectExtension.Equals(Path.GetExtension(f), StringComparison.OrdinalIgnoreCase));
 
-        private static string FindMatchingFile(string searchBase, Func<string, IEnumerable<string>> fileSelector, string multipleFilesFoundError)
+        private static string? FindMatchingFile(string searchBase, Func<string, IEnumerable<string>> fileSelector, string multipleFilesFoundError)
         {
             if (!Directory.Exists(searchBase))
             {

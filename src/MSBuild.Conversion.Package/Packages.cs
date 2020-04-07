@@ -5,22 +5,22 @@
         /// <summary>
         /// Name of the package.
         /// </summary>
-        public string ID { get; set; }
+        public string? ID { get; set; }
 
         /// <summary>
         /// Exact version of the package depended upon.
         /// </summary>
-        public string Version { get; set; }
+        public string? Version { get; set; }
 
         /// <summary>
         /// Optional TFM that the package dependency applies to.
         /// </summary>
-        public string TargetFramework { get; set; }
+        public string? TargetFramework { get; set; }
 
         /// <summary>
         /// Optional string of allowed versions that follow the NuGet spec for syntax.
         /// </summary>
-        public string AllowedVersions { get; set; }
+        public string? AllowedVersions { get; set; }
 
         /// <summary>
         /// Optional flag for use only in development; the package will not be included when a consuming package is created.
@@ -33,17 +33,17 @@
         /// <summary>
         /// Name of the package.
         /// </summary>
-        public string ID { get; set; }
+        public string? ID { get; set; }
 
         /// <summary>
         /// Exact version of the package depended upon.
         /// </summary>
-        public string Version { get; set; }
+        public string? Version { get; set; }
 
         /// <summary>
         /// Optional TFM that the package dependency applies to.
         /// </summary>
-        public string TargetFramework { get; set; }
+        public string? TargetFramework { get; set; }
 
         /// <summary>
         /// Optional flag for use only in development; the package will not be included when a consuming package is created.

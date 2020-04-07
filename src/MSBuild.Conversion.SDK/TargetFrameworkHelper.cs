@@ -19,7 +19,7 @@ namespace MSBuild.Conversion.SDK
         public static string FindHighestInstalledTargetFramework(bool usePreviewSDK)
         {
             // Finds SDK path
-            string sdkPath = null;
+            string? sdkPath = null;
             try
             {
                 sdkPath = Path.GetFullPath(Path.Combine(MSBuildLocator.QueryVisualStudioInstances().Single().VisualStudioRootPath, "..", ".."));

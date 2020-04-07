@@ -8,7 +8,7 @@ namespace MSBuild.Abstractions
 {
     public class UnconfiguredProject
     {
-        public ImmutableDictionary<string, IProject> ConfiguredProjects { get; private set; }
+        public ImmutableDictionary<string, IProject> ConfiguredProjects { get; private set; } = ImmutableDictionary<string, IProject>.Empty;
 
         public IProject FirstConfiguredProject => ConfiguredProjects.First().Value;
 

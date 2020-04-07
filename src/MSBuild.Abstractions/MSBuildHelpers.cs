@@ -142,8 +142,7 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static bool FrameworkHasAValueTuple(string tfm)
         {
-            return tfm is null
-                || tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude)
+            return tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude)
                 || tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
                 ? false
                 : !tfm.StartsWith("net", StringComparison.OrdinalIgnoreCase)
@@ -327,7 +326,7 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Given an optional path to MSBuild, registers an MSBuild.exe to be used for assembly resolution with this tool.
         /// </summary>
-        public static string HookAssemblyResolveForMSBuild(string msbuildPath = null)
+        public static string? HookAssemblyResolveForMSBuild(string? msbuildPath = null)
         {
             msbuildPath = GetMSBuildPathIfNotSpecified(msbuildPath);
             if (string.IsNullOrWhiteSpace(msbuildPath))
@@ -348,7 +347,7 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Given an optional path to MSBuild, finds an MSBuild path. Will query Visual Studio instances and ask for user input if there are multitple ones.
         /// </summary>
-        private static string GetMSBuildPathIfNotSpecified(string msbuildPath = null)
+        private static string? GetMSBuildPathIfNotSpecified(string? msbuildPath = null)
         {
             // If the user specified a msbuild path use that.
             if (!string.IsNullOrEmpty(msbuildPath))

@@ -30,6 +30,11 @@ namespace MSBuild.Conversion.Project
             foreach (var propInFile in propertiesInFile)
             {
                 var originalEvaluatedProp = _project1.GetProperty(propInFile);
+                if (originalEvaluatedProp == null)
+                {
+                    continue;
+                }
+
                 var newEvaluatedProp = _project2.GetProperty(propInFile);
                 if (newEvaluatedProp is { })
                 {

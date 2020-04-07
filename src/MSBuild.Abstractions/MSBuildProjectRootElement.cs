@@ -7,9 +7,9 @@ namespace MSBuild.Abstractions
 {
     public interface IProjectRootElement
     {
-        string ToolsVersion { get; set; }
+        string? ToolsVersion { get; set; }
         string Sdk { get; set; }
-        string DefaultTargets { get; set; }
+        string? DefaultTargets { get; set; }
         string DirectoryPath { get; }
         string FullPath { get; }
         string RawXml { get; }
@@ -38,9 +38,9 @@ namespace MSBuild.Abstractions
             _rootElement = rootElement;
         }
 
-        public string ToolsVersion { get => _rootElement.ToolsVersion; set => _rootElement.ToolsVersion = value; }
+        public string? ToolsVersion { get => _rootElement.ToolsVersion; set => _rootElement.ToolsVersion = value; }
         public string Sdk { get => _rootElement.Sdk; set => _rootElement.Sdk = value; }
-        public string DefaultTargets { get => _rootElement.DefaultTargets; set => _rootElement.DefaultTargets = value; }
+        public string? DefaultTargets { get => _rootElement.DefaultTargets; set => _rootElement.DefaultTargets = value; }
         public string DirectoryPath => _rootElement.DirectoryPath;
         public string FullPath => _rootElement.FullPath;
         public string RawXml => _rootElement.RawXml;

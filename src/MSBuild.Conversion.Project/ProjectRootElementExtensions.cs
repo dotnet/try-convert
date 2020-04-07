@@ -156,7 +156,7 @@ namespace MSBuild.Conversion.Project
                     else if (ProjectItemHelpers.IsReferenceConvertibleToPackageReference(item))
                     {
                         string packageName = NugetHelpers.FindPackageNameFromReferenceName(item.Include);
-                        string version = null;
+                        string? version = null;
                         try
                         {
                             version = NugetHelpers.GetLatestVersionForPackageNameAsync(packageName).GetAwaiter().GetResult();
@@ -318,6 +318,11 @@ namespace MSBuild.Conversion.Project
                 var groupForPackageRefs = projectRootElement.AddItemGroup();
                 foreach (var pkgref in packageReferences)
                 {
+                    if (pkgref.ID == null)
+                    {
+                        continue;
+                    }
+
                     if (pkgref.ID.Equals(MSBuildFacts.SystemValueTupleName, StringComparison.OrdinalIgnoreCase) && MSBuildHelpers.FrameworkHasAValueTuple(tfm))
                     {
                         continue;
@@ -348,7 +353,7 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        private static void AddPackageReferenceElement(ProjectItemGroupElement packageReferencesItemGroup, string packageName, string packageVersion)
+        private static void AddPackageReferenceElement(ProjectItemGroupElement packageReferencesItemGroup, string packageName, string? packageVersion)
         {
             var packageReference = packageReferencesItemGroup.AddItem(PackageFacts.PackageReferenceItemType, packageName);
             packageReference.GetXml().SetAttribute(PackageFacts.VersionAttribute, packageVersion);
@@ -474,8 +479,13 @@ namespace MSBuild.Conversion.Project
             }
             else
             {
-                var rawTFM = baselineProject.Project.FirstConfiguredProject.GetProperty(MSBuildFacts.TargetFrameworkNodeName).EvaluatedValue;
+                var rawTFM = baselineProject.Project.FirstConfiguredProject.GetProperty(MSBuildFacts.TargetFrameworkNodeName)?.EvaluatedValue;
 
+                if (rawTFM == null)
+                {
+                    throw new InvalidOperationException(
+                        $"{MSBuildFacts.TargetFrameworkNodeName} is not set in {nameof(baselineProject.Project.FirstConfiguredProject)}");
+                }
                 // This is pretty much never gonna happen, but it was cheap to write the code
                 targetFrameworkElement.Value = MSBuildHelpers.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
             }

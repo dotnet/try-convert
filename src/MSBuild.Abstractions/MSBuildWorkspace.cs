@@ -104,12 +104,13 @@ namespace MSBuild.Abstractions
                     rootElement.Sdk = DesktopFacts.WinSDKAttribute;
                     break;
                 default:
-                    throw new NotSupportedException("This project has custom imports in a manner that's not supported.");
+                    throw new NotSupportedException($"This project has custom imports in a manner that's not supported. '{projectFilePath}'");
             }
 
             var propGroup = rootElement.AddPropertyGroup();
             propGroup.AddProperty(MSBuildFacts.TargetFrameworkNodeName, project.GetTargetFramework());
-            propGroup.AddProperty(MSBuildFacts.OutputTypeNodeName, project.GetPropertyValue(MSBuildFacts.OutputTypeNodeName) ?? throw new InvalidOperationException("OutputType is not set!"));
+            propGroup.AddProperty(MSBuildFacts.OutputTypeNodeName,
+                project.GetPropertyValue(MSBuildFacts.OutputTypeNodeName) ?? throw new InvalidOperationException($"OutputType is not set! '{projectFilePath}'"));
 
             if (projectStyle == ProjectStyle.WindowsDesktop)
             {

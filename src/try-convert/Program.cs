@@ -2,6 +2,7 @@
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -15,7 +16,12 @@ namespace MSBuild.Conversion
     {
         private static async Task<int> Main(string[] args)
         {
-            var parser = new CommandLineBuilder(new Command("try-convert", handler: CommandHandler.Create(typeof(Program).GetMethod(nameof(Run)))))
+            var rootCommand = new RootCommand();
+            rootCommand.Name = "try-convert";
+            rootCommand.Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run)));
+
+            var parser =
+                new CommandLineBuilder(rootCommand)
                 .UseParseDirective()
                 .UseHelp()
                 .UseDebugDirective()
@@ -23,13 +29,13 @@ namespace MSBuild.Conversion
                 .RegisterWithDotnetSuggest()
                 .UseParseErrorReporting()
                 .UseExceptionHandler()
-                .AddOption(new Option(new[] { "-p", "--project" }, "The path to a project to convert", new Argument<string?>()))
-                .AddOption(new Option(new[] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.", new Argument<string?>()))
-                .AddOption(new Option(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that", new Argument<string?>()))
-                .AddOption(new Option(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to", new Argument<string?>()))
-                .AddOption(new Option(new[] { "--preview" }, "Use preview SDKs as part of conversion", new Argument<string?>()))
-                .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done", new Argument<bool>()))
-                .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.", new Argument<bool>()))
+                .AddOption(new Option(new[] { "-p", "--project" }, "The path to a project to convert") { Argument = new Argument<string?>(() => null) })
+                .AddOption(new Option(new[] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.") { Argument = new Argument<string?>(() => null) })
+                .AddOption(new Option(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that") { Argument = new Argument<string?>(() => null) })
+                .AddOption(new Option(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to") { Argument = new Argument<string?>(() => null) })
+                .AddOption(new Option(new[] { "--preview" }, "Use preview SDKs as part of conversion") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
             return await parser.InvokeAsync(args.Length > 0 ? args : new string[] { "-h" }).ConfigureAwait(false);

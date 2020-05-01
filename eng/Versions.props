@@ -16,7 +16,7 @@
     <NewtonsoftJsonVersion>12.0.2</NewtonsoftJsonVersion>
     <NuGetVersioningVersion>5.5.0</NuGetVersioningVersion>
     <SystemCollectionsImmutableVersion>1.5.0</SystemCollectionsImmutableVersion>
-    <SystemCommandLineExperimentalVersion>0.2.0-alpha.19154.3</SystemCommandLineExperimentalVersion>
+    <SystemCommandLineVersion> 2.0.0-beta1.20214.1</SystemCommandLineVersion>
     <SystemConfigurationConfigurationManagerVersion>4.7.0</SystemConfigurationConfigurationManagerVersion>
     <SystemSecurityPrincipalWindowsVersion>4.7.0</SystemSecurityPrincipalWindowsVersion>
   </PropertyGroup>

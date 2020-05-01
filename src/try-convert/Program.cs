@@ -38,7 +38,7 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
-            return await parser.InvokeAsync(args.Length > 0 ? args : new string[] { "-h" }).ConfigureAwait(false);
+            return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
         public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup)
@@ -72,7 +72,6 @@ namespace MSBuild.Conversion
                     }
                 }
 
-                var currentDirectory = Environment.CurrentDirectory;
                 var workspacePath = string.Empty;
                 MSBuildWorkspaceType workspaceType;
 
@@ -81,15 +80,11 @@ namespace MSBuild.Conversion
                     workspacePath = Path.GetFullPath(project, Environment.CurrentDirectory);
                     workspaceType = MSBuildWorkspaceType.Project;
                 }
-                else if (!string.IsNullOrWhiteSpace(workspace))
-                {
-                    var (isSolution, workspaceFilePath) = MSBuildWorkspaceFinder.FindWorkspace(currentDirectory, workspace);
-                    workspaceType = isSolution ? MSBuildWorkspaceType.Solution : MSBuildWorkspaceType.Project;
-                    workspacePath = workspaceFilePath;
-                }
                 else
                 {
-                    throw new ArgumentException("No valid arguments to fulfill a workspace are given.");
+                    var (isSolution, workspaceFilePath) = MSBuildWorkspaceFinder.FindWorkspace(Environment.CurrentDirectory, workspace);
+                    workspaceType = isSolution ? MSBuildWorkspaceType.Solution : MSBuildWorkspaceType.Project;
+                    workspacePath = workspaceFilePath;
                 }
 
                 var workspaceLoader = new MSBuildWorkspaceLoader(workspacePath, workspaceType);

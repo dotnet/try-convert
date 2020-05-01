@@ -258,11 +258,18 @@ namespace MSBuild.Abstractions
                     return true;
                 case ProjectSupportType.Unsupported:
                 default:
-                    var allSupportedProjectTypeGuids = DesktopFacts.KnownSupportedDesktopProjectTypeGuids.Select(ptg => ptg.ToString());
-                    var allReadProjectTypeGuids = MSBuildHelpers.GetAllProjectTypeGuids(root);
-                    Console.WriteLine($"{root.FullPath} is an unsupported project type. Not all project type guids are supported.");
-                    PrintGuidMessage(allSupportedProjectTypeGuids, allReadProjectTypeGuids);
-                    return false;
+                    if (MSBuildHelpers.HasProjectTypeGuidsNode(root))
+                    {
+                        var allSupportedProjectTypeGuids = DesktopFacts.KnownSupportedDesktopProjectTypeGuids.Select(ptg => ptg.ToString());
+                        var allReadProjectTypeGuids = MSBuildHelpers.GetAllProjectTypeGuids(root);
+                        Console.WriteLine($"{root.FullPath} is an unsupported project type. Not all project type guids are supported.");
+                        PrintGuidMessage(allSupportedProjectTypeGuids, allReadProjectTypeGuids);
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
                 }
 
             static void PrintGuidMessage(IEnumerable<string> allSupportedProjectTypeGuids, IEnumerable<string> allReadProjectTypeGuids)

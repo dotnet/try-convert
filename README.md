@@ -12,19 +12,9 @@ dotnet tool install -g try-convert
 
 Because this is for converting older .NET Framework (Windows) projects, the tool only works on Windows.
 
-If you're using the tool again, make sure you've got the latest release: https://github.com/dotnet/try-convert/releases
+If you're using the tool again, make sure you've got the latest release: https://github.com/dotnet/try-convert/releases**N
 
-```
-Usage:
-  try-convert [options]
-
-Options:
-  -p, --project <P>          The path to a project to convert
-  -w, --workspace <W>        The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.
-  -m, --msbuild-path <M>     The path to an MSBuild.exe, if you prefer to use that
-  --diff-only <DIFF-ONLY>    Produces a diff of the project to convert; no conversion is done
-  --no-backup <NO-BACKUP>    Converts projects and does not create a backup of the originals.
-```
+**NOTE:** Do not use this tool from the Visual Studio developer command prompt. There is special MSBuild resolution that happens there and it ends up being incompatible with the tool. Please use a normal terminal application.
 
 ## Status
 

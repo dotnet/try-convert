@@ -237,43 +237,40 @@ namespace MSBuild.Abstractions
             }
 
             // Lots of wild old project types have project type guids that the old project system uses to light things up!
-            if (MSBuildHelpers.HasProjectTypeGuidsNode(root))
+            // Also some references that are incompatible.
+            var projectType = GetProjectSupportType(root);
+            switch (projectType)
             {
-                var projectType = GetProjectSupportType(root);
-                switch (projectType)
-                {
-                    case ProjectSupportType.LegacyWeb:
-                        Console.WriteLine($"'{root.FullPath}' is a legacy web project, which is unsupported by this tool.");
-                        return false;
-                    case ProjectSupportType.CodedUITest:
-                        Console.WriteLine($"'{root.FullPath}' is a coded UI test. Coded UI tests are deprecated and not convertable to .NET Core.");
-                        return false;
-                    case ProjectSupportType.UnknownTestProject:
-                        Console.WriteLine($"'{root.FullPath}' has invalid Project Type Guids for test projects and is not supported.");
-                        return false;
-                    case ProjectSupportType.UnsupportedTestType:
-                        Console.WriteLine($"'{root.FullPath}' is an unsupported MSTest test type. Only Unit Tests are supported.");
-                        return false;
-                    case ProjectSupportType.Desktop:
-                    case ProjectSupportType.MSTest:
-                        // Let them know about System.Web while we're here
-                        if (MSBuildHelpers.IsProjectReferencingSystemWeb(root))
-                        {
-                            Console.WriteLine($"'{root.FullPath}' references System.Web, which is unsupported on .NET Core. You may have significant work remaining after conversion.");
-                        }
-                        return true;
-                    case ProjectSupportType.Unsupported:
-                    default:
+                case ProjectSupportType.LegacyWeb:
+                    Console.WriteLine($"'{root.FullPath}' is a legacy web project and/or reference System.Web. Legacy Web projects and System.Web are unsupported on .NET Core. You will need to rewrite your application or find a way to not depend on System.Web to convert this project.");
+                    return false;
+                case ProjectSupportType.CodedUITest:
+                    Console.WriteLine($"'{root.FullPath}' is a coded UI test. Coded UI tests are deprecated and not convertable to .NET Core.");
+                    return false;
+                case ProjectSupportType.UnknownTestProject:
+                    Console.WriteLine($"'{root.FullPath}' has invalid Project Type Guids for test projects and is not supported.");
+                    return false;
+                case ProjectSupportType.UnsupportedTestType:
+                    Console.WriteLine($"'{root.FullPath}' is an unsupported MSTest test type. Only Unit Tests are supported.");
+                    return false;
+                case ProjectSupportType.Desktop:
+                case ProjectSupportType.MSTest:
+                    return true;
+                case ProjectSupportType.Unsupported:
+                default:
+                    if (MSBuildHelpers.HasProjectTypeGuidsNode(root))
+                    {
                         var allSupportedProjectTypeGuids = DesktopFacts.KnownSupportedDesktopProjectTypeGuids.Select(ptg => ptg.ToString());
                         var allReadProjectTypeGuids = MSBuildHelpers.GetAllProjectTypeGuids(root);
                         Console.WriteLine($"{root.FullPath} is an unsupported project type. Not all project type guids are supported.");
                         PrintGuidMessage(allSupportedProjectTypeGuids, allReadProjectTypeGuids);
                         return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
                 }
-            }
-
-            // assume its supported
-            return true;
 
             static void PrintGuidMessage(IEnumerable<string> allSupportedProjectTypeGuids, IEnumerable<string> allReadProjectTypeGuids)
             {
@@ -292,7 +289,8 @@ namespace MSBuild.Abstractions
 
             static ProjectSupportType GetProjectSupportType(MSBuildProjectRootElement root)
             {
-                if (root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsLegacyWebProjectTypeGuidsProperty)))
+                if (root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsLegacyWebProjectTypeGuidsProperty))
+                    || root.ItemGroups.Any(ig => ig.Items.Any(ProjectItemHelpers.IsReferencingSystemWeb)))
                 {
                     return ProjectSupportType.LegacyWeb;
                 }

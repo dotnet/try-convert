@@ -236,6 +236,11 @@ namespace MSBuild.Abstractions
                 return false;
             }
 
+            if (root.ItemGroups.Any(ig => ig.Items.Any(ProjectItemHelpers.IsReferencingSystemWeb)))
+            {
+                Console.WriteLine($"{root.FullPath} contains a reference to System.Web, which is not supported on .NET Core. You may have significant work ahead of you to fully port this project.");
+            }
+
             // Lots of wild old project types have project type guids that the old project system uses to light things up!
             // Also some references that are incompatible.
             var projectType = GetProjectSupportType(root);
@@ -289,8 +294,7 @@ namespace MSBuild.Abstractions
 
             static ProjectSupportType GetProjectSupportType(MSBuildProjectRootElement root)
             {
-                if (root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsLegacyWebProjectTypeGuidsProperty))
-                    || root.ItemGroups.Any(ig => ig.Items.Any(ProjectItemHelpers.IsReferencingSystemWeb)))
+                if (root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsLegacyWebProjectTypeGuidsProperty)))
                 {
                     return ProjectSupportType.LegacyWeb;
                 }

@@ -12,7 +12,7 @@ dotnet tool install -g try-convert
 
 Because this is for converting older .NET Framework (Windows) projects, the tool only works on Windows.
 
-If you're using the tool again, make sure you've got the latest release: https://github.com/dotnet/try-convert/releases**N
+If you're using the tool again, make sure you've got the latest release: https://github.com/dotnet/try-convert/releases
 
 **NOTE:** Do not use this tool from the Visual Studio developer command prompt. There is special MSBuild resolution that happens there and it ends up being incompatible with the tool. Please use a normal terminal application.
 

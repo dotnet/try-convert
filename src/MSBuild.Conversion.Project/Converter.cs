@@ -24,18 +24,18 @@ namespace MSBuild.Conversion.Project
             _differs = GetDiffers();
         }
 
-        public void Convert(string outputPath, string defaultTFM, bool keepCurrentTfm)
+        public void Convert(string outputPath, string? defaultTFM, bool keepCurrentTfm)
         {
             ConvertProjectFile(defaultTFM, keepCurrentTfm);
             CleanUpProjectFile(outputPath);
         }
 
-        internal IProjectRootElement ConvertProjectFile(string defaultTFM, bool keepCurrentTfm)
+        internal IProjectRootElement ConvertProjectFile(string? defaultTFM, bool keepCurrentTfm)
         {
             var tfm = _sdkBaselineProject.ProjectStyle switch
             {
-                ProjectStyle.WindowsDesktop when !keepCurrentTfm => defaultTFM,
-                ProjectStyle.MSTest when !keepCurrentTfm => defaultTFM,
+                ProjectStyle.WindowsDesktop when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
+                ProjectStyle.MSTest when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
                 _ => _sdkBaselineProject.GetTfm()
             };
 

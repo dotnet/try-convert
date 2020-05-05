@@ -32,16 +32,17 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "-p", "--project" }, "The path to a project to convert") { Argument = new Argument<string?>(() => null) })
                 .AddOption(new Option(new[] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.") { Argument = new Argument<string?>(() => null) })
                 .AddOption(new Option(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that") { Argument = new Argument<string?>(() => null) })
-                .AddOption(new Option(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to") { Argument = new Argument<string?>(() => null) })
+                .AddOption(new Option(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to. Useful if you'd prefer not to change TFMs to .NET Core just yet.") { Argument = new Argument<string?>(() => null) })
                 .AddOption(new Option(new[] { "--preview" }, "Use preview SDKs as part of conversion") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts projects but does not change the TFM to .NET Core. Useful if you just move to the .NET SDK, but not .NET Core yet.") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup)
+        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup, bool keepCurrentTfms)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
@@ -58,17 +59,20 @@ namespace MSBuild.Conversion
                     return -1;
                 }
 
-                if (tfm is null)
+                if (!keepCurrentTfms)
                 {
-                    tfm = TargetFrameworkHelper.FindHighestInstalledTargetFramework(allowPreviews);
-                }
-                else
-                {
-                    tfm = tfm.Trim();
-                    if(!TargetFrameworkHelper.IsValidTargetFramework(tfm))
+                    if (string.IsNullOrWhiteSpace(tfm))
                     {
-                        Console.WriteLine($"Invalid framework specified for --target-framework: '{tfm}'");
-                        return -1;
+                        tfm = TargetFrameworkHelper.FindHighestInstalledTargetFramework(allowPreviews);
+                    }
+                    else
+                    {
+                        tfm = tfm.Trim();
+                        if (!TargetFrameworkHelper.IsValidTargetFramework(tfm))
+                        {
+                            Console.WriteLine($"Invalid framework specified for --target-framework: '{tfm}'");
+                            return -1;
+                        }
                     }
                 }
 
@@ -102,7 +106,7 @@ namespace MSBuild.Conversion
                     else
                     {
                         var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-                        converter.Convert(tfm, item.ProjectRootElement.FullPath);
+                        converter.Convert(item.ProjectRootElement.FullPath, tfm, keepCurrentTfms);
                     }
                 }
             }

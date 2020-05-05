@@ -142,12 +142,10 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static bool FrameworkHasAValueTuple(string tfm)
         {
-            return tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude)
-                || tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
-                ? false
-                : !tfm.StartsWith("net", StringComparison.OrdinalIgnoreCase)
-                    ? false
-                    : tfm.StartsWith(MSBuildFacts.LowestFrameworkVersionWithSystemValueTuple);
+            return !tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude)
+                && !tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
+                && (tfm.StartsWith("net", StringComparison.OrdinalIgnoreCase)
+                    && tfm.StartsWith(MSBuildFacts.LowestFrameworkVersionWithSystemValueTuple));
         }
 
         /// <summary>

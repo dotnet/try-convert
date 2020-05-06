@@ -38,7 +38,10 @@ namespace MSBuild.Abstractions
                 {
                     if (!noBackup)
                     {
-                        File.Copy(path, path + ".old");
+                        // Since git doesn't track the new '.old' addition in your changeset,
+                        // failing to overwrite will crash the tool if you have one in your directory.
+                        // This can be common if you're using the tool a few times and forget to delete the backup.
+                        File.Copy(path, path + ".old", overwrite: true);
                     }
 
                     var configurations = DetermineConfigurations(root);

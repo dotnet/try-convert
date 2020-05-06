@@ -32,20 +32,27 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "-p", "--project" }, "The path to a project to convert") { Argument = new Argument<string?>(() => null) })
                 .AddOption(new Option(new[] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.") { Argument = new Argument<string?>(() => null) })
                 .AddOption(new Option(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that") { Argument = new Argument<string?>(() => null) })
-                .AddOption(new Option(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to") { Argument = new Argument<string?>(() => null) })
+                .AddOption(new Option(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to. If unspecified, the default TFM chosen will be the highest available one found on your machine.") { Argument = new Argument<string?>(() => null) })
                 .AddOption(new Option(new[] { "--preview" }, "Use preview SDKs as part of conversion") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup)
+        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup, bool keepCurrentTfms)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
                 Console.WriteLine("Cannot specify both a project and a workspace.");
+                return -1;
+            }
+
+            if (!string.IsNullOrWhiteSpace(tfm) && keepCurrentTfms)
+            {
+                Console.WriteLine($"Both '{nameof(tfm)}' and '{nameof(keepCurrentTfms)}' cannot be specified. Please pick one.");
                 return -1;
             }
 
@@ -58,17 +65,20 @@ namespace MSBuild.Conversion
                     return -1;
                 }
 
-                if (tfm is null)
+                if (!keepCurrentTfms)
                 {
-                    tfm = TargetFrameworkHelper.FindHighestInstalledTargetFramework(allowPreviews);
-                }
-                else
-                {
-                    tfm = tfm.Trim();
-                    if(!TargetFrameworkHelper.IsValidTargetFramework(tfm))
+                    if (string.IsNullOrWhiteSpace(tfm))
                     {
-                        Console.WriteLine($"Invalid framework specified for --target-framework: '{tfm}'");
-                        return -1;
+                        tfm = TargetFrameworkHelper.FindHighestInstalledTargetFramework(allowPreviews);
+                    }
+                    else
+                    {
+                        tfm = tfm.Trim();
+                        if (!TargetFrameworkHelper.IsValidTargetFramework(tfm))
+                        {
+                            Console.WriteLine($"Invalid framework specified for --target-framework: '{tfm}'");
+                            return -1;
+                        }
                     }
                 }
 
@@ -102,7 +112,7 @@ namespace MSBuild.Conversion
                     else
                     {
                         var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-                        converter.Convert(tfm, item.ProjectRootElement.FullPath);
+                        converter.Convert(item.ProjectRootElement.FullPath, tfm, keepCurrentTfms);
                     }
                 }
             }

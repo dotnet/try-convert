@@ -13,7 +13,7 @@ namespace MSBuild.Conversion.Project
 {
     public static class ProjectRootElementExtensions
     {
-        public static IProjectRootElement ChangeImports(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
+        public static IProjectRootElement ChangeImportsAndAddSdkAttribute(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {
             switch (baselineProject.ProjectStyle)
             {
@@ -155,7 +155,7 @@ namespace MSBuild.Conversion.Project
                     }
                     else if (ProjectItemHelpers.IsReferenceConvertibleToPackageReference(item))
                     {
-                        string packageName = NugetHelpers.FindPackageNameFromReferenceName(item.Include);
+                        var packageName = NugetHelpers.FindPackageNameFromReferenceName(item.Include);
                         string? version = null;
                         try
                         {
@@ -454,45 +454,12 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement AddTargetFrameworkProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string defaultTFM, out string targetFrameworkMoniker)
+        public static IProjectRootElement AddTargetFrameworkProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string tfm)
         {
-            static string StripDecimals(string tfm)
-            {
-                var parts = tfm.Split('.');
-                return string.Join("", parts);
-            }
-
-            if (baselineProject.GlobalProperties.Contains(MSBuildFacts.TargetFrameworkNodeName, StringComparer.OrdinalIgnoreCase))
-            {
-                // The original project had a TargetFramework property. No need to add it again.
-                targetFrameworkMoniker = baselineProject.GlobalProperties.First(p => p.Equals(MSBuildFacts.TargetFrameworkNodeName, StringComparison.OrdinalIgnoreCase));
-                return projectRootElement;
-            }
-
             var propGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroup(baselineProject, projectRootElement);
-
             var targetFrameworkElement = projectRootElement.CreatePropertyElement(MSBuildFacts.TargetFrameworkNodeName);
-
-            if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop || baselineProject.ProjectStyle == ProjectStyle.MSTest)
-            {
-                targetFrameworkElement.Value = defaultTFM;
-            }
-            else
-            {
-                var rawTFM = baselineProject.Project.FirstConfiguredProject.GetProperty(MSBuildFacts.TargetFrameworkNodeName)?.EvaluatedValue;
-
-                if (rawTFM == null)
-                {
-                    throw new InvalidOperationException(
-                        $"{MSBuildFacts.TargetFrameworkNodeName} is not set in {nameof(baselineProject.Project.FirstConfiguredProject)}");
-                }
-                // This is pretty much never gonna happen, but it was cheap to write the code
-                targetFrameworkElement.Value = MSBuildHelpers.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
-            }
-
+            targetFrameworkElement.Value = tfm;
             propGroup.PrependChild(targetFrameworkElement);
-
-            targetFrameworkMoniker = targetFrameworkElement.Value;
             return projectRootElement;
         }
     }

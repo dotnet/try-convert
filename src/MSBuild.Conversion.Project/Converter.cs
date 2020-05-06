@@ -5,6 +5,7 @@ using System.Xml;
 using System.Xml.Linq;
 
 using MSBuild.Abstractions;
+using MSBuild.Conversion.Facts;
 
 namespace MSBuild.Conversion.Project
 {
@@ -23,9 +24,44 @@ namespace MSBuild.Conversion.Project
             _differs = GetDiffers();
         }
 
-        public void Convert(string defaultTFM, string outputPath)
+        public void Convert(string outputPath, string? defaultTFM, bool keepCurrentTfm)
         {
-            ConvertProjectFile(defaultTFM);
+            ConvertProjectFile(defaultTFM, keepCurrentTfm);
+            CleanUpProjectFile(outputPath);
+        }
+
+        internal IProjectRootElement ConvertProjectFile(string? defaultTFM, bool keepCurrentTfm)
+        {
+            var tfm = _sdkBaselineProject.ProjectStyle switch
+            {
+                ProjectStyle.WindowsDesktop when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
+                ProjectStyle.MSTest when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
+                _ => _sdkBaselineProject.GetTfm()
+            };
+
+            return _projectRootElement
+                // Let's convert packages first, since that's what you should do manually anyways
+                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
+
+                // Now we can convert the project over
+                .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject)
+                .RemoveDefaultedProperties(_sdkBaselineProject, _differs)
+                .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle)
+                .AddTargetFrameworkProperty(_sdkBaselineProject, tfm)
+                .AddGenerateAssemblyInfoAsFalse()
+                .AddDesktopProperties(_sdkBaselineProject)
+                .AddCommonPropertiesToTopLevelPropertyGroup()
+                .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)
+                .AddItemRemovesForIntroducedItems(_differs)
+                .RemoveUnnecessaryTargetsIfTheyExist()
+                .ModifyProjectElement();
+        }
+
+        internal ImmutableDictionary<string, Differ> GetDiffers() =>
+            _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Item2);
+
+        private void CleanUpProjectFile(string outputPath)
+        {
             var projectXml = _projectRootElement.Xml;
 
             // remove all use of xmlns attributes
@@ -63,25 +99,5 @@ namespace MSBuild.Conversion.Project
             using var writer = XmlWriter.Create(outputPath, writerSettings);
             projectXml.Save(writer);
         }
-
-        internal IProjectRootElement ConvertProjectFile(string defaultTFM)
-        {
-            return _projectRootElement
-                .ChangeImports(_sdkBaselineProject)
-                .RemoveDefaultedProperties(_sdkBaselineProject, _differs)
-                .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle)
-                .AddTargetFrameworkProperty(_sdkBaselineProject, defaultTFM, out var tfm)
-                .AddGenerateAssemblyInfoAsFalse()
-                .AddDesktopProperties(_sdkBaselineProject)
-                .AddCommonPropertiesToTopLevelPropertyGroup()
-                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
-                .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)
-                .AddItemRemovesForIntroducedItems(_differs)
-                .RemoveUnnecessaryTargetsIfTheyExist()
-                .ModifyProjectElement();
-        }
-
-        internal ImmutableDictionary<string, Differ> GetDiffers() =>
-            _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Item2);
     }
 }

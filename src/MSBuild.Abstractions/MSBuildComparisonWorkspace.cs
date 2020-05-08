@@ -11,13 +11,13 @@ using MSBuild.Conversion.Facts;
 
 namespace MSBuild.Abstractions
 {
-    public class MSBuildWorkspace
+    public class MSBuildConversionWorkspace
     {
-        public ImmutableArray<MSBuildWorkspaceItem> WorkspaceItems { get; }
+        public ImmutableArray<MSBuildConversionWorkspaceItem> WorkspaceItems { get; }
 
-        public MSBuildWorkspace(ImmutableArray<string> paths, bool noBackup)
+        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup)
         {
-            var items = ImmutableArray.CreateBuilder<MSBuildWorkspaceItem>();
+            var items = ImmutableArray.CreateBuilder<MSBuildConversionWorkspaceItem>();
 
             var globalProperties = ImmutableDictionary<string, string>.Empty;
             using var collection = new ProjectCollection();
@@ -52,7 +52,7 @@ namespace MSBuild.Abstractions
                     var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations);
                     root.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
 
-                    var item = new MSBuildWorkspaceItem(root, unconfiguredProject, baseline);
+                    var item = new MSBuildConversionWorkspaceItem(root, unconfiguredProject, baseline);
                     items.Add(item);
                 }
             }

@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace MSBuild.Abstractions
 {
-    public class MSBuildWorkspaceFinder
+    public class MSBuildComparisonWorkspaceFinder
     {
         // Used to exclude dnx projects
         private const string DnxProjectExtension = ".xproj";

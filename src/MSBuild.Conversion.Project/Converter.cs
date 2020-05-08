@@ -27,11 +27,8 @@ namespace MSBuild.Conversion.Project
 
         public void Convert(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
-            var result = ConvertProjectFile(specifiedTFM, keepCurrentTfm, usePreviewSDK);
-            if (result is { })
-            {
-                CleanUpProjectFile(outputPath);
-            }
+            ConvertProjectFile(specifiedTFM, keepCurrentTfm, usePreviewSDK);
+            CleanUpProjectFile(outputPath);
         }
 
         internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
@@ -62,21 +59,27 @@ namespace MSBuild.Conversion.Project
                     // Let's figure this out, friends
                     var tfmForApps = TargetFrameworkHelper.FindHighestInstalledTargetFramework(usePreviewSDK);
 
-                    specifiedTFM =
-                        keepCurrentTfm
-                        ? baselineProject.GetTfm()
-                        : baselineProject.ProjectStyle switch
-                        {
-                            ProjectStyle.WindowsDesktop => tfmForApps,
-                            ProjectStyle.MSTest => tfmForApps,
-                            _ =>
-                                baselineProject.OutputType switch
-                                {
-                                    ProjectOutputType.Library => MSBuildFacts.Netstandard20,
-                                    ProjectOutputType.Exe => tfmForApps,
-                                    _ => baselineProject.GetTfm() // Dunno, just use what we got I guess
-                                }
-                        };
+                    if (keepCurrentTfm)
+                    {
+                        specifiedTFM = baselineProject.GetTfm();
+                    }
+                    else if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop || baselineProject.ProjectStyle == ProjectStyle.MSTest)
+                    {
+                        specifiedTFM = tfmForApps;
+                    }
+                    else if (baselineProject.OutputType == ProjectOutputType.Library)
+                    {
+                        specifiedTFM = MSBuildFacts.Netstandard20;
+                    }
+                    else if (baselineProject.OutputType == ProjectOutputType.Exe)
+                    {
+                        specifiedTFM = tfmForApps;
+                    }
+                    else
+                    {
+                        // Default is to just use what exists in the project
+                        specifiedTFM = baselineProject.GetTfm();
+                    }
                 }
 
                 return specifiedTFM;

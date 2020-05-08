@@ -76,21 +76,21 @@ namespace MSBuild.Conversion
                 }
 
                 var workspacePath = string.Empty;
-                MSBuildWorkspaceType workspaceType;
+                MSBuildComparisonWorkspaceType workspaceType;
 
                 if (!string.IsNullOrWhiteSpace(project))
                 {
                     workspacePath = Path.GetFullPath(project, Environment.CurrentDirectory);
-                    workspaceType = MSBuildWorkspaceType.Project;
+                    workspaceType = MSBuildComparisonWorkspaceType.Project;
                 }
                 else
                 {
-                    var (isSolution, workspaceFilePath) = MSBuildWorkspaceFinder.FindWorkspace(Environment.CurrentDirectory, workspace);
-                    workspaceType = isSolution ? MSBuildWorkspaceType.Solution : MSBuildWorkspaceType.Project;
+                    var (isSolution, workspaceFilePath) = MSBuildComparisonWorkspaceFinder.FindWorkspace(Environment.CurrentDirectory, workspace);
+                    workspaceType = isSolution ? MSBuildComparisonWorkspaceType.Solution : MSBuildComparisonWorkspaceType.Project;
                     workspacePath = workspaceFilePath;
                 }
 
-                var workspaceLoader = new MSBuildWorkspaceLoader(workspacePath, workspaceType);
+                var workspaceLoader = new MSBuildComparisonWorkspaceLoader(workspacePath, workspaceType);
                 // do not create backup if --diff-only specified
                 noBackup = noBackup || diffOnly;
                 var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup);

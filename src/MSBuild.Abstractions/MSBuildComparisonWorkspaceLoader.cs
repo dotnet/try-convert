@@ -8,12 +8,12 @@ using Microsoft.Build.Evaluation;
 
 namespace MSBuild.Abstractions
 {
-    public class MSBuildWorkspaceLoader
+    public class MSBuildComparisonWorkspaceLoader
     {
         private readonly string _workspacePath;
-        private readonly MSBuildWorkspaceType _workspaceType;
+        private readonly MSBuildComparisonWorkspaceType _workspaceType;
 
-        public MSBuildWorkspaceLoader(string workspacePath, MSBuildWorkspaceType workspaceType)
+        public MSBuildComparisonWorkspaceLoader(string workspacePath, MSBuildComparisonWorkspaceType workspaceType)
         {
             if (string.IsNullOrWhiteSpace(workspacePath))
             {
@@ -29,20 +29,20 @@ namespace MSBuild.Abstractions
             _workspaceType = workspaceType;
         }
 
-        public MSBuildWorkspace LoadWorkspace(string path, bool noBackup)
+        public MSBuildConversionWorkspace LoadWorkspace(string path, bool noBackup)
         {
             var projectPaths =
                 _workspaceType switch
                 {
-                    MSBuildWorkspaceType.Project => ImmutableArray.Create(path),
-                    MSBuildWorkspaceType.Solution =>
+                    MSBuildComparisonWorkspaceType.Project => ImmutableArray.Create(path),
+                    MSBuildComparisonWorkspaceType.Solution =>
                         SolutionFile.Parse(_workspacePath).ProjectsInOrder
                             .Where(IsSupportedSolutionItemType)
                             .Select(p => p.AbsolutePath).ToImmutableArray(),
                     _ => throw new InvalidOperationException("Somehow, an enum that isn't possible was passed in here.")
                 };
 
-            return new MSBuildWorkspace(projectPaths, noBackup);
+            return new MSBuildConversionWorkspace(projectPaths, noBackup);
 
             static bool IsSupportedSolutionItemType(ProjectInSolution project)
             {

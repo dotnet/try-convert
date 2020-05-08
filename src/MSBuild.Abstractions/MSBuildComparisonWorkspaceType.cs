@@ -1,6 +1,6 @@
 ﻿namespace MSBuild.Abstractions
 {
-    public enum MSBuildWorkspaceType
+    public enum MSBuildComparisonWorkspaceType
     {
         Project,
         Solution

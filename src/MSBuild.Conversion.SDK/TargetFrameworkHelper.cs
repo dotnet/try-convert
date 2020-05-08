@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 
 using Microsoft.Build.Locator;
-
+using MSBuild.Conversion.Facts;
 using NuGet.Versioning;
 
 namespace MSBuild.Conversion.SDK
@@ -72,7 +72,7 @@ namespace MSBuild.Conversion.SDK
             }
             catch (Exception)
             {
-                return "netcoreapp3.1";
+                return MSBuildFacts.Netcoreapp31;
             }
 
         }

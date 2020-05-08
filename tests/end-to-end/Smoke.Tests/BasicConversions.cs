@@ -67,7 +67,7 @@ namespace SmokeTests
 
             var item = conversionWorkspace.WorkspaceItems.Single();
             var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-            var convertedRootElement = converter.ConvertProjectFile("netcoreapp3.1", keepCurrentTfm: false);
+            var convertedRootElement = converter.ConvertProjectFile("netcoreapp3.1", keepCurrentTfm: false, usePreviewSDK: false);
 
             return (baselineRootElement, convertedRootElement);
         }

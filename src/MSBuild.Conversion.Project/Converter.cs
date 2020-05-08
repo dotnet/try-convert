@@ -26,18 +26,40 @@ namespace MSBuild.Conversion.Project
 
         public void Convert(string outputPath, string? defaultTFM, bool keepCurrentTfm)
         {
-            ConvertProjectFile(defaultTFM, keepCurrentTfm);
-            CleanUpProjectFile(outputPath);
+            var result = ConvertProjectFile(defaultTFM, keepCurrentTfm);
+            if (result is { })
+            {
+                CleanUpProjectFile(outputPath);
+            }
         }
 
-        internal IProjectRootElement ConvertProjectFile(string? defaultTFM, bool keepCurrentTfm)
+        internal IProjectRootElement? ConvertProjectFile(string? defaultTFM, bool keepCurrentTfm)
         {
-            var tfm = _sdkBaselineProject.ProjectStyle switch
+            string? tfm;
+            
+            if (keepCurrentTfm)
             {
-                ProjectStyle.WindowsDesktop when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
-                ProjectStyle.MSTest when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
-                _ => _sdkBaselineProject.GetTfm()
-            };
+                tfm = _sdkBaselineProject.GetTfm();
+            }
+            else
+            {
+                var outputTypeNode = _projectRootElement.GetOutputTypeNode();
+                if (outputTypeNode is null)
+                {
+                    Console.WriteLine("No OutputType found in the project file. The tool cannot reasonably convert this project.");
+                    return null;
+                }
+
+                tfm = _sdkBaselineProject.ProjectStyle switch
+                {
+                    ProjectStyle.WindowsDesktop when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
+                    ProjectStyle.MSTest when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
+                    _ =>
+                        string.Equals(outputTypeNode.Value, MSBuildFacts.LibraryOutputType, StringComparison.OrdinalIgnoreCase)
+                        ? MSBuildFacts.Netstandard20
+                        : _sdkBaselineProject.GetTfm()
+                };
+            }
 
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways

@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-
 using Microsoft.Build.Construction;
 
 using MSBuild.Abstractions;
@@ -13,6 +12,12 @@ namespace MSBuild.Conversion.Project
 {
     public static class ProjectRootElementExtensions
     {
+        /// <summary>
+        /// Gets the OutputType node in a project. There will only reasonably be one.
+        /// </summary>
+        public static ProjectPropertyElement GetOutputTypeNode(this IProjectRootElement root) =>
+            root.PropertyGroups.SelectMany(pg => pg.Properties.Where(ProjectPropertyHelpers.IsOutputTypeNode)).FirstOrDefault();
+
         public static IProjectRootElement ChangeImportsAndAddSdkAttribute(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {
             switch (baselineProject.ProjectStyle)

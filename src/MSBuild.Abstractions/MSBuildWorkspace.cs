@@ -93,6 +93,7 @@ namespace MSBuild.Abstractions
         private BaselineProject CreateSdkBaselineProject(string projectFilePath, IProject project, IProjectRootElement root, ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations)
         {
             var projectStyle = GetProjectStyle(root);
+            var outputType = GetProjectOutputType(root);
             var rootElement = ProjectRootElement.Open(projectFilePath);
 
             rootElement.RemoveAllChildren();
@@ -157,7 +158,42 @@ namespace MSBuild.Abstractions
                 propertiesInTheBaseline = propertiesInTheBaseline.Add(DesktopFacts.UseWPFPropertyName);
             }
 
-            return new BaselineProject(newProject, propertiesInTheBaseline, projectStyle);
+            return new BaselineProject(newProject, propertiesInTheBaseline, projectStyle, outputType);
+        }
+
+        private bool IsSupportedOutputType(ProjectOutputType type) =>
+            type switch
+            {
+                ProjectOutputType.Exe => true,
+                ProjectOutputType.Library => true,
+                ProjectOutputType.WinExe => true,
+                _ => false
+            };
+
+        private ProjectOutputType GetProjectOutputType(IProjectRootElement root)
+        {
+            var outputTypeNode = root.GetOutputTypeNode();
+            if (outputTypeNode is null)
+            {
+                Console.WriteLine($"No OutputType found in the project file '{root.FullPath}'. Are you sure your project builds today?");
+                return ProjectOutputType.None;
+            }
+            else if (ProjectPropertyHelpers.IsLibraryOutputType(outputTypeNode))
+            {
+                return ProjectOutputType.Library;
+            }
+            else if (ProjectPropertyHelpers.IsExeOutputType(outputTypeNode))
+            {
+                return ProjectOutputType.Exe;
+            }
+            else if (ProjectPropertyHelpers.IsWinExeOutputType(outputTypeNode))
+            {
+                return ProjectOutputType.WinExe;
+            }
+            else
+            {
+                return ProjectOutputType.Other;
+            }
         }
 
         private ProjectStyle GetProjectStyle(IProjectRootElement projectRootElement)
@@ -225,7 +261,7 @@ namespace MSBuild.Abstractions
             }
         }
 
-        private bool IsSupportedProjectType(MSBuildProjectRootElement root)
+        private bool IsSupportedProjectType(IProjectRootElement root)
         {
             if (root.Sdk.ContainsIgnoreCase(MSBuildFacts.DefaultSDKAttribute))
             {
@@ -233,7 +269,7 @@ namespace MSBuild.Abstractions
                 return false;
             }
 
-            if (!root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsSupportedOutputType)))
+            if (!IsSupportedOutputType(GetProjectOutputType(root)))
             {
                 Console.WriteLine($"{root.FullPath} does not have a supported OutputType.");
                 return false;
@@ -295,7 +331,7 @@ namespace MSBuild.Abstractions
                 }
             }
 
-            static ProjectSupportType GetProjectSupportType(MSBuildProjectRootElement root)
+            static ProjectSupportType GetProjectSupportType(IProjectRootElement root)
             {
                 if (root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsLegacyWebProjectTypeGuidsProperty)))
                 {

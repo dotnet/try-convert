@@ -141,5 +141,26 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static bool IsUnitTestType(ProjectPropertyElement prop) =>
             prop.ElementName.Equals(MSTestFacts.TestProjectTypeNodeName, StringComparison.OrdinalIgnoreCase) && prop.Value.Equals(MSTestFacts.UnitTestTestProjectType, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if an OutputType node is Library.
+        /// </summary>
+        public static bool IsLibraryOutputType(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSBuildFacts.OutputTypeNodeName, StringComparison.OrdinalIgnoreCase)
+            && prop.Value.Equals(MSBuildFacts.LibraryOutputType, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if an OutputType node is Exe.
+        /// </summary>
+        public static bool IsExeOutputType(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSBuildFacts.OutputTypeNodeName, StringComparison.OrdinalIgnoreCase)
+            && prop.Value.Equals(MSBuildFacts.ExeOutputType, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if an OutputType node is Exe.
+        /// </summary>
+        public static bool IsWinExeOutputType(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSBuildFacts.OutputTypeNodeName, StringComparison.OrdinalIgnoreCase)
+            && prop.Value.Equals(MSBuildFacts.WinExeOutputType, StringComparison.OrdinalIgnoreCase);
     }
 }

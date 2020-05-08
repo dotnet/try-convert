@@ -10,13 +10,8 @@ using MSBuild.Conversion.Package;
 
 namespace MSBuild.Conversion.Project
 {
-    public static class ProjectRootElementExtensions
+    public static class ProjectRootElementExtensionsForConversion
     {
-        /// <summary>
-        /// Gets the OutputType node in a project. There will only reasonably be one.
-        /// </summary>
-        public static ProjectPropertyElement GetOutputTypeNode(this IProjectRootElement root) =>
-            root.PropertyGroups.SelectMany(pg => pg.Properties.Where(ProjectPropertyHelpers.IsOutputTypeNode)).FirstOrDefault();
 
         public static IProjectRootElement ChangeImportsAndAddSdkAttribute(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {

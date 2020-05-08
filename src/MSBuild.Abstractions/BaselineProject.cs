@@ -11,12 +11,14 @@ namespace MSBuild.Abstractions
         public readonly ImmutableDictionary<string, string> TargetProjectProperties;
         public readonly UnconfiguredProject Project;
         public readonly ProjectStyle ProjectStyle;
+        public readonly ProjectOutputType OutputType;
 
-        public BaselineProject(UnconfiguredProject project, ImmutableArray<string> globalProperties, ProjectStyle projectStyle) : this()
+        public BaselineProject(UnconfiguredProject project, ImmutableArray<string> globalProperties, ProjectStyle projectStyle, ProjectOutputType outputType) : this()
         {
             GlobalProperties = globalProperties;
             Project = project ?? throw new ArgumentNullException(nameof(project));
             ProjectStyle = projectStyle;
+            OutputType = outputType;
         }
 
         public string GetTfm()

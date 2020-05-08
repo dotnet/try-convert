@@ -24,42 +24,18 @@ namespace MSBuild.Conversion.Project
             _differs = GetDiffers();
         }
 
-        public void Convert(string outputPath, string? defaultTFM, bool keepCurrentTfm)
+        public void Convert(string outputPath, string? highestAvailableAppTFM, bool keepCurrentTfm)
         {
-            var result = ConvertProjectFile(defaultTFM, keepCurrentTfm);
+            var result = ConvertProjectFile(highestAvailableAppTFM, keepCurrentTfm);
             if (result is { })
             {
                 CleanUpProjectFile(outputPath);
             }
         }
 
-        internal IProjectRootElement? ConvertProjectFile(string? defaultTFM, bool keepCurrentTfm)
+        internal IProjectRootElement? ConvertProjectFile(string? highestAvailableAppTFM, bool keepCurrentTfm)
         {
-            string? tfm;
-            
-            if (keepCurrentTfm)
-            {
-                tfm = _sdkBaselineProject.GetTfm();
-            }
-            else
-            {
-                var outputTypeNode = _projectRootElement.GetOutputTypeNode();
-                if (outputTypeNode is null)
-                {
-                    Console.WriteLine("No OutputType found in the project file. The tool cannot reasonably convert this project.");
-                    return null;
-                }
-
-                tfm = _sdkBaselineProject.ProjectStyle switch
-                {
-                    ProjectStyle.WindowsDesktop when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
-                    ProjectStyle.MSTest when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
-                    _ =>
-                        string.Equals(outputTypeNode.Value, MSBuildFacts.LibraryOutputType, StringComparison.OrdinalIgnoreCase)
-                        ? MSBuildFacts.Netstandard20
-                        : _sdkBaselineProject.GetTfm()
-                };
-            }
+            var tfm = ComputeTFM(_sdkBaselineProject, keepCurrentTfm, highestAvailableAppTFM);
 
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways
@@ -77,6 +53,22 @@ namespace MSBuild.Conversion.Project
                 .AddItemRemovesForIntroducedItems(_differs)
                 .RemoveUnnecessaryTargetsIfTheyExist()
                 .ModifyProjectElement();
+
+            static string ComputeTFM(BaselineProject baselineProject, bool keepCurrentTfm, string? highestAvailableAppTFM) =>
+                keepCurrentTfm
+                ? baselineProject.GetTfm()
+                : baselineProject.ProjectStyle switch
+                {
+                    ProjectStyle.WindowsDesktop when !(keepCurrentTfm || string.IsNullOrWhiteSpace(highestAvailableAppTFM)) => highestAvailableAppTFM,
+                    ProjectStyle.MSTest when !(keepCurrentTfm || string.IsNullOrWhiteSpace(highestAvailableAppTFM)) => highestAvailableAppTFM,
+                    _ =>
+                        baselineProject.OutputType switch
+                        {
+                            ProjectOutputType.Library => MSBuildFacts.Netstandard20,
+                            ProjectOutputType.Exe when !string.IsNullOrWhiteSpace(highestAvailableAppTFM) => highestAvailableAppTFM,
+                            _ => baselineProject.GetTfm()
+                        }
+                };
         }
 
         internal ImmutableDictionary<string, Differ> GetDiffers() =>

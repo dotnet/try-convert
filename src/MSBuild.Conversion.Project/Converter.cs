@@ -6,6 +6,7 @@ using System.Xml.Linq;
 
 using MSBuild.Abstractions;
 using MSBuild.Conversion.Facts;
+using MSBuild.Conversion.SDK;
 
 namespace MSBuild.Conversion.Project
 {
@@ -24,18 +25,18 @@ namespace MSBuild.Conversion.Project
             _differs = GetDiffers();
         }
 
-        public void Convert(string outputPath, string? highestAvailableAppTFM, bool keepCurrentTfm)
+        public void Convert(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
-            var result = ConvertProjectFile(highestAvailableAppTFM, keepCurrentTfm);
+            var result = ConvertProjectFile(specifiedTFM, keepCurrentTfm, usePreviewSDK);
             if (result is { })
             {
                 CleanUpProjectFile(outputPath);
             }
         }
 
-        internal IProjectRootElement? ConvertProjectFile(string? highestAvailableAppTFM, bool keepCurrentTfm)
+        internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
-            var tfm = ComputeTFM(_sdkBaselineProject, keepCurrentTfm, highestAvailableAppTFM);
+            var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
 
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways
@@ -54,21 +55,32 @@ namespace MSBuild.Conversion.Project
                 .RemoveUnnecessaryTargetsIfTheyExist()
                 .ModifyProjectElement();
 
-            static string ComputeTFM(BaselineProject baselineProject, bool keepCurrentTfm, string? highestAvailableAppTFM) =>
-                keepCurrentTfm
-                ? baselineProject.GetTfm()
-                : baselineProject.ProjectStyle switch
+            static string GetBestTFM(BaselineProject baselineProject, bool keepCurrentTfm, string? specifiedTFM, bool usePreviewSDK)
+            {
+                if (string.IsNullOrWhiteSpace(specifiedTFM))
                 {
-                    ProjectStyle.WindowsDesktop when !(keepCurrentTfm || string.IsNullOrWhiteSpace(highestAvailableAppTFM)) => highestAvailableAppTFM,
-                    ProjectStyle.MSTest when !(keepCurrentTfm || string.IsNullOrWhiteSpace(highestAvailableAppTFM)) => highestAvailableAppTFM,
-                    _ =>
-                        baselineProject.OutputType switch
+                    // Let's figure this out, friends
+                    var tfmForApps = TargetFrameworkHelper.FindHighestInstalledTargetFramework(usePreviewSDK);
+
+                    specifiedTFM =
+                        keepCurrentTfm
+                        ? baselineProject.GetTfm()
+                        : baselineProject.ProjectStyle switch
                         {
-                            ProjectOutputType.Library => MSBuildFacts.Netstandard20,
-                            ProjectOutputType.Exe when !string.IsNullOrWhiteSpace(highestAvailableAppTFM) => highestAvailableAppTFM,
-                            _ => baselineProject.GetTfm()
-                        }
-                };
+                            ProjectStyle.WindowsDesktop => tfmForApps,
+                            ProjectStyle.MSTest => tfmForApps,
+                            _ =>
+                                baselineProject.OutputType switch
+                                {
+                                    ProjectOutputType.Library => MSBuildFacts.Netstandard20,
+                                    ProjectOutputType.Exe => tfmForApps,
+                                    _ => baselineProject.GetTfm() // Dunno, just use what we got I guess
+                                }
+                        };
+                }
+
+                return specifiedTFM;
+            }
         }
 
         internal ImmutableDictionary<string, Differ> GetDiffers() =>

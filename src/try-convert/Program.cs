@@ -32,7 +32,7 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "-p", "--project" }, "The path to a project to convert") { Argument = new Argument<string?>(() => null) })
                 .AddOption(new Option(new[] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.") { Argument = new Argument<string?>(() => null) })
                 .AddOption(new Option(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that") { Argument = new Argument<string?>(() => null) })
-                .AddOption(new Option(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to. If unspecified, the default TFM chosen will be the highest available one found on your machine.") { Argument = new Argument<string?>(() => null) })
+                .AddOption(new Option(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to. If unspecified, the default TFM for apps chosen will be the highest available one found on your machine, and the default TFM for libraries will be .NET Standard 2.0.") { Argument = new Argument<string?>(() => null) })
                 .AddOption(new Option(new[] { "--preview" }, "Use preview SDKs as part of conversion") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.") { Argument = new Argument<bool>(() => false) })
@@ -65,20 +65,13 @@ namespace MSBuild.Conversion
                     return -1;
                 }
 
-                if (!keepCurrentTfms)
+                if (!string.IsNullOrWhiteSpace(tfm))
                 {
-                    if (string.IsNullOrWhiteSpace(tfm))
+                    tfm = tfm.Trim();
+                    if (!TargetFrameworkHelper.IsValidTargetFramework(tfm))
                     {
-                        tfm = TargetFrameworkHelper.FindHighestInstalledTargetFramework(allowPreviews);
-                    }
-                    else
-                    {
-                        tfm = tfm.Trim();
-                        if (!TargetFrameworkHelper.IsValidTargetFramework(tfm))
-                        {
-                            Console.WriteLine($"Invalid framework specified for --target-framework: '{tfm}'");
-                            return -1;
-                        }
+                        Console.WriteLine($"Invalid framework specified for --target-framework: '{tfm}'");
+                        return -1;
                     }
                 }
 
@@ -112,7 +105,7 @@ namespace MSBuild.Conversion
                     else
                     {
                         var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-                        converter.Convert(item.ProjectRootElement.FullPath, tfm, keepCurrentTfms);
+                        converter.Convert(item.ProjectRootElement.FullPath, tfm, keepCurrentTfms, allowPreviews);
                     }
                 }
             }

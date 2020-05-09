@@ -12,7 +12,6 @@ namespace MSBuild.Conversion.Project
 {
     public static class ProjectRootElementExtensionsForConversion
     {
-
         public static IProjectRootElement ChangeImportsAndAddSdkAttribute(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {
             switch (baselineProject.ProjectStyle)

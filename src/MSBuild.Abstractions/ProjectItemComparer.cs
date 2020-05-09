@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MSBuild.Abstractions
 {
@@ -15,7 +16,7 @@ namespace MSBuild.Abstractions
             _compareMetadata = compareMetadata;
         }
 
-        public bool Equals(IProjectItem? x, IProjectItem? y)
+        public bool Equals([AllowNull] IProjectItem x, [AllowNull] IProjectItem y)
         {
             if (x == null && y == null)
             {

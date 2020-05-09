@@ -94,9 +94,10 @@ namespace MSBuild.Abstractions
 
         public string EvaluatedValue => _projectMetadata.EvaluatedValue;
 
-        public bool Equals(IProjectMetadata other)
+        public bool Equals(IProjectMetadata? other)
         {
-            return _projectMetadata.Name.Equals(other.Name) &&
+            return other != null &&
+                   _projectMetadata.Name.Equals(other.Name) &&
                    _projectMetadata.UnevaluatedValue.Equals(other.UnevaluatedValue) &&
                    _projectMetadata.EvaluatedValue.Equals(other.EvaluatedValue);
         }

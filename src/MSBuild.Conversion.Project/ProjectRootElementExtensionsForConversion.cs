@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-
 using Microsoft.Build.Construction;
 
 using MSBuild.Abstractions;
@@ -11,7 +10,7 @@ using MSBuild.Conversion.Package;
 
 namespace MSBuild.Conversion.Project
 {
-    public static class ProjectRootElementExtensions
+    public static class ProjectRootElementExtensionsForConversion
     {
         public static IProjectRootElement ChangeImportsAndAddSdkAttribute(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {

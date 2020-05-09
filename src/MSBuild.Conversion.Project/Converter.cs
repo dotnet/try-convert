@@ -6,6 +6,7 @@ using System.Xml.Linq;
 
 using MSBuild.Abstractions;
 using MSBuild.Conversion.Facts;
+using MSBuild.Conversion.SDK;
 
 namespace MSBuild.Conversion.Project
 {
@@ -24,20 +25,15 @@ namespace MSBuild.Conversion.Project
             _differs = GetDiffers();
         }
 
-        public void Convert(string outputPath, string? defaultTFM, bool keepCurrentTfm)
+        public void Convert(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
-            ConvertProjectFile(defaultTFM, keepCurrentTfm);
+            ConvertProjectFile(specifiedTFM, keepCurrentTfm, usePreviewSDK);
             CleanUpProjectFile(outputPath);
         }
 
-        internal IProjectRootElement ConvertProjectFile(string? defaultTFM, bool keepCurrentTfm)
+        internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
-            var tfm = _sdkBaselineProject.ProjectStyle switch
-            {
-                ProjectStyle.WindowsDesktop when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
-                ProjectStyle.MSTest when !(keepCurrentTfm || string.IsNullOrWhiteSpace(defaultTFM)) => defaultTFM,
-                _ => _sdkBaselineProject.GetTfm()
-            };
+            var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
 
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways
@@ -55,6 +51,39 @@ namespace MSBuild.Conversion.Project
                 .AddItemRemovesForIntroducedItems(_differs)
                 .RemoveUnnecessaryTargetsIfTheyExist()
                 .ModifyProjectElement();
+
+            static string GetBestTFM(BaselineProject baselineProject, bool keepCurrentTfm, string? specifiedTFM, bool usePreviewSDK)
+            {
+                if (string.IsNullOrWhiteSpace(specifiedTFM))
+                {
+                    // Let's figure this out, friends
+                    var tfmForApps = TargetFrameworkHelper.FindHighestInstalledTargetFramework(usePreviewSDK);
+
+                    if (keepCurrentTfm)
+                    {
+                        specifiedTFM = baselineProject.GetTfm();
+                    }
+                    else if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop || baselineProject.ProjectStyle == ProjectStyle.MSTest)
+                    {
+                        specifiedTFM = tfmForApps;
+                    }
+                    else if (baselineProject.OutputType == ProjectOutputType.Library)
+                    {
+                        specifiedTFM = MSBuildFacts.Netstandard20;
+                    }
+                    else if (baselineProject.OutputType == ProjectOutputType.Exe)
+                    {
+                        specifiedTFM = tfmForApps;
+                    }
+                    else
+                    {
+                        // Default is to just use what exists in the project
+                        specifiedTFM = baselineProject.GetTfm();
+                    }
+                }
+
+                return specifiedTFM;
+            }
         }
 
         internal ImmutableDictionary<string, Differ> GetDiffers() =>

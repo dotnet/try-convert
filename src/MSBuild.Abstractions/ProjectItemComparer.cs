@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MSBuild.Abstractions
 {
@@ -15,8 +16,23 @@ namespace MSBuild.Abstractions
             _compareMetadata = compareMetadata;
         }
 
-        public bool Equals(IProjectItem x, IProjectItem y)
+        public bool Equals([AllowNull] IProjectItem x, [AllowNull] IProjectItem y)
         {
+            if (x == null && y == null)
+            {
+                return true;
+            }
+
+            if (x == null)
+            {
+                return false;
+            }
+
+            if (y == null)
+            {
+                return false;
+            }
+
             // If y has all the metadata that x has then we declare them as equal. This is because
             // the sdk can add new metadata but there's not reason to remove them during conversion.
             var metadataEqual = _compareMetadata ?

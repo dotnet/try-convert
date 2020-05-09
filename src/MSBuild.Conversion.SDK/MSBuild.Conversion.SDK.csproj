@@ -9,4 +9,8 @@
     <PackageReference Include="NuGet.Versioning" Version="$(NuGetVersioningVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MSBuild.Conversion.Facts\MSBuild.Conversion.Facts.csproj" />
+  </ItemGroup>
+
 </Project>

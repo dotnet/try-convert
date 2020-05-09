@@ -227,5 +227,7 @@ namespace MSBuild.Conversion.Facts
         public const string TargetsSuffix = ".targets";
         public const string PropsSuffix = ".props";
         public const string PackagesSubstring = @"\packages";
+        public const string Netstandard20 = "netstandard2.0";
+        public const string Netcoreapp31 = "netcoreapp3.1";
     }
 }

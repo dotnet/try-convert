@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 
 using Microsoft.Build.Locator;
-
+using MSBuild.Conversion.Facts;
 using NuGet.Versioning;
 
 namespace MSBuild.Conversion.SDK
@@ -72,13 +72,13 @@ namespace MSBuild.Conversion.SDK
             }
             catch (Exception)
             {
-                return "netcoreapp3.1";
+                return MSBuildFacts.Netcoreapp31;
             }
 
         }
 
         /// <summary>
-        /// Regect obviously wrong TFM specifiers 
+        /// Reject obviously wrong TFM specifiers 
         /// </summary>
         public static bool IsValidTargetFramework(string tfm)
             => !tfm.Contains("-") && !tfm.Contains(" ") && tfm.Contains("net") && Regex.Match(tfm, "[0-9]").Success;

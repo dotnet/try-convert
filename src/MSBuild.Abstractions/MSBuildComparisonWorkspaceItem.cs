@@ -1,12 +1,12 @@
 ﻿namespace MSBuild.Abstractions
 {
-    public class MSBuildWorkspaceItem
+    public class MSBuildConversionWorkspaceItem
     {
         public IProjectRootElement ProjectRootElement { get; }
         public UnconfiguredProject UnconfiguredProject { get; }
         public BaselineProject SdkBaselineProject { get; }
 
-        public MSBuildWorkspaceItem(IProjectRootElement root, UnconfiguredProject unconfiguredProject, BaselineProject baseline)
+        public MSBuildConversionWorkspaceItem(IProjectRootElement root, UnconfiguredProject unconfiguredProject, BaselineProject baseline)
         {
             ProjectRootElement = root;
             UnconfiguredProject = unconfiguredProject;

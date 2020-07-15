@@ -16,9 +16,11 @@ namespace MSBuild.Conversion
     {
         private static async Task<int> Main(string[] args)
         {
-            var rootCommand = new RootCommand();
-            rootCommand.Name = "try-convert";
-            rootCommand.Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run)));
+            var rootCommand = new RootCommand
+            {
+                Name = "try-convert",
+                Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run)))
+            };
 
             var parser =
                 new CommandLineBuilder(rootCommand)
@@ -76,21 +78,21 @@ namespace MSBuild.Conversion
                 }
 
                 var workspacePath = string.Empty;
-                MSBuildComparisonWorkspaceType workspaceType;
+                MSBuildConversionWorkspaceType workspaceType;
 
                 if (!string.IsNullOrWhiteSpace(project))
                 {
                     workspacePath = Path.GetFullPath(project, Environment.CurrentDirectory);
-                    workspaceType = MSBuildComparisonWorkspaceType.Project;
+                    workspaceType = MSBuildConversionWorkspaceType.Project;
                 }
                 else
                 {
-                    var (isSolution, workspaceFilePath) = MSBuildComparisonWorkspaceFinder.FindWorkspace(Environment.CurrentDirectory, workspace);
-                    workspaceType = isSolution ? MSBuildComparisonWorkspaceType.Solution : MSBuildComparisonWorkspaceType.Project;
+                    var (isSolution, workspaceFilePath) = MSBuildConversionWorkspaceFinder.FindWorkspace(Environment.CurrentDirectory, workspace);
+                    workspaceType = isSolution ? MSBuildConversionWorkspaceType.Solution : MSBuildConversionWorkspaceType.Project;
                     workspacePath = workspaceFilePath;
                 }
 
-                var workspaceLoader = new MSBuildComparisonWorkspaceLoader(workspacePath, workspaceType);
+                var workspaceLoader = new MSBuildConversionWorkspaceLoader(workspacePath, workspaceType);
                 // do not create backup if --diff-only specified
                 noBackup = noBackup || diffOnly;
                 var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup);

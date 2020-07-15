@@ -30,8 +30,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MSBuild.Conversion.Project\MSBuild.Conversion.Project.csproj" />
-    <ProjectReference Include="..\MSBuild.Abstractions\MSBuild.Abstractions.csproj" />
-    <ProjectReference Include="..\MSBuild.Conversion.SDK\MSBuild.Conversion.SDK.csproj" />
   </ItemGroup>
 
 </Project>

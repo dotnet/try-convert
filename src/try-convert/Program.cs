@@ -39,12 +39,13 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "--winui" }, "Use if trying to convert a WinUI poject. Try-Convert will crash otherwise.") { Argument = new Argument<bool>(() => false) }) //Este Change
                 .Build();
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup, bool keepCurrentTfms)
+        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool winUI)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
@@ -95,7 +96,7 @@ namespace MSBuild.Conversion
                 var workspaceLoader = new MSBuildConversionWorkspaceLoader(workspacePath, workspaceType);
                 // do not create backup if --diff-only specified
                 noBackup = noBackup || diffOnly;
-                var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup);
+                var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup, winUI);
 
                 foreach (var item in msbuildWorkspace.WorkspaceItems)
                 {

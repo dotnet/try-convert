@@ -15,7 +15,7 @@ namespace MSBuild.Abstractions
     {
         public ImmutableArray<MSBuildConversionWorkspaceItem> WorkspaceItems { get; }
 
-        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup)
+        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup, bool winUI)
         {
             var items = ImmutableArray.CreateBuilder<MSBuildConversionWorkspaceItem>();
 
@@ -34,6 +34,36 @@ namespace MSBuild.Abstractions
                 }
 
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
+                // maybe do it here to root?
+                if (winUI)
+                {
+                    // remove from root improrts and import groups...
+                    foreach (ProjectImportElement i in root.Imports)
+                    {
+                        if (i.Project.EndsWith("Xaml.CSharp.targets"))
+                        {
+                            //root.Imports.Remove(i);
+                            root.RemoveChild(i);
+                            break;
+                           
+                        }
+                    }
+                    foreach (ProjectPropertyGroupElement pGroup in root.PropertyGroups)
+                    {
+                        foreach (var p in pGroup.AllChildren)
+                        {
+                            if (p.ElementName.Equals("VisualStudioVersion"))
+                            {
+                                root.RemoveChild(pGroup);
+                                //root.PropertyGroups.Remove(pGroup);
+                                break;
+
+                            }
+                        }
+                    }
+                    //remove vsix version
+
+                }
                 if (IsSupportedProjectType(root))
                 {
                     if (!noBackup)
@@ -47,6 +77,8 @@ namespace MSBuild.Abstractions
                     var configurations = DetermineConfigurations(root);
 
                     var unconfiguredProject = new UnconfiguredProject(configurations);
+                    // need to put if to pull out lines here
+                    // pull out "' or '$(VisualStudioVersion)' < '14.0" key
                     unconfiguredProject.LoadProjects(collection, globalProperties, path);
 
                     var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations);
@@ -165,6 +197,7 @@ namespace MSBuild.Abstractions
                 ProjectOutputType.Exe => true,
                 ProjectOutputType.Library => true,
                 ProjectOutputType.WinExe => true,
+                ProjectOutputType.AppContainer => true, // Este Add AppContainer supportedOutput
                 _ => false
             };
 
@@ -187,6 +220,10 @@ namespace MSBuild.Abstractions
             else if (ProjectPropertyHelpers.IsWinExeOutputType(outputTypeNode))
             {
                 return ProjectOutputType.WinExe;
+            }
+            else if (ProjectPropertyHelpers.IsAppContainerOutputType(outputTypeNode)) // Este added check for app container
+            {
+                return ProjectOutputType.AppContainer;
             }
             else
             {
@@ -268,7 +305,7 @@ namespace MSBuild.Abstractions
             }
 
             if (!IsSupportedOutputType(GetProjectOutputType(root)))
-            {
+             {
                 Console.WriteLine($"{root.FullPath} does not have a supported OutputType.");
                 return false;
             }

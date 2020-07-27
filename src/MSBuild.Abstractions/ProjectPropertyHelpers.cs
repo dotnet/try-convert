@@ -162,5 +162,12 @@ namespace MSBuild.Abstractions
         public static bool IsWinExeOutputType(ProjectPropertyElement prop) =>
             prop.ElementName.Equals(MSBuildFacts.OutputTypeNodeName, StringComparison.OrdinalIgnoreCase)
             && prop.Value.Equals(MSBuildFacts.WinExeOutputType, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checkis if OutputType node is AppContainer
+        /// </summary>
+        public static bool IsAppContainerOutputType(ProjectPropertyElement prop) => // Este added check for new output type
+            prop.ElementName.Equals(MSBuildFacts.OutputTypeNodeName, StringComparison.OrdinalIgnoreCase)
+            && prop.Value.Equals(MSBuildFacts.AppContainerOutputType, StringComparison.OrdinalIgnoreCase);
     }
 }

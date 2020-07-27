@@ -41,9 +41,9 @@ namespace MSBuild.Abstractions
                     foreach (ProjectImportElement i in root.Imports)
                     {
                         if (i.Project.EndsWith("Xaml.CSharp.targets"))
-                        {
-                            //root.Imports.Remove(i);
+                        {  
                             root.RemoveChild(i);
+                            root.AddImport("$(MSBuildToolsPath)\\Microsoft.CSharp.targets");
                             break;
                            
                         }
@@ -55,7 +55,6 @@ namespace MSBuild.Abstractions
                             if (p.ElementName.Equals("VisualStudioVersion"))
                             {
                                 root.RemoveChild(pGroup);
-                                //root.PropertyGroups.Remove(pGroup);
                                 break;
 
                             }
@@ -132,6 +131,7 @@ namespace MSBuild.Abstractions
                 case ProjectStyle.Default:
                 case ProjectStyle.DefaultSubset:
                 case ProjectStyle.MSTest:
+                case ProjectStyle.WinUI:
                     rootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
                     break;
                 case ProjectStyle.WindowsDesktop:
@@ -281,6 +281,10 @@ namespace MSBuild.Abstractions
                         else if (MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement))
                         {
                             return ProjectStyle.WindowsDesktop;
+                        }
+                        else if (MSBuildHelpers.IsWinUI(projectRootElement))
+                        {
+                            return ProjectStyle.WinUI;
                         }
                         else
                         {

@@ -25,6 +25,11 @@
         /// <summary>
         /// The project is an MSTest project that pulls in a lot of unnecessary imports.
         /// </summary>
-        MSTest
+        MSTest,
+
+        /// <summary>
+        /// Imports CSharp.targets and TODO How to identify the style?
+        /// </summary>
+        WinUI
     }
 }

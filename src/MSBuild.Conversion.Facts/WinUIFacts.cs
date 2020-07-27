@@ -6,7 +6,20 @@ namespace MSBuild.Conversion.Facts
     /// <summary>
     ///  A bunch of known values regarding WinUI2 projects.
     /// </summary>
-    class WinUIFacts
+    public static class WinUIFacts
     {
+
+        /// <summary>
+        /// The core set of references WinUI projects use.
+        /// </summary>
+        /// <remarks>
+        /// NEED to update some of these
+        /// </remarks>
+        public static ImmutableArray<string> KnownWinUIReferences => ImmutableArray.Create(
+            "Microsoft.UI.Xaml",
+            "Windows.UI.Xaml"
+        );
+
+        public const string PackageReferenceName = "PackageReference";
     }
 }

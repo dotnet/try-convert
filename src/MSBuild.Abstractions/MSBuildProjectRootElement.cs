@@ -51,6 +51,8 @@ namespace MSBuild.Abstractions
         public ICollection<ProjectItemGroupElement> ItemGroups => _rootElement.ItemGroups;
         public ICollection<ProjectTargetElement> Targets => _rootElement.Targets;
 
+        // Este added for winUI
+        public ProjectImportElement AddImport(string name) => _rootElement.AddImport(name);
         public ProjectItemGroupElement AddItemGroup() => _rootElement.AddItemGroup();
 
         public ProjectPropertyGroupElement AddPropertyGroup() => _rootElement.AddPropertyGroup();

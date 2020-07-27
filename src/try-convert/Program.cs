@@ -96,6 +96,8 @@ namespace MSBuild.Conversion
                 var workspaceLoader = new MSBuildConversionWorkspaceLoader(workspacePath, workspaceType);
                 // do not create backup if --diff-only specified
                 noBackup = noBackup || diffOnly;
+                //todo must use backup if winui used
+
                 var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup, winUI);
 
                 foreach (var item in msbuildWorkspace.WorkspaceItems)

@@ -39,7 +39,8 @@ namespace MSBuild.Conversion.Project
             foreach (var propGroup in projectRootElement.PropertyGroups)
             {
                 var configurationName = MSBuildHelpers.GetConfigurationName(propGroup.Condition);
-                var propDiff = differs[configurationName].GetPropertiesDiff();
+                if (!differs.ContainsKey(configurationName)) continue;// temporary fix, what is differs and why does it still have a reference to the old removed properties for winui?
+                var propDiff = differs[configurationName].GetPropertiesDiff();// broke here, project root elment does not have the same key (we removed it)
 
                 foreach (var prop in propGroup.Properties)
                 {

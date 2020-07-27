@@ -186,6 +186,26 @@ namespace MSBuild.Abstractions
         }
 
         /// <summary>
+        /// 
+        ///Dtermines if a given project is a WinUI Project by looking at PackageReferences
+        /// </summary>
+        /// <param name="projectRoot"></param>
+        /// <returns></returns>
+        public static bool IsWinUI(IProjectRootElement projectRoot)
+        {
+            var packageReferences = projectRoot.ItemGroups.SelectMany(GetPackageReferences)?.Select(elem => elem.Include.Split(',').First());
+            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
+            var both = packageReferences.Union(references);
+            return WinUIFacts.KnownWinUIReferences.Any(reference => both.Contains(reference, StringComparer.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Gets all Reference items from a given item group.
+        /// </summary>
+        private static IEnumerable<ProjectItemElement> GetPackageReferences(ProjectItemGroupElement itemGroup) =>
+            itemGroup.Items.Where(item => item.ElementName.Equals(WinUIFacts.PackageReferenceName, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>
         /// Determines if a given project references Desktop assemblies.
         /// </summary>
         public static bool IsDesktop(IProjectRootElement projectRoot)

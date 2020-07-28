@@ -20,6 +20,7 @@ namespace MSBuild.Conversion.Project
                 case ProjectStyle.DefaultSubset:
                 case ProjectStyle.WindowsDesktop:
                 case ProjectStyle.MSTest:
+                case ProjectStyle.WinUI: //Este Added for winui improt removal and sdk
                     foreach (var import in projectRootElement.Imports)
                     {
                         projectRootElement.RemoveChild(import);
@@ -163,7 +164,7 @@ namespace MSBuild.Conversion.Project
                         }
                         catch (Exception)
                         {
-                            // Network failure of come kind
+                            // Network failure of some kind
                         }
 
                         if (version is null)
@@ -297,6 +298,7 @@ namespace MSBuild.Conversion.Project
 
         public static IProjectRootElement ConvertAndAddPackages(this IProjectRootElement projectRootElement, ProjectStyle projectStyle, string tfm)
         {
+            // Target packages Item group
             var packagesConfigItemGroup = MSBuildHelpers.GetPackagesConfigItemGroup(projectRootElement);
             if (packagesConfigItemGroup is null)
             {

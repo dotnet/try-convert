@@ -37,11 +37,11 @@ namespace MSBuild.Conversion.Project
 
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways
-                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm) //here
+                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm) //Este: nothing to do, converts old packages.config style
 
                 // Now we can convert the project over
-                .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject)
-                .RemoveDefaultedProperties(_sdkBaselineProject, _differs)
+                .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject) // este: Remove old imports and use sdk style
+                .RemoveDefaultedProperties(_sdkBaselineProject, _differs) // here
                 .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle)
                 .AddTargetFrameworkProperty(_sdkBaselineProject, tfm)
                 .AddGenerateAssemblyInfoAsFalse()

@@ -33,11 +33,11 @@ namespace MSBuild.Conversion.Project
 
         internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
-            var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
+            var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK); // Este: done
 
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways
-                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
+                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm) //here
 
                 // Now we can convert the project over
                 .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject)
@@ -75,11 +75,17 @@ namespace MSBuild.Conversion.Project
                     {
                         specifiedTFM = tfmForApps;
                     }
+                    else if (baselineProject.ProjectStyle == ProjectStyle.WinUI) // Este: all winUI proj use net5.0 now
+                    {
+                        specifiedTFM = WinUIFacts.NetCore5;
+                    }
                     else
                     {
                         // Default is to just use what exists in the project
                         specifiedTFM = baselineProject.GetTfm();
                     }
+                    // if UWP use net5.0
+                    // if Desktop use net5.0 
                 }
 
                 return specifiedTFM;

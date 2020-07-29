@@ -41,8 +41,8 @@ namespace MSBuild.Conversion.Project
 
                 // Now we can convert the project over
                 .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject) // este: Remove old imports and use sdk style
-                .RemoveDefaultedProperties(_sdkBaselineProject, _differs) // here
-                .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle)
+                .RemoveDefaultedProperties(_sdkBaselineProject, _differs) // este: may need to revisit?
+                .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle) // here
                 .AddTargetFrameworkProperty(_sdkBaselineProject, tfm)
                 .AddGenerateAssemblyInfoAsFalse()
                 .AddDesktopProperties(_sdkBaselineProject)

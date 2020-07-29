@@ -22,6 +22,17 @@ namespace MSBuild.Conversion.Facts
             "Microsoft.NETCore.UniversalWindowsPlatform"
         );
 
+        /// <summary>
+        /// Set of unecessary properties that are ok to remove
+        /// </summary>
+        public static ImmutableArray<string> UnnecessaryProperties => ImmutableArray.Create(
+            "DefaultLanguage",
+            "ProjectGuid", // Are these important? should they be converted instead?
+            "ProjectTypeGuids", //same as above
+            "SubType"
+
+        );
+
         public const string PackageReferenceName = "PackageReference";
         public const string NetCore5 = "net5.0";
     }

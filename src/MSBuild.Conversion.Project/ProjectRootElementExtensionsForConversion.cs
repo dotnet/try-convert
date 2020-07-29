@@ -40,9 +40,9 @@ namespace MSBuild.Conversion.Project
             foreach (var propGroup in projectRootElement.PropertyGroups)
             {
                 var configurationName = MSBuildHelpers.GetConfigurationName(propGroup.Condition);
-                if (!differs.ContainsKey(configurationName)) continue;// temporary fix, what is differs and why does it still have a reference to the old removed properties for winui?
-                var propDiff = differs[configurationName].GetPropertiesDiff();// broke here, project root elment does not have the same key (we removed it)
-
+                if (!differs.ContainsKey(configurationName)) continue;// Este: temporary fix, what is differs and why does it still have a reference to the old removed properties for winui?
+                var propDiff = differs[configurationName].GetPropertiesDiff();// Este:  broke here, project root elment does not have the same key (we removed it)
+                var def = propDiff.DefaultedProperties;
                 foreach (var prop in propGroup.Properties)
                 {
                     // These properties were added to the baseline - so don't treat them as defaulted properties.
@@ -111,6 +111,10 @@ namespace MSBuild.Conversion.Project
                     else if (projectStyle == ProjectStyle.MSTest && ProjectPropertyHelpers.IsOutputTypeNode(prop))
                     {
                         // Old MSTest projects specify library, but this is not valid since tests on .NET Core are netcoreapp projects.
+                        propGroup.RemoveChild(prop);
+                    }else if (projectStyle == ProjectStyle.WinUI && WinUIFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase)) 
+                    {
+                        // Este remove winui specific unecessary properties
                         propGroup.RemoveChild(prop);
                     }
                 }

@@ -20,7 +20,7 @@ namespace MSBuild.Conversion.Project
                 case ProjectStyle.DefaultSubset:
                 case ProjectStyle.WindowsDesktop:
                 case ProjectStyle.MSTest:
-                case ProjectStyle.WinUI: //Este Added for winui improt removal and sdk
+                // case ProjectStyle.WinUI: //Este Added for winui improt removal and sdk FOR NOW skip so sdk does not change
                     foreach (var import in projectRootElement.Imports)
                     {
                         projectRootElement.RemoveChild(import);

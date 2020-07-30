@@ -31,6 +31,16 @@ namespace MSBuild.Conversion.Project
             CleanUpProjectFile(outputPath);
         }
 
+        public void ConvertWinUI3(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
+        {
+            var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
+            //TODO HERE NEED TO be done?
+            _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
+                .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)// need to go here to add./remove props MOST WORK WILL BE HERE
+                .ModifyProjectElement(); // does this need to be done? 
+            CleanUpProjectFile(outputPath);
+        }
+
         internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
             var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK); // Este: done
@@ -51,46 +61,47 @@ namespace MSBuild.Conversion.Project
                 .AddItemRemovesForIntroducedItems(_differs)
                 .RemoveUnnecessaryTargetsIfTheyExist()
                 .ModifyProjectElement();
-
-            static string GetBestTFM(BaselineProject baselineProject, bool keepCurrentTfm, string? specifiedTFM, bool usePreviewSDK)
-            {
-                if (string.IsNullOrWhiteSpace(specifiedTFM))
-                {
-                    // Let's figure this out, friends
-                    var tfmForApps = TargetFrameworkHelper.FindHighestInstalledTargetFramework(usePreviewSDK);
-
-                    if (keepCurrentTfm)
-                    {
-                        specifiedTFM = baselineProject.GetTfm();
-                    }
-                    else if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop || baselineProject.ProjectStyle == ProjectStyle.MSTest)
-                    {
-                        specifiedTFM = tfmForApps;
-                    }
-                    else if (baselineProject.OutputType == ProjectOutputType.Library)
-                    {
-                        specifiedTFM = MSBuildFacts.Netstandard20;
-                    }
-                    else if (baselineProject.OutputType == ProjectOutputType.Exe)
-                    {
-                        specifiedTFM = tfmForApps;
-                    }
-                    else if (baselineProject.ProjectStyle == ProjectStyle.WinUI) // Este: all winUI proj use net5.0 now
-                    {
-                        specifiedTFM = WinUIFacts.NetCore5;
-                    }
-                    else
-                    {
-                        // Default is to just use what exists in the project
-                        specifiedTFM = baselineProject.GetTfm();
-                    }
-                    // if UWP use net5.0
-                    // if Desktop use net5.0 
-                }
-
-                return specifiedTFM;
-            }
         }
+        internal static string GetBestTFM(BaselineProject baselineProject, bool keepCurrentTfm, string? specifiedTFM, bool usePreviewSDK)
+        {
+            if (string.IsNullOrWhiteSpace(specifiedTFM))
+            {
+                // Let's figure this out, friends
+                var tfmForApps = TargetFrameworkHelper.FindHighestInstalledTargetFramework(usePreviewSDK);
+
+                if (keepCurrentTfm)
+                {
+                    specifiedTFM = baselineProject.GetTfm();
+                }
+                else if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop || baselineProject.ProjectStyle == ProjectStyle.MSTest)
+                {
+                    specifiedTFM = tfmForApps;
+                }
+                else if (baselineProject.OutputType == ProjectOutputType.Library)
+                {
+                    specifiedTFM = MSBuildFacts.Netstandard20;
+                }
+                else if (baselineProject.OutputType == ProjectOutputType.Exe)
+                {
+                    specifiedTFM = tfmForApps;
+                }
+                /* Do Not change the tfm for now, leave as default
+                else if (baselineProject.ProjectStyle == ProjectStyle.WinUI) // Este: all winUI proj use net5.0 now
+                {
+                    specifiedTFM = WinUIFacts.NetCore5;
+                }
+                */
+                else
+                {
+                    // Default is to just use what exists in the project
+                    specifiedTFM = baselineProject.GetTfm();
+                }
+                // if UWP use net5.0
+                // if Desktop use net5.0 
+            }
+            return specifiedTFM;
+        }
+        
 
         internal ImmutableDictionary<string, Differ> GetDiffers() =>
             _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Item2);

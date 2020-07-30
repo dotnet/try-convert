@@ -15,7 +15,7 @@ namespace MSBuild.Abstractions
     {
         public ImmutableArray<MSBuildConversionWorkspaceItem> WorkspaceItems { get; }
 
-        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup, bool winUI)
+        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup, bool winUI3)
         {
             var items = ImmutableArray.CreateBuilder<MSBuildConversionWorkspaceItem>();
 
@@ -35,7 +35,7 @@ namespace MSBuild.Abstractions
 
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
                 // maybe do it here to root?
-                if (winUI)
+                if (winUI3)
                 {
                     // remove from root improrts and import groups...
                     foreach (ProjectImportElement i in root.Imports)

@@ -50,6 +50,18 @@ namespace MSBuild.Abstractions
             MSBuildFacts.DefaultItemsThatHavePackageEquivalents.ContainsKey(item.Include);
 
         /// <summary>
+        /// Checks if a NuGet package can be updated for WinUI3
+        /// </summary>
+        public static bool IsReferenceConvertibleToWinUIReference(ProjectItemElement item) =>
+            WinUIFacts.ConvertiblePackages.ContainsKey(item.Include);
+
+        /// <summary>
+        /// Checks if a NuGet package is incompatible with WinUI3
+        /// </summary>
+        public static bool IsReferenceIncompatibleWithWinUI(ProjectItemElement item) =>
+            WinUIFacts.IncompatiblePackages.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
         /// Checks if a reference is coming from an old-stlye NuGet package.
         /// </summary>
         public static bool IsReferenceComingFromOldNuGet(ProjectItemElement item) =>

@@ -28,17 +28,16 @@ namespace MSBuild.Conversion.Project
         public void Convert(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
             ConvertProjectFile(specifiedTFM, keepCurrentTfm, usePreviewSDK);
-            CleanUpProjectFile(outputPath);
+            CleanUpProjectFile(outputPath, true);
         }
 
         public void ConvertWinUI3(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
             var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
-            //TODO HERE NEED TO be done?
             _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
-                .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)// need to go here to add./remove props MOST WORK WILL BE HERE
-                .ModifyProjectElement(); // does this need to be done? 
-            CleanUpProjectFile(outputPath);
+                .RemoveUWPLines(_sdkBaselineProject, tfm)
+                .ConvertWinUIItems(_differs, _sdkBaselineProject, tfm);
+            CleanUpProjectFile(outputPath, false);
         }
 
         internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
@@ -106,7 +105,7 @@ namespace MSBuild.Conversion.Project
         internal ImmutableDictionary<string, Differ> GetDiffers() =>
             _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Item2);
 
-        private void CleanUpProjectFile(string outputPath)
+        private void CleanUpProjectFile(string outputPath, bool removeXMLHeader)
         {
             var projectXml = _projectRootElement.Xml;
 
@@ -142,6 +141,10 @@ namespace MSBuild.Conversion.Project
                 OmitXmlDeclaration = true,
                 Indent = true,
             };
+            if (!removeXMLHeader)
+            {
+                writerSettings.OmitXmlDeclaration = false;
+            }
             using var writer = XmlWriter.Create(outputPath, writerSettings);
             projectXml.Save(writer);
         }

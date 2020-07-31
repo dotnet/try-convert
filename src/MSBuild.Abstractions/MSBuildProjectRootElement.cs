@@ -23,10 +23,12 @@ namespace MSBuild.Abstractions
         ProjectPropertyElement CreatePropertyElement(string propertyName);
         ProjectPropertyGroupElement AddPropertyGroup();
         ProjectItemGroupElement AddItemGroup();
+        ProjectImportElement AddImport(string name); //Este Added
 
         void Save(string path);
         void RemoveChild(ProjectElement child);
         void Reload(bool throwIfUnsavedChanges = true, bool? preserveFormatting = null);
+
     }
 
     public class MSBuildProjectRootElement : IProjectRootElement

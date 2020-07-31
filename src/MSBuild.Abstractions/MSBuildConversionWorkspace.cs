@@ -76,8 +76,7 @@ namespace MSBuild.Abstractions
                     var configurations = DetermineConfigurations(root);
 
                     var unconfiguredProject = new UnconfiguredProject(configurations);
-                    // need to put if to pull out lines here
-                    // pull out "' or '$(VisualStudioVersion)' < '14.0" key
+
                     unconfiguredProject.LoadProjects(collection, globalProperties, path);
 
                     var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations);

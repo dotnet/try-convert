@@ -20,7 +20,7 @@ namespace MSBuild.Conversion.Project
                 case ProjectStyle.DefaultSubset:
                 case ProjectStyle.WindowsDesktop:
                 case ProjectStyle.MSTest:
-                // case ProjectStyle.WinUI: //Este Added for winui improt removal and sdk FOR NOW skip so sdk does not change
+                // case ProjectStyle.WinUI: //Este Added for winui import removal and sdk FOR NOW skip so sdk does not change
                     foreach (var import in projectRootElement.Imports)
                     {
                         projectRootElement.RemoveChild(import);
@@ -40,7 +40,10 @@ namespace MSBuild.Conversion.Project
             foreach (var propGroup in projectRootElement.PropertyGroups)
             {
                 var configurationName = MSBuildHelpers.GetConfigurationName(propGroup.Condition);
-                if (!differs.ContainsKey(configurationName)) continue;// Este: temporary fix, what is differs and why does it still have a reference to the old removed properties for winui?
+                if (!differs.ContainsKey(configurationName))
+                {
+                    continue;// Este: temporary fix, what is differs and why does it still have a reference to the old removed properties for winui?
+                }
                 var propDiff = differs[configurationName].GetPropertiesDiff();// Este:  broke here, project root elment does not have the same key (we removed it)
                 var def = propDiff.DefaultedProperties;
                 foreach (var prop in propGroup.Properties)
@@ -134,6 +137,54 @@ namespace MSBuild.Conversion.Project
             }
         }
 
+        /// <summary>
+        /// Tries to Convert NuGet packages to new versions if possible, removes incompatible
+        /// </summary>
+        /// <param name="projectRootElement"></param>
+        /// <param name="differs"></param>
+        /// <param name="baselineProject"></param>
+        /// <param name="tfm"></param>
+        /// <returns></returns>
+        public static IProjectRootElement ConvertWinUIItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string tfm)
+        {
+            foreach (var itemGroup in projectRootElement.ItemGroups)
+            {
+                var configurationName = MSBuildHelpers.GetConfigurationName(itemGroup.Condition);
+
+                foreach (var item in itemGroup.Items.Where(item => ProjectItemHelpers.IsPackageReference(item)))
+                {
+                    if (ProjectItemHelpers.IsReferenceConvertibleToWinUIReference(item))
+                    {
+                        //convert it...
+                        var packageName = NugetHelpers.FindPackageNameFromReferenceName(WinUIFacts.ConvertiblePackages[item.Include]);
+                        string? version = null;
+                        try
+                        {
+                            version = NugetHelpers.GetLatestVersionForPackageNameAsync(packageName).GetAwaiter().GetResult();
+                        }
+                        catch (Exception)
+                        {
+                            // Network failure of some kind
+                        }
+
+                        if (version is null)
+                        {
+                            // fall back to hard-coded version in the event of a network failure
+                            version = WinUIFacts.PackageVersions[packageName];
+                        }
+
+                        projectRootElement.AddPackage(packageName, version);
+                        itemGroup.RemoveChild(item);
+                    }
+                    else if (ProjectItemHelpers.IsReferenceIncompatibleWithWinUI(item))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
+                }
+            }
+            return projectRootElement;
+        }
+
         public static IProjectRootElement RemoveOrUpdateItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string tfm)
         {
             foreach (var itemGroup in projectRootElement.ItemGroups)
@@ -201,8 +252,13 @@ namespace MSBuild.Conversion.Project
                         UpdateBasedOnDiff(itemsDiff, itemGroup, item);
                     }
                 }
+                foreach (var item in itemGroup.Items.Where(item => ProjectItemHelpers.IsPackageReference(item)))
+                {
+                    //TODO check if win UI and needs to be updated
+                    var i = item;
+                }
 
-                if (itemGroup.Items.Count == 0)
+                    if (itemGroup.Items.Count == 0)
                 {
                     projectRootElement.RemoveChild(itemGroup);
                 }
@@ -466,6 +522,38 @@ namespace MSBuild.Conversion.Project
             var targetFrameworkElement = projectRootElement.CreatePropertyElement(MSBuildFacts.TargetFrameworkNodeName);
             targetFrameworkElement.Value = tfm;
             propGroup.PrependChild(targetFrameworkElement);
+            return projectRootElement;
+        }
+
+        /// <summary>
+        /// Removes lines which cause ms build to fail
+        /// </summary>
+        /// <param name="projectRootElement"></param>
+        /// <param name="baselineProject"></param>
+        /// <param name="tfm"></param>
+        /// <returns></returns>
+        public static IProjectRootElement RemoveUWPLines(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string tfm)
+        {
+            foreach (var propGroup in projectRootElement.PropertyGroups)
+            {
+                foreach (var child in propGroup.AllChildren)
+                {
+                    if (child.ElementName.Equals("VisualStudioVersion"))
+                    {
+                        projectRootElement.RemoveChild(propGroup);
+                        break;
+                    }
+                }
+            }
+            foreach (var import in projectRootElement.Imports)
+            {
+                if (import.Project.EndsWith("Xaml.CSharp.targets"))
+                {
+                    projectRootElement.RemoveChild(import);
+                    projectRootElement.AddImport("$(MSBuildToolsPath)\\Microsoft.CSharp.targets");
+                    break;
+                }
+            }
             return projectRootElement;
         }
     }

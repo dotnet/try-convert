@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace MSBuild.Conversion.Facts
@@ -32,6 +32,25 @@ namespace MSBuild.Conversion.Facts
             "SubType"
 
         );
+
+        /// <summary>
+        /// Set of NuGet packages incompatible with WinUI3
+        /// </summary>
+        public static ImmutableArray<string> IncompatiblePackages => ImmutableArray.Create(
+            "Put.Bad.Pkg.Here"
+        );
+
+       
+
+        public static ImmutableDictionary<string, string> ConvertiblePackages => ImmutableDictionary.CreateRange(new Dictionary<string, string>
+        {
+            { "Microsoft.UI.Xaml", "Microsoft.WinUI" }
+        });
+
+        public static ImmutableDictionary<string, string> PackageVersions => ImmutableDictionary.CreateRange(new Dictionary<string, string>
+        {
+            { "Microsoft.WinUI", "NeedToAddVersions" }
+        });
 
         public const string PackageReferenceName = "PackageReference";
         public const string NetCore5 = "net5.0";

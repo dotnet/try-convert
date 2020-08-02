@@ -12,6 +12,9 @@ namespace MSBuild.Conversion.Project
 {
     public static class ProjectRootElementExtensionsForConversion
     {
+        private static ProjectPropertyGroupElement? s_UWPRemovedPropGroup = null;
+        private static ProjectImportElement? s_UWPRemovedImport = null;
+
         public static IProjectRootElement ChangeImportsAndAddSdkAttribute(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {
             switch (baselineProject.ProjectStyle)
@@ -541,6 +544,7 @@ namespace MSBuild.Conversion.Project
                     if (child.ElementName.Equals("VisualStudioVersion"))
                     {
                         projectRootElement.RemoveChild(propGroup);
+                        s_UWPRemovedPropGroup = propGroup;
                         break;
                     }
                 }
@@ -551,6 +555,7 @@ namespace MSBuild.Conversion.Project
                 {
                     projectRootElement.RemoveChild(import);
                     projectRootElement.AddImport("$(MSBuildToolsPath)\\Microsoft.CSharp.targets");
+                    s_UWPRemovedImport = import;
                     break;
                 }
             }

@@ -34,10 +34,18 @@ namespace MSBuild.Conversion.Project
         public void ConvertWinUI3(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
             var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
-            _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
-                .RemoveUWPLines(_sdkBaselineProject, tfm)
-                .ConvertWinUIItems(_differs, _sdkBaselineProject, tfm);
+
+            _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm).
+                ConvertWinUIItems(_differs, _sdkBaselineProject, tfm);
+            //Save this version of XML csproj
+            XDocument oldXml = _projectRootElement.Xml;
+            //remove lines so msbuild works
+            _projectRootElement.RemoveUWPLines(_sdkBaselineProject, tfm);
             CleanUpProjectFile(outputPath, false);
+            //msbuild rewrite c# files with analyzers
+            WinUI3Analyzers.RunWinUIAnalysis().Wait();
+            //rewrite .csproj file with original xml
+            CleanUpProjectFile(outputPath, false, oldXml);
         }
 
         internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
@@ -105,9 +113,18 @@ namespace MSBuild.Conversion.Project
         internal ImmutableDictionary<string, Differ> GetDiffers() =>
             _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Item2);
 
-        private void CleanUpProjectFile(string outputPath, bool removeXMLHeader)
+        private void CleanUpProjectFile(string outputPath, bool removeXMLHeader,XDocument? xDoc = null)
         {
-            var projectXml = _projectRootElement.Xml;
+            XDocument projectXml;
+            //If optional element passed, use that xml instead
+            if (xDoc != null)
+            {
+                projectXml = xDoc;
+            } 
+            else
+            {
+                projectXml = _projectRootElement.Xml;
+            }
 
             // remove all use of xmlns attributes
             projectXml.Descendants().Attributes().Where(x => x.IsNamespaceDeclaration).Remove();

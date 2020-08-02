@@ -125,12 +125,6 @@ namespace MSBuild.Conversion
                 Console.WriteLine(e.ToString());
                 return -1;
             }
-            //Attempt to update code
-            if (winUI3)
-            {
-                //WinUI3Analyzers.RunWinUIAnalysis();
-                WinUI3Analyzers.RunWinUIAnalysis().Wait();
-            }
             Console.WriteLine("Conversion complete!");
             return 0;
         }

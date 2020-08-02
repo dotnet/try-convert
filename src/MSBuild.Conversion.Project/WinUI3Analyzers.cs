@@ -1,27 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.MSBuild;
-using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.Build.Locator;
-using System.Security.Cryptography;
 using Microsoft.CodeAnalysis.CodeFixes;
-using System.Security.AccessControl;
-using System.Collections.Generic;
-using Microsoft.CodeAnalysis.CodeActions;
-//using Microsoft.WinUI.Convert;
-//using VSDiagnostics.Diagnostics.Async.AsyncMethodWithoutAsyncSuffix;
-//using VSDiagnostics.Diagnostics.Exceptions.ArgumentExceptionWithoutNameofOperator;
+using Microsoft.CodeAnalysis.MSBuild;
 
-namespace MSBuild.Conversion
+namespace MSBuild.Conversion.Project
 {
-    class WinUI3Analyzers
+    public class WinUI3Analyzers
     {
         const string solutionFilePath = @"C:\Users\t-estes\Desktop\CsProjs\OldCsProj\OldCsProj.sln";
         internal static DiagnosticAnalyzer[] GetAnalyzers()
@@ -36,7 +27,7 @@ namespace MSBuild.Conversion
             return new Analyzer.NamespaceCodeFix();
         }
 
-        internal static async Task RunWinUIAnalysis()
+        public static async Task RunWinUIAnalysis()
         {
             // The test solution is copied to the output directory when you build this sample.
             MSBuildWorkspace workspace = MSBuildWorkspace.Create();

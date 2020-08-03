@@ -18,26 +18,35 @@ namespace MSBuild.Conversion.Project
         internal static DiagnosticAnalyzer[] GetAnalyzers()
         {
             // Get all analyzers
-            //var assembly = Assembly.LoadFrom(@"C:\Users\t-estes\Desktop\try-convert\src\try-convert\temp\Analyzer.dll");
-            return new[] { new Analyzer.NamespaceAnalyzer() };
+            return new DiagnosticAnalyzer[] { new Analyzer.NamespaceAnalyzer(), new Analyzer.EventArgsAnalyzer() };
         }
 
         internal static CodeFixProvider GetCodeFixer(DiagnosticAnalyzer analyzer)
         {
-            return new Analyzer.NamespaceCodeFix();
+            if (analyzer.GetType().Equals(typeof(Analyzer.NamespaceAnalyzer)))
+            {
+                return new Analyzer.NamespaceCodeFix();
+            }
+            else
+            {
+                return new Analyzer.EventArgsCodeFix();
+            }           
         }
 
-        public static async Task RunWinUIAnalysis()
+        public static async Task RunWinUIAnalysis(string projectFilePath)
         {
             // The test solution is copied to the output directory when you build this sample.
             MSBuildWorkspace workspace = MSBuildWorkspace.Create();
 
             // Open the solution within the workspace.
-            Solution originalSolution = workspace.OpenSolutionAsync(solutionFilePath).Result;
+            //olution originalSolution = workspace.OpenSolutionAsync(solutionFilePath).Result;
+            Microsoft.CodeAnalysis.Project originalProject = workspace.OpenProjectAsync(projectFilePath).Result;
 
             // Declare a variable to store the intermediate solution snapshot at each step.
-            Solution newSolution = originalSolution;
-            if (newSolution == null) return;
+            //Solution newSolution = originalSolution;
+            Microsoft.CodeAnalysis.Project newProject = originalProject;
+            //if (newSolution == null) return;
+            if (newProject == null) return;
 
             //Get an array of all the analyzers to apply
             var analyzers = GetAnalyzers();
@@ -46,65 +55,56 @@ namespace MSBuild.Conversion.Project
             // because it will return objects from the unmodified originalSolution, not from the newSolution.
             // We need to use the ProjectIds and DocumentIds (that don't change) to look up the corresponding
             // snapshots in the newSolution.
-            foreach (ProjectId projectId in originalSolution.ProjectIds)
+            foreach (DocumentId documentId in newProject.DocumentIds)
             {
-                // Look up the snapshot for the original project in the latest forked solution.
-                var project = newSolution.GetProject(projectId);
-
-                if (project == null) continue;
-                foreach (DocumentId documentId in project.DocumentIds)
+                if (documentId == null) continue;
+                // Look up the snapshot for the original document in the latest forked solution.
+#nullable disable
+                Document document = newProject.GetDocument(documentId);
+#nullable enable
+                if (document == null) continue;
+                foreach (var analyzer in analyzers)
                 {
-                    if (documentId == null) continue;
-                    // Look up the snapshot for the original document in the latest forked solution.
-                    Document document = newSolution.GetDocument(documentId);
-                    if (document == null) continue;
-                    foreach (var analyzer in analyzers)
+                    var codeFixProvider = GetCodeFixer(analyzer);
+                    //Get all instances of that analyzer in the document
+                    var analyzerDiagnostics = GetSortedDiagnosticsFromDocument(analyzer,document, newProject);
+                    var attempts = analyzerDiagnostics.Count();
+                    //apply the changes to the document use total initial diagnostics as max attempts
+                    for (int i = 0; i < attempts; ++i)
                     {
-                        var codeFixProvider = GetCodeFixer(analyzer);
-                        //Get all instances of that analyzer in the document
-                        var analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
-                        var attempts = analyzerDiagnostics.Count();
-                        //apply the changes to the document 
-                        for (int i = 0; i < attempts; ++i)
+                        var actions = new List<CodeAction>();
+                        var context = new CodeFixContext(document, analyzerDiagnostics.First(), (a, d) => actions.Add(a), CancellationToken.None);
+                        codeFixProvider.RegisterCodeFixesAsync(context).Wait();
+
+                        if (!actions.Any())
                         {
-                            var actions = new List<CodeAction>();
-                            var context = new CodeFixContext(document, analyzerDiagnostics.First(), (a, d) => actions.Add(a), CancellationToken.None);
-                            codeFixProvider.RegisterCodeFixesAsync(context).Wait();
-
-                            if (!actions.Any())
-                            {
-                                break;
-                            }
-
-                            document = ApplyFix(document, actions.ElementAt(0));
-
-
-                            //apply the new document to the solution
-                            analyzerDiagnostics = GetSortedDiagnosticsFromDocuments(analyzer, new[] { document });
-                            //check if there are analyzer diagnostics left after the code fix
-                            if (!analyzerDiagnostics.Any())
-                            {
-                                break;
-                            }
+                            break;
                         }
-                        // Store the solution implicitly constructed in the previous step as the latest
-                        // one so we can continue building it up in the next iteration.
-                        newSolution = document.Project.Solution;
+                        //Apply fix and store in new solution
+                        document = ApplyFix(document, actions.ElementAt(0));
+                        newProject = document.Project;
+                        //apply the new document to the solution
+                        analyzerDiagnostics = GetSortedDiagnosticsFromDocument(analyzer, document, newProject);
+                        //check if there are analyzer diagnostics left after the code fix
+                        if (!analyzerDiagnostics.Any())
+                        {
+                            break;
+                        }
                     }
                 }
-
-
-                // Actually apply the accumulated changes and save them to disk. At this point
-                // workspace.CurrentSolution is updated to point to the new solution.
-                if (workspace.TryApplyChanges(newSolution))
-                {
-                    Console.WriteLine("Solution updated.");
-                }
-                else
-                {
-                    Console.WriteLine("Update failed!");
-                }
             }
+
+            // Actually apply the accumulated changes and save them to disk. At this point
+            // workspace.CurrentSolution is updated to point to the new solution.
+            if (workspace.TryApplyChanges(newProject.Solution))
+            {
+                Console.WriteLine("Solution updated.");
+            }
+            else
+            {
+                Console.WriteLine("Update failed!");
+            }
+            
         }
 
         /// <summary>
@@ -114,43 +114,29 @@ namespace MSBuild.Conversion.Project
         /// <param name="analyzer"></param>
         /// <param name="documents"></param>
         /// <returns></returns>
-        internal static IEnumerable<Diagnostic> GetSortedDiagnosticsFromDocuments(DiagnosticAnalyzer analyzer, Document[] documents)
+        internal static IEnumerable<Diagnostic> GetSortedDiagnosticsFromDocument(DiagnosticAnalyzer analyzer, Document document, Microsoft.CodeAnalysis.Project project)
         {
-            // get hashest of all the documents
-            var projects = new HashSet<Microsoft.CodeAnalysis.Project>();
-            foreach (var document in documents)
-            {
-                projects.Add(document.Project);
-            }
-
             // create a list to hold all the diagnostics
             var diagnostics = new List<Diagnostic>();
-            foreach (var project in projects)
+
+            // get compilation and pull analyzer use in that compilation
+            var compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers(ImmutableArray.Create(analyzer));
+            var diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
+            foreach (var diag in diags)
             {
-                // for each project, get compilation and pull analyzer use in that compilation
-                var compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers(ImmutableArray.Create(analyzer));
-                var diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
-                foreach (var diag in diags)
+                if (diag.Location == Location.None || diag.Location.IsInMetadata)
                 {
-                    if (diag.Location == Location.None || diag.Location.IsInMetadata)
+                    diagnostics.Add(diag);
+                }
+                else
+                {
+                    var tree = document.GetSyntaxTreeAsync().Result;
+                    if (tree == diag.Location.SourceTree)
                     {
                         diagnostics.Add(diag);
-                    }
-                    else
-                    {
-                        for (int i = 0; i < documents.Length; i++)
-                        {
-                            var document = documents[i];
-                            var tree = document.GetSyntaxTreeAsync().Result;
-                            if (tree == diag.Location.SourceTree)
-                            {
-                                diagnostics.Add(diag);
-                            }
-                        }
-                    }
+                    }    
                 }
             }
-
             var results = SortDiagnostics(diagnostics);
             diagnostics.Clear();
             return results;
@@ -166,6 +152,12 @@ namespace MSBuild.Conversion.Project
             return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
         }
 
+        /// <summary>
+        /// Apply codefix to document
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="codeAction"></param>
+        /// <returns></returns>
         internal static Document ApplyFix(Document document, CodeAction codeAction)
         {
             var operations = codeAction.GetOperationsAsync(CancellationToken.None).Result;

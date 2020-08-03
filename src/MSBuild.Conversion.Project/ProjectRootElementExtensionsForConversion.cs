@@ -12,9 +12,6 @@ namespace MSBuild.Conversion.Project
 {
     public static class ProjectRootElementExtensionsForConversion
     {
-        private static ProjectPropertyGroupElement? s_UWPRemovedPropGroup = null;
-        private static ProjectImportElement? s_UWPRemovedImport = null;
-
         public static IProjectRootElement ChangeImportsAndAddSdkAttribute(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {
             switch (baselineProject.ProjectStyle)
@@ -541,21 +538,19 @@ namespace MSBuild.Conversion.Project
             {
                 foreach (var child in propGroup.AllChildren)
                 {
-                    if (child.ElementName.Equals("VisualStudioVersion"))
+                    if (child.ElementName.Equals(WinUIFacts.VSVersionGroup, StringComparison.OrdinalIgnoreCase))
                     {
                         projectRootElement.RemoveChild(propGroup);
-                        s_UWPRemovedPropGroup = propGroup;
                         break;
                     }
                 }
             }
             foreach (var import in projectRootElement.Imports)
             {
-                if (import.Project.EndsWith("Xaml.CSharp.targets"))
+                if (import.Project.EndsWith(WinUIFacts.MSBIncompatImport, StringComparison.OrdinalIgnoreCase))
                 {
                     projectRootElement.RemoveChild(import);
-                    projectRootElement.AddImport("$(MSBuildToolsPath)\\Microsoft.CSharp.targets");
-                    s_UWPRemovedImport = import;
+                    projectRootElement.AddImport(WinUIFacts.MSBIncompatReplace);
                     break;
                 }
             }

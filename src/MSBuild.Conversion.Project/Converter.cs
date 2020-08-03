@@ -43,7 +43,7 @@ namespace MSBuild.Conversion.Project
             _projectRootElement.RemoveUWPLines(_sdkBaselineProject, tfm);
             CleanUpProjectFile(outputPath, false);
             //msbuild rewrite c# files with analyzers
-            WinUI3Analyzers.RunWinUIAnalysis().Wait();
+            WinUI3Analyzers.RunWinUIAnalysis(outputPath).Wait();
             //rewrite .csproj file with original xml
             CleanUpProjectFile(outputPath, false, oldXml);
         }

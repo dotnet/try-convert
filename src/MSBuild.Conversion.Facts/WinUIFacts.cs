@@ -54,5 +54,8 @@ namespace MSBuild.Conversion.Facts
 
         public const string PackageReferenceName = "PackageReference";
         public const string NetCore5 = "net5.0";
+        public const string VSVersionGroup = "VisualStudioVersion";
+        public const string MSBIncompatImport = "Xaml.CSharp.targets";
+        public const string MSBIncompatReplace = @"$(MSBuildToolsPath)\Microsoft.CSharp.targets";
     }
 }

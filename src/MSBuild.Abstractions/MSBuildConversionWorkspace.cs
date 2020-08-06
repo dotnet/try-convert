@@ -68,20 +68,20 @@ namespace MSBuild.Abstractions
                 if (MSBuildHelpers.ConditionToDimensionValues(propertyGroup.Condition, out var dimensionValues))
                 {
                     var name = MSBuildHelpers.GetConfigurationName(dimensionValues);
-                    builder.Add(name, dimensionValues.ToImmutableDictionary());
-
-                    // Include $Configuration only and $Platform only conditions
-                    foreach (var dimensionValuePair in dimensionValues)
+                    if (!builder.ContainsKey(name))
                     {
-                        if (!builder.ContainsKey(dimensionValuePair.Value))
+                        builder.Add(name, dimensionValues.ToImmutableDictionary());
+                        foreach (var dimensionValuePair in dimensionValues)
                         {
-                            var dimensionValueDictionary = new Dictionary<string, string> { { dimensionValuePair.Key, dimensionValuePair.Value } };
-                            builder.Add(dimensionValuePair.Value, dimensionValueDictionary.ToImmutableDictionary());
+                            if (!builder.ContainsKey(dimensionValuePair.Value))
+                            {
+                                var dimensionValueDictionary = new Dictionary<string, string> { { dimensionValuePair.Key, dimensionValuePair.Value } };
+                                builder.Add(dimensionValuePair.Value, dimensionValueDictionary.ToImmutableDictionary());
+                            }
                         }
-                    }
+                    }                   
                 }
             }
-
             return builder.ToImmutable();
         }
 

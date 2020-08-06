@@ -8,12 +8,12 @@ using Microsoft.Build.Evaluation;
 
 namespace MSBuild.Abstractions
 {
-    public class MSBuildComparisonWorkspaceLoader
+    public class MSBuildConversionWorkspaceLoader
     {
         private readonly string _workspacePath;
-        private readonly MSBuildComparisonWorkspaceType _workspaceType;
+        private readonly MSBuildConversionWorkspaceType _workspaceType;
 
-        public MSBuildComparisonWorkspaceLoader(string workspacePath, MSBuildComparisonWorkspaceType workspaceType)
+        public MSBuildConversionWorkspaceLoader(string workspacePath, MSBuildConversionWorkspaceType workspaceType)
         {
             if (string.IsNullOrWhiteSpace(workspacePath))
             {
@@ -34,8 +34,8 @@ namespace MSBuild.Abstractions
             var projectPaths =
                 _workspaceType switch
                 {
-                    MSBuildComparisonWorkspaceType.Project => ImmutableArray.Create(path),
-                    MSBuildComparisonWorkspaceType.Solution =>
+                    MSBuildConversionWorkspaceType.Project => ImmutableArray.Create(path),
+                    MSBuildConversionWorkspaceType.Solution =>
                         SolutionFile.Parse(_workspacePath).ProjectsInOrder
                             .Where(IsSupportedSolutionItemType)
                             .Select(p => p.AbsolutePath).ToImmutableArray(),

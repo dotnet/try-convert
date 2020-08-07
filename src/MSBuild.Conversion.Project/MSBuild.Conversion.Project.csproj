@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.WinUI.Convert" Version="1.0.0-development.200729.0-CI" GeneratePathProperty="true"/>
+    <PackageReference Include="Microsoft.WinUI.Convert" Version="3.0.0-development.200805.0" GeneratePathProperty="true"/>
     <Reference Include="$(PkgMicrosoft_WinUI_Convert)\analyzers\dotnet\cs\Analyzer.dll" />
   </ItemGroup>
 

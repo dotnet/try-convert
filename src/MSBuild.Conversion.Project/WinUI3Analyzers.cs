@@ -21,16 +21,23 @@ namespace MSBuild.Conversion.Project
             return new DiagnosticAnalyzer[] { new Analyzer.NamespaceAnalyzer(), new Analyzer.EventArgsAnalyzer() };
         }
 
-        internal static CodeFixProvider GetCodeFixer(DiagnosticAnalyzer analyzer)
+        internal static CodeFixProvider[] GetCodeFixes()
         {
-            if (analyzer.GetType().Equals(typeof(Analyzer.NamespaceAnalyzer)))
+            return new CodeFixProvider[] { new Analyzer.NamespaceCodeFix(), new Analyzer.EventArgsCodeFix() };
+        }
+
+        internal static CodeFixProvider? GetCodeFixer(DiagnosticAnalyzer analyzer)
+        {
+            var codeFixes = GetCodeFixes();
+            var v = analyzer.SupportedDiagnostics;
+            foreach (var c in codeFixes)
             {
-                return new Analyzer.NamespaceCodeFix();
+                if (v.Any(a => c.FixableDiagnosticIds.Contains(a.Id)))
+                {
+                    return c;
+                }
             }
-            else
-            {
-                return new Analyzer.EventArgsCodeFix();
-            }           
+            return null;         
         }
 
         public static async Task RunWinUIAnalysis(string projectFilePath)

@@ -1,6 +1,6 @@
 # Converting To WinUI3 Using Try-Convert
 
-This document details how to use the Try-Convert Tool to convert a Native WinUI App to WinUI3
+This document details how to use the Try-Convert Tool to convert a C# UWP App to WinUI3 using .NET Native.
 
 ## Introduction
 <!-- Use this section to provide background context for the new API(s) 
@@ -8,12 +8,13 @@ in this spec. -->
 - WinUI2 is an official library with support for native Windows UI elements for Windows apps. 
 - WinUI3 Update now supports both Windows Desktop and UWP apps. 
 
-Updating a Native WinUI App to WinUI3 can be an involved process and requires several changes to the .csproj as well as C# code. Running this tool will automate the process. 
+Updating a C# UWP App to WinUI3 can be an involved process and requires several changes to the .csproj as well as C# code. Running this tool will automate the process. 
 
 ## Description
 This tool assists with the conversion process by first modifying .csproj files to use the new `Microsoft.WinUI` nuget package. It converts nuget packages which are incompatible with the new WinUI3 where possible and removes them otherwise and converts
 
 ### .csproj File Examples
+Highlighting changes not entire proj file () witre this better
 
 #### .csproj Before Running Try-Convert
 ```xml
@@ -93,15 +94,8 @@ EX:
 ```
 ./try-convert -w C:\PathToYour\file.csproj --winui3
 ```
+Opening your project for the first time after conversion will require you to Clean and Rebuild your project. 
 
 ## Notes
 
 While the converter will create a .csproj.old before attempting any changes it is highly recommended that you use this tool on a project that is under source control. 
-
-<style>
-img[src*="#thumb"] {
-   margin-left:3%;
-   width:50%;
-   height:auto;
-}
-</style>

@@ -44,12 +44,17 @@ namespace MSBuild.Conversion.Facts
 
         public static ImmutableDictionary<string, string> ConvertiblePackages => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
-            { "Microsoft.UI.Xaml", "Microsoft.WinUI" }
+            { "Microsoft.UI.Xaml", "Microsoft.WinUI" },
+            { "Microsoft.Xaml.Behaviors.UWP", "Microsoft.Xaml.Behaviors.WinUI" },
+            { "Microsoft.Win2D.UWP", "Microsoft.Win2D.WinUI"}
         });
 
         public static ImmutableDictionary<string, string> PackageVersions => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
-            { "Microsoft.WinUI", "NeedToAddVersions" }
+            { "Microsoft.WinUI", "NeedToAddVersions" },
+            { "Microsoft.Xaml.Behaviors.WinUI", "NeedVersion" },
+            { "Microsoft.Win2D.WinUI", "NeedsVersion"},
+            { "Microsoft.Toolkit", "2.6.6" }
         });
 
         public const string PackageReferenceName = "PackageReference";
@@ -57,5 +62,6 @@ namespace MSBuild.Conversion.Facts
         public const string VSVersionGroup = "VisualStudioVersion";
         public const string MSBIncompatImport = "Xaml.CSharp.targets";
         public const string MSBIncompatReplace = @"$(MSBuildToolsPath)\Microsoft.CSharp.targets";
+        public const string CommunityToolkit = "Microsoft.Toolkit";
     }
 }

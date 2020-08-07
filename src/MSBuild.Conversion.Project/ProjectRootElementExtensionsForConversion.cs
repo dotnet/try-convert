@@ -554,6 +554,7 @@ namespace MSBuild.Conversion.Project
                     break;
                 }
             }
+
             return projectRootElement;
         }
     }

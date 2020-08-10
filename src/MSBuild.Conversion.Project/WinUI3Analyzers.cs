@@ -9,21 +9,25 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.MSBuild;
+using System.Reflection;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace MSBuild.Conversion.Project
 {
     public class WinUI3Analyzers
     {
-        const string solutionFilePath = @"C:\Users\t-estes\Desktop\CsProjs\OldCsProj\OldCsProj.sln";
         internal static DiagnosticAnalyzer[] GetAnalyzers()
         {
             // Get all analyzers
-            return new DiagnosticAnalyzer[] { new Analyzer.NamespaceAnalyzer(), new Analyzer.EventArgsAnalyzer() };
+            // Get all analyzers
+            return new DiagnosticAnalyzer[] { new Analyzer.EventArgsAnalyzer() }; // new Analyzer.ObservableCollectionAnalyzer(), new Analyzer.UWPStructAnalyzer(), 
+                //new Analyzer.UWPProjectionAnalyzer(), , new Analyzer.NamespaceAnalyzer() };
         }
 
         internal static CodeFixProvider[] GetCodeFixes()
         {
-            return new CodeFixProvider[] { new Analyzer.NamespaceCodeFix(), new Analyzer.EventArgsCodeFix() };
+            return new CodeFixProvider[] { new Analyzer.EventArgsCodeFix() }; // new Analyzer.ObservableCollectionCodeFix(), new Analyzer.UWPStructCodeFix(), 
+                // new Analyzer.UWPProjectionCodeFix(), new Analyzer.NamespaceCodeFix(), new Analyzer.EventArgsCodeFix() };
         }
 
         internal static CodeFixProvider? GetCodeFixer(DiagnosticAnalyzer analyzer)
@@ -42,12 +46,17 @@ namespace MSBuild.Conversion.Project
 
         public static async Task RunWinUIAnalysis(string projectFilePath)
         {
+            Console.WriteLine($"Running Analyzers on {projectFilePath}");
             // The test solution is copied to the output directory when you build this sample.
             MSBuildWorkspace workspace = MSBuildWorkspace.Create();
 
             // Open the solution within the workspace.
-            //olution originalSolution = workspace.OpenSolutionAsync(solutionFilePath).Result;
+            // solution originalSolution = workspace.OpenSolutionAsync(solutionFilePath).Result;
             Microsoft.CodeAnalysis.Project originalProject = workspace.OpenProjectAsync(projectFilePath).Result;
+
+            // try add metadata to solution
+           // MetadataReference WindowsXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
+         //   var withMeta = originalProject.Solution.AddMetadataReference(originalProject.Id, WindowsXamlReference);
 
             // Declare a variable to store the intermediate solution snapshot at each step.
             //Solution newSolution = originalSolution;
@@ -62,17 +71,23 @@ namespace MSBuild.Conversion.Project
             // because it will return objects from the unmodified originalSolution, not from the newSolution.
             // We need to use the ProjectIds and DocumentIds (that don't change) to look up the corresponding
             // snapshots in the newSolution.
+            int count = -1;
             foreach (DocumentId documentId in newProject.DocumentIds)
             {
+                count++;
                 if (documentId == null) continue;
                 // Look up the snapshot for the original document in the latest forked solution.
 #nullable disable
                 Document document = newProject.GetDocument(documentId);
 #nullable enable
                 if (document == null) continue;
+                Console.WriteLine($"Converting Document {count} of {newProject.DocumentIds.Count}");
                 foreach (var analyzer in analyzers)
                 {
+                    Console.WriteLine($"Running {analyzer.GetType().Name} on {document.FilePath}");
+
                     var codeFixProvider = GetCodeFixer(analyzer);
+                    if (codeFixProvider == null) continue;
                     //Get all instances of that analyzer in the document
                     var analyzerDiagnostics = GetSortedDiagnosticsFromDocument(analyzer,document, newProject);
                     var attempts = analyzerDiagnostics.Count();
@@ -82,7 +97,6 @@ namespace MSBuild.Conversion.Project
                         var actions = new List<CodeAction>();
                         var context = new CodeFixContext(document, analyzerDiagnostics.First(), (a, d) => actions.Add(a), CancellationToken.None);
                         codeFixProvider.RegisterCodeFixesAsync(context).Wait();
-
                         if (!actions.Any())
                         {
                             break;
@@ -125,9 +139,10 @@ namespace MSBuild.Conversion.Project
         {
             // create a list to hold all the diagnostics
             var diagnostics = new List<Diagnostic>();
-
+            var tree = document.GetSyntaxTreeAsync().Result;
             // get compilation and pull analyzer use in that compilation
             var compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers(ImmutableArray.Create(analyzer));
+            var testC = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
             var diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
             foreach (var diag in diags)
             {
@@ -137,7 +152,6 @@ namespace MSBuild.Conversion.Project
                 }
                 else
                 {
-                    var tree = document.GetSyntaxTreeAsync().Result;
                     if (tree == diag.Location.SourceTree)
                     {
                         diagnostics.Add(diag);

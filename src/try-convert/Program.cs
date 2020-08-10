@@ -102,6 +102,7 @@ namespace MSBuild.Conversion
 
                 foreach (var item in msbuildWorkspace.WorkspaceItems)
                 {
+                    Console.WriteLine($"Converting {item.ToString()}...");
                     if (diffOnly)
                     {
                         var differ = new Differ(item.UnconfiguredProject.FirstConfiguredProject, item.SdkBaselineProject.Project.FirstConfiguredProject);

@@ -173,6 +173,8 @@ namespace MSBuild.Conversion.Project
                             version = WinUIFacts.PackageVersions[packageName];
                         }
 
+                        //seems to keep defaluting to Microsoft.Win32 instead of Microsoft.WinUI
+
                         projectRootElement.AddPackage(packageName, version);
                         itemGroup.RemoveChild(item);
                     }

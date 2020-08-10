@@ -17,16 +17,22 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="$(MicrosoftWin32RegistryVersion)" />
+    <PackageReference Include="Microsoft.WinUI" Version="3.0.0-preview2.200713.0" />
+    <PackageReference Include="Microsoft.WinUI.Convert" Version="1.2.2" GeneratePathProperty="true" />
+    
     <PackageReference Include="System.Collections.Immutable" Version="$(SystemCollectionsImmutableVersion)" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="$(SystemConfigurationConfigurationManagerVersion)" />
     <PackageReference Include="System.Security.Principal.Windows" Version="$(SystemSecurityPrincipalWindowsVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.7.0-4.final" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="3.7.0-4.final" />
+    <Reference Include="$(PkgMicrosoft_WinUI_Convert)\analyzers\dotnet\cs\Analyzer.dll" />
   </ItemGroup>
 
+  <!-- Temporarily use local analyzer package
   <ItemGroup>
     <PackageReference Include="Microsoft.WinUI.Convert" Version="3.0.0-development.200805.0" GeneratePathProperty="true"/>
     <Reference Include="$(PkgMicrosoft_WinUI_Convert)\analyzers\dotnet\cs\Analyzer.dll" />
   </ItemGroup>
+-->
 
 </Project>

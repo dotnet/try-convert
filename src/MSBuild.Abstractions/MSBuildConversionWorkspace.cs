@@ -43,7 +43,10 @@ namespace MSBuild.Abstractions
                         if (i.Project.EndsWith("Xaml.CSharp.targets"))
                         {  
                             root.RemoveChild(i);
-                            root.AddImport("$(MSBuildToolsPath)\\Microsoft.CSharp.targets");
+                            root.AddImport(@"$(MSBuildToolsPath)\Microsoft.CSharp.targets");
+                            var g = root.AddPropertyGroup();
+                            g.AddProperty("WindowsAppContainer", "true");
+                            Console.WriteLine("Removed Lines");
                             break;
                            
                         }

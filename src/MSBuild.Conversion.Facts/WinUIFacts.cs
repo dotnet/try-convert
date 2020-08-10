@@ -51,7 +51,7 @@ namespace MSBuild.Conversion.Facts
 
         public static ImmutableDictionary<string, string> PackageVersions => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
-            { "Microsoft.WinUI", "NeedToAddVersions" },
+            { "Microsoft.WinUI", "3.0.0-preview2.200713.0" },
             { "Microsoft.Xaml.Behaviors.WinUI", "NeedVersion" },
             { "Microsoft.Win2D.WinUI", "NeedsVersion"},
             { "Microsoft.Toolkit", "2.6.6" }

@@ -34,7 +34,7 @@ namespace MSBuild.Conversion.Project
         public void ConvertWinUI3(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
             var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
-
+            Console.WriteLine("Converting WinUI Refrences");
             _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm).
                 ConvertWinUIItems(_differs, _sdkBaselineProject, tfm);
             //Save this version of XML csproj

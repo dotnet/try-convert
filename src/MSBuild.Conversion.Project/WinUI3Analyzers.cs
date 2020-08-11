@@ -8,26 +8,35 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.MSBuild;
-using System.Reflection;
-using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace MSBuild.Conversion.Project
 {
     public class WinUI3Analyzers
     {
+        private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
+        private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
+        private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
+        private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
+#pragma warning disable ConvertNamespace // Windows Namespace should be Microsoft
+        private static readonly MetadataReference WindowsXamlReference = MetadataReference.CreateFromFile(typeof(Windows.UI.Xaml.DependencyObject).Assembly.Location);
+#pragma warning restore ConvertNamespace // Windows Namespace should be Microsoft
+        private static readonly MetadataReference MicrosoftXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
+
         internal static DiagnosticAnalyzer[] GetAnalyzers()
         {
-            // Get all analyzers
-            // Get all analyzers
-            return new DiagnosticAnalyzer[] {  new Analyzer.EventArgsAnalyzer() ,new Analyzer.NamespaceAnalyzer() }; // new Analyzer.ObservableCollectionAnalyzer(), new Analyzer.UWPStructAnalyzer(), 
-                //new Analyzer.UWPProjectionAnalyzer(), ,  };
+            // Get all analyzers, Order Matters!
+            return new DiagnosticAnalyzer[] { new Analyzer.UWPStructAnalyzer(), new Analyzer.UWPProjectionAnalyzer(), 
+                new Analyzer.EventArgsAnalyzer() , new Analyzer.NamespaceAnalyzer() }; 
+            // Cannot create new Documents in this workspace, Analyzer will not work: new Analyzer.ObservableCollectionAnalyzer()
         }
 
         internal static CodeFixProvider[] GetCodeFixes()
         {
-            return new CodeFixProvider[] { new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() }; // new Analyzer.ObservableCollectionCodeFix(), new Analyzer.UWPStructCodeFix(), 
-                // new Analyzer.UWPProjectionCodeFix(), , new Analyzer.EventArgsCodeFix() };
+            return new CodeFixProvider[] { new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix(),
+                new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix() };
+            // Will not currently work : new Analyzer.ObservableCollectionCodeFix()
         }
 
         internal static CodeFixProvider? GetCodeFixer(DiagnosticAnalyzer analyzer)
@@ -50,13 +59,18 @@ namespace MSBuild.Conversion.Project
             // The test solution is copied to the output directory when you build this sample.
             MSBuildWorkspace workspace = MSBuildWorkspace.Create();
             //workspace.LoadMetadataForReferencedProjects = true;
-
+            
             // Open the solution within the workspace.
             Microsoft.CodeAnalysis.Project originalProject = workspace.OpenProjectAsync(projectFilePath).Result;
 
             // try add metadata to solution
-            MetadataReference MicrosoftXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
-            var withMeta = originalProject.Solution.AddMetadataReference(originalProject.Id, MicrosoftXamlReference);
+            var withMeta = originalProject.Solution
+                .AddMetadataReference(originalProject.Id, CorlibReference)
+                .AddMetadataReference(originalProject.Id, SystemCoreReference)
+                .AddMetadataReference(originalProject.Id, CSharpSymbolsReference)
+                .AddMetadataReference(originalProject.Id, CodeAnalysisReference)
+                .AddMetadataReference(originalProject.Id, WindowsXamlReference)
+                .AddMetadataReference(originalProject.Id, MicrosoftXamlReference);
 
             // Declare a variable to store the intermediate solution snapshot at each step.
             Microsoft.CodeAnalysis.Project? newProject = withMeta.GetProject(originalProject.Id);
@@ -116,7 +130,13 @@ namespace MSBuild.Conversion.Project
                 }
             }
             // Remove Metadata references to avoid errors
-            newProject = newProject.RemoveMetadataReference(MicrosoftXamlReference);
+            newProject = newProject
+                .RemoveMetadataReference(CorlibReference)
+                .RemoveMetadataReference(SystemCoreReference)
+                .RemoveMetadataReference(CSharpSymbolsReference)
+                .RemoveMetadataReference(CodeAnalysisReference)
+                .RemoveMetadataReference(WindowsXamlReference)
+                .RemoveMetadataReference(MicrosoftXamlReference);
 
             // Actually apply the accumulated changes and save them to disk. At this point
             // workspace.CurrentSolution is updated to point to the new solution.
@@ -184,9 +204,16 @@ namespace MSBuild.Conversion.Project
         /// <returns></returns>
         internal static Document ApplyFix(Document document, CodeAction codeAction)
         {
-            var operations = codeAction.GetOperationsAsync(CancellationToken.None).Result;
-            var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
-            return solution.GetDocument(document.Id);
+            try
+            {
+                var operations = codeAction.GetOperationsAsync(CancellationToken.None).Result;
+                var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
+                return solution.GetDocument(document.Id);
+            } 
+            catch (Exception e)
+            {
+                return document;
+            }
         }
     }
 }

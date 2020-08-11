@@ -46,7 +46,7 @@ namespace MSBuild.Abstractions
                             root.AddImport(@"$(MSBuildToolsPath)\Microsoft.CSharp.targets");
                             var g = root.AddPropertyGroup();
                             g.AddProperty("WindowsAppContainer", "true");
-                            Console.WriteLine("Removed Lines");
+                            Console.WriteLine("Removed targets from MSBuild Project");
                             break;
                            
                         }

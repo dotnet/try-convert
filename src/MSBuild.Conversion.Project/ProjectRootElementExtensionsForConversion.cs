@@ -147,34 +147,23 @@ namespace MSBuild.Conversion.Project
         /// <returns></returns>
         public static IProjectRootElement ConvertWinUIItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string tfm)
         {
+            bool hasWinUIRef = false;
             foreach (var itemGroup in projectRootElement.ItemGroups)
             {
                 var configurationName = MSBuildHelpers.GetConfigurationName(itemGroup.Condition);
-
+                
                 foreach (var item in itemGroup.Items.Where(item => ProjectItemHelpers.IsPackageReference(item)))
                 {
+                    if (ProjectItemHelpers.IsWinUIRef(item))
+                    {
+                        hasWinUIRef = true;
+                    }
+
                     if (ProjectItemHelpers.IsReferenceConvertibleToWinUIReference(item))
                     {
                         //convert it...
                         var packageName = NugetHelpers.FindPackageNameFromReferenceName(WinUIFacts.ConvertiblePackages[item.Include]);
-                        string? version = null;
-                        try
-                        {
-                            version = NugetHelpers.GetLatestVersionForPackageNameAsync(packageName).GetAwaiter().GetResult();
-                        }
-                        catch (Exception)
-                        {
-                            // Network failure of some kind
-                        }
-
-                        if (version is null)
-                        {
-                            // fall back to hard-coded version in the event of a network failure
-                            version = WinUIFacts.PackageVersions[packageName];
-                        }
-
-                        //seems to keep defaluting to Microsoft.Win32 instead of Microsoft.WinUI
-
+                        string version = TryGetPackageVersion(packageName);
                         projectRootElement.AddPackage(packageName, version);
                         itemGroup.RemoveChild(item);
                     }
@@ -184,7 +173,40 @@ namespace MSBuild.Conversion.Project
                     }
                 }
             }
+
+            if(!hasWinUIRef)
+            {
+                // Always Add Win UI
+                string winUIPkg = "Microsoft.WinUI";
+                string version = TryGetPackageVersion(winUIPkg);
+                projectRootElement.AddPackage(winUIPkg, version);
+            }
             return projectRootElement;
+        }
+
+        /// <summary>
+        /// Try get package version from nuget search, fallback to WinUI otherwise
+        /// </summary>
+        /// <param name="packageName"></param>
+        /// <returns></returns>
+        private static string TryGetPackageVersion(string packageName)
+        {
+            string? version = null;
+            try
+            {
+                version = NugetHelpers.GetLatestVersionForPackageNameAsync(packageName).GetAwaiter().GetResult();
+            }
+            catch (Exception)
+            {
+                // Network failure of some kind
+            }
+
+            if (version is null)
+            {
+                // fall back to hard-coded version in the event of a network failure
+                version = WinUIFacts.PackageVersions[packageName];
+            }
+            return version;
         }
 
         public static IProjectRootElement RemoveOrUpdateItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string tfm)

@@ -20,8 +20,8 @@ namespace MSBuild.Conversion.Project
         {
             // Get all analyzers
             // Get all analyzers
-            return new DiagnosticAnalyzer[] { new Analyzer.EventArgsAnalyzer() }; // new Analyzer.ObservableCollectionAnalyzer(), new Analyzer.UWPStructAnalyzer(), 
-                //new Analyzer.UWPProjectionAnalyzer(), , new Analyzer.NamespaceAnalyzer() };
+            return new DiagnosticAnalyzer[] { new Analyzer.NamespaceAnalyzer(), new Analyzer.EventArgsAnalyzer() }; // new Analyzer.ObservableCollectionAnalyzer(), new Analyzer.UWPStructAnalyzer(), 
+                //new Analyzer.UWPProjectionAnalyzer(), ,  };
         }
 
         internal static CodeFixProvider[] GetCodeFixes()
@@ -49,6 +49,7 @@ namespace MSBuild.Conversion.Project
             Console.WriteLine($"Running Analyzers on {projectFilePath}");
             // The test solution is copied to the output directory when you build this sample.
             MSBuildWorkspace workspace = MSBuildWorkspace.Create();
+
 
             // Open the solution within the workspace.
             // solution originalSolution = workspace.OpenSolutionAsync(solutionFilePath).Result;

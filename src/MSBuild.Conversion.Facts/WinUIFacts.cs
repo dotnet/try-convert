@@ -40,7 +40,11 @@ namespace MSBuild.Conversion.Facts
             "Put.Bad.Pkg.Here"
         );
 
-       
+        public static ImmutableArray<string> WinUIRefs => ImmutableArray.Create(
+            "Microsoft.UI.Xaml", 
+            "Microsoft.WinUI" 
+        );
+
 
         public static ImmutableDictionary<string, string> ConvertiblePackages => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {

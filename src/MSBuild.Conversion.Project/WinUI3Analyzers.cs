@@ -20,14 +20,14 @@ namespace MSBuild.Conversion.Project
         {
             // Get all analyzers
             // Get all analyzers
-            return new DiagnosticAnalyzer[] { new Analyzer.NamespaceAnalyzer(), new Analyzer.EventArgsAnalyzer() }; // new Analyzer.ObservableCollectionAnalyzer(), new Analyzer.UWPStructAnalyzer(), 
+            return new DiagnosticAnalyzer[] {  new Analyzer.EventArgsAnalyzer() ,new Analyzer.NamespaceAnalyzer() }; // new Analyzer.ObservableCollectionAnalyzer(), new Analyzer.UWPStructAnalyzer(), 
                 //new Analyzer.UWPProjectionAnalyzer(), ,  };
         }
 
         internal static CodeFixProvider[] GetCodeFixes()
         {
-            return new CodeFixProvider[] { new Analyzer.EventArgsCodeFix() }; // new Analyzer.ObservableCollectionCodeFix(), new Analyzer.UWPStructCodeFix(), 
-                // new Analyzer.UWPProjectionCodeFix(), new Analyzer.NamespaceCodeFix(), new Analyzer.EventArgsCodeFix() };
+            return new CodeFixProvider[] { new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() }; // new Analyzer.ObservableCollectionCodeFix(), new Analyzer.UWPStructCodeFix(), 
+                // new Analyzer.UWPProjectionCodeFix(), , new Analyzer.EventArgsCodeFix() };
         }
 
         internal static CodeFixProvider? GetCodeFixer(DiagnosticAnalyzer analyzer)
@@ -49,22 +49,22 @@ namespace MSBuild.Conversion.Project
             Console.WriteLine($"Running Analyzers on {projectFilePath}");
             // The test solution is copied to the output directory when you build this sample.
             MSBuildWorkspace workspace = MSBuildWorkspace.Create();
-
+            //workspace.LoadMetadataForReferencedProjects = true;
 
             // Open the solution within the workspace.
-            // solution originalSolution = workspace.OpenSolutionAsync(solutionFilePath).Result;
             Microsoft.CodeAnalysis.Project originalProject = workspace.OpenProjectAsync(projectFilePath).Result;
 
             // try add metadata to solution
-           // MetadataReference WindowsXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
-         //   var withMeta = originalProject.Solution.AddMetadataReference(originalProject.Id, WindowsXamlReference);
+            MetadataReference MicrosoftXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
+            var withMeta = originalProject.Solution.AddMetadataReference(originalProject.Id, MicrosoftXamlReference);
 
             // Declare a variable to store the intermediate solution snapshot at each step.
-            //Solution newSolution = originalSolution;
-            Microsoft.CodeAnalysis.Project newProject = originalProject;
-            //if (newSolution == null) return;
-            if (newProject == null) return;
-
+            Microsoft.CodeAnalysis.Project? newProject = withMeta.GetProject(originalProject.Id);
+            if (newProject == null)
+            {
+                Console.WriteLine("Error Running Conversion Analyzers. Exiting...");
+                return;
+            }
             //Get an array of all the analyzers to apply
             var analyzers = GetAnalyzers();
 
@@ -115,6 +115,8 @@ namespace MSBuild.Conversion.Project
                     }
                 }
             }
+            // Remove Metadata references to avoid errors
+            newProject = newProject.RemoveMetadataReference(MicrosoftXamlReference);
 
             // Actually apply the accumulated changes and save them to disk. At this point
             // workspace.CurrentSolution is updated to point to the new solution.

@@ -24,7 +24,7 @@
     <PackageReference Include="Microsoft.Win32.Registry" Version="$(MicrosoftWin32RegistryVersion)" />
     <!-- Temporarily use local analyzer package-->
     
-    <PackageReference Include="Microsoft.WinUI.Convert" Version="1.2.3" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.WinUI.Convert" Version="1.2.4" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.WinUI">
       <Version>3.0.0-development.200810.0</Version>
       <GeneratePathProperty>true</GeneratePathProperty>

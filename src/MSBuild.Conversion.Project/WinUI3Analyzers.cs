@@ -23,6 +23,7 @@ namespace MSBuild.Conversion.Project
         private static readonly MetadataReference WindowsXamlReference = MetadataReference.CreateFromFile(typeof(Windows.UI.Xaml.DependencyObject).Assembly.Location);
 #pragma warning restore ConvertNamespace // Windows Namespace should be Microsoft
         private static readonly MetadataReference MicrosoftXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
+        private static readonly MetadataReference INotifyReference = MetadataReference.CreateFromFile(typeof(System.ComponentModel.INotifyPropertyChanged).Assembly.Location);
 
         internal static DiagnosticAnalyzer[] GetAnalyzers()
         {
@@ -30,15 +31,14 @@ namespace MSBuild.Conversion.Project
             return new DiagnosticAnalyzer[] { new Analyzer.UWPStructAnalyzer(), new Analyzer.UWPProjectionAnalyzer(),
                 new Analyzer.EventArgsAnalyzer() , new Analyzer.NamespaceAnalyzer() };
             // Cannot create new Documents in this workspace, Analyzer will not work: new Analyzer.ObservableCollectionAnalyzer()
-            // new Analyzer.UWPProjectionAnalyzer(), 
         }
 
         internal static CodeFixProvider[] GetCodeFixes()
         {
-            return new CodeFixProvider[] { new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix(),
-                new Analyzer.UWPStructCodeFix() };
+            return new CodeFixProvider[] { new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix(), 
+                new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix(),
+                 };
             // Will not currently work : new Analyzer.ObservableCollectionCodeFix()
-            // new Analyzer.UWPProjectionCodeFix()
         }
 
         internal static CodeFixProvider? GetCodeFixer(DiagnosticAnalyzer analyzer)
@@ -66,16 +66,17 @@ namespace MSBuild.Conversion.Project
             Microsoft.CodeAnalysis.Project originalProject = workspace.OpenProjectAsync(projectFilePath).Result;
 
             // try add metadata to solution
-            var withMeta = originalProject.Solution
-                .AddMetadataReference(originalProject.Id, CorlibReference)
-                .AddMetadataReference(originalProject.Id, SystemCoreReference)
-                .AddMetadataReference(originalProject.Id, CSharpSymbolsReference)
-                .AddMetadataReference(originalProject.Id, CodeAnalysisReference)
-                .AddMetadataReference(originalProject.Id, WindowsXamlReference)
-                .AddMetadataReference(originalProject.Id, MicrosoftXamlReference);
+            var withMeta = originalProject
+                .AddMetadataReference(CorlibReference)
+                .AddMetadataReference(SystemCoreReference)
+                .AddMetadataReference(CSharpSymbolsReference)
+                .AddMetadataReference(CodeAnalysisReference)
+                .AddMetadataReference(WindowsXamlReference)
+                .AddMetadataReference(MicrosoftXamlReference)
+                .AddMetadataReference(INotifyReference);
 
             // Declare a variable to store the intermediate solution snapshot at each step.
-            Microsoft.CodeAnalysis.Project? newProject = withMeta.GetProject(originalProject.Id);
+            Microsoft.CodeAnalysis.Project? newProject = withMeta;
             if (newProject == null)
             {
                 Console.WriteLine("Error Running Conversion Analyzers. Exiting...");
@@ -139,7 +140,8 @@ namespace MSBuild.Conversion.Project
                 .RemoveMetadataReference(CSharpSymbolsReference)
                 .RemoveMetadataReference(CodeAnalysisReference)
                 .RemoveMetadataReference(WindowsXamlReference)
-                .RemoveMetadataReference(MicrosoftXamlReference);
+                .RemoveMetadataReference(MicrosoftXamlReference)
+                .RemoveMetadataReference(INotifyReference);
 
             // Actually apply the accumulated changes and save them to disk. At this point
             // workspace.CurrentSolution is updated to point to the new solution.

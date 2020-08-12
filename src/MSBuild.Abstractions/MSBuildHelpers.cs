@@ -200,7 +200,7 @@ namespace MSBuild.Abstractions
         }
 
         /// <summary>
-        /// Gets all Reference items from a given item group.
+        /// Gets all Package Reference items from a given item group.
         /// </summary>
         private static IEnumerable<ProjectItemElement> GetPackageReferences(ProjectItemGroupElement itemGroup) =>
             itemGroup.Items.Where(item => item.ElementName.Equals(WinUIFacts.PackageReferenceName, StringComparison.OrdinalIgnoreCase));

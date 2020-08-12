@@ -27,16 +27,18 @@ namespace MSBuild.Conversion.Project
         internal static DiagnosticAnalyzer[] GetAnalyzers()
         {
             // Get all analyzers, Order Matters!
-            return new DiagnosticAnalyzer[] { new Analyzer.UWPStructAnalyzer(), new Analyzer.UWPProjectionAnalyzer(), 
-                new Analyzer.EventArgsAnalyzer() , new Analyzer.NamespaceAnalyzer() }; 
+            return new DiagnosticAnalyzer[] { new Analyzer.UWPStructAnalyzer(), new Analyzer.UWPProjectionAnalyzer(),
+                new Analyzer.EventArgsAnalyzer() , new Analyzer.NamespaceAnalyzer() };
             // Cannot create new Documents in this workspace, Analyzer will not work: new Analyzer.ObservableCollectionAnalyzer()
+            // new Analyzer.UWPProjectionAnalyzer(), 
         }
 
         internal static CodeFixProvider[] GetCodeFixes()
         {
             return new CodeFixProvider[] { new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix(),
-                new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix() };
+                new Analyzer.UWPStructCodeFix() };
             // Will not currently work : new Analyzer.ObservableCollectionCodeFix()
+            // new Analyzer.UWPProjectionCodeFix()
         }
 
         internal static CodeFixProvider? GetCodeFixer(DiagnosticAnalyzer analyzer)
@@ -104,7 +106,8 @@ namespace MSBuild.Conversion.Project
                     var codeFixProvider = GetCodeFixer(analyzer);
                     if (codeFixProvider == null) continue;
                     //Get all instances of that analyzer in the document
-                    var analyzerDiagnostics = GetSortedDiagnosticsFromDocument(analyzer,document, newProject);
+                    IEnumerable<Diagnostic> analyzerDiagnostics;
+                    analyzerDiagnostics = GetSortedDiagnosticsFromDocument(analyzer, document, newProject);
                     var attempts = analyzerDiagnostics.Count();
                     //apply the changes to the document use total initial diagnostics as max attempts
                     for (int i = 0; i < attempts; ++i)
@@ -164,9 +167,19 @@ namespace MSBuild.Conversion.Project
             var diagnostics = new List<Diagnostic>();
             var tree = document.GetSyntaxTreeAsync().Result;
             // get compilation and pull analyzer use in that compilation
-            var compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers(ImmutableArray.Create(analyzer));
-            var testC = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync();
-            var diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
+            var comp = project.GetCompilationAsync().Result;
+            if (comp == null) return diagnostics;
+            ImmutableArray<Diagnostic> diags;
+            try
+            {
+                var compilationWithAnalyzers = comp.WithAnalyzers(ImmutableArray.Create(analyzer));
+                diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
+            }
+            catch (Exception e)
+            {
+                return diagnostics;
+            }
+            
             foreach (var diag in diags)
             {
                 if (diag.Location == Location.None || diag.Location.IsInMetadata)

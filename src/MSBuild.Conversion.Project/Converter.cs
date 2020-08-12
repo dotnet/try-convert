@@ -35,8 +35,8 @@ namespace MSBuild.Conversion.Project
         {
             var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
             Console.WriteLine("Converting WinUI Refrences");
-            _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm).
-                ConvertWinUIItems(_differs, _sdkBaselineProject, tfm);
+            _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
+                .ConvertWinUIItems(_differs, _sdkBaselineProject, tfm);
             //Save this version of XML csproj
             XDocument oldXml = _projectRootElement.Xml;
             //remove lines so msbuild works

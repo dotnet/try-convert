@@ -115,7 +115,8 @@ namespace MSBuild.Conversion.Project
                     {
                         // Old MSTest projects specify library, but this is not valid since tests on .NET Core are netcoreapp projects.
                         propGroup.RemoveChild(prop);
-                    }else if (projectStyle == ProjectStyle.WinUI && WinUIFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase)) 
+                    }
+                    else if (projectStyle == ProjectStyle.WinUI && WinUIFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase)) 
                     {
                         // Este remove winui specific unecessary properties
                         propGroup.RemoveChild(prop);
@@ -138,7 +139,7 @@ namespace MSBuild.Conversion.Project
         }
 
         /// <summary>
-        /// Tries to Convert NuGet packages to new versions if possible, removes incompatible
+        /// Tries to Convert WinUI2 NuGet packages to WinUI3 versions if possible, removes any that are incompatible with WinUI3
         /// </summary>
         /// <param name="projectRootElement"></param>
         /// <param name="differs"></param>
@@ -562,7 +563,7 @@ namespace MSBuild.Conversion.Project
             {
                 foreach (var child in propGroup.AllChildren)
                 {
-                    if (child.ElementName.Equals(WinUIFacts.VSVersionGroup, StringComparison.OrdinalIgnoreCase))
+                    if (child.ElementName.Equals(MSBuildFacts.VSVersionGroup, StringComparison.OrdinalIgnoreCase))
                     {
                         projectRootElement.RemoveChild(propGroup);
                         break;

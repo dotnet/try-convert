@@ -55,7 +55,7 @@ namespace MSBuild.Abstractions
                     {
                         foreach (var p in pGroup.AllChildren)
                         {
-                            if (p.ElementName.Equals("VisualStudioVersion"))
+                            if (p.ElementName.Equals(MSBuildFacts.VSVersionGroup))
                             {
                                 root.RemoveChild(pGroup);
                                 break;
@@ -63,10 +63,8 @@ namespace MSBuild.Abstractions
                             }
                         }
                     }
-                    //remove vsix version
-
                 }
-                if (IsSupportedProjectType(root))
+                if (IsSupportedProjectType(root)) //Need to also check if it is a UWP/WinUIProject and ensure the WinUI3 flag is set
                 {
                     if (!noBackup)
                     {

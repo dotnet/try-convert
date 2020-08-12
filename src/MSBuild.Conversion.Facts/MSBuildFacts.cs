@@ -229,7 +229,9 @@ namespace MSBuild.Conversion.Facts
         public const string PackagesSubstring = @"\packages";
         public const string Netstandard20 = "netstandard2.0";
         public const string Netcoreapp31 = "netcoreapp3.1";
+        public const string Net50 = "net5.0";
+        public const string VSVersionGroup = "VisualStudioVersion";
         public const string AppConfig = "App.config";
-        public const string AppContainerOutputType = "AppContainerExe"; // Este added output type
+        public const string AppContainerOutputType = "AppContainerExe";
     }
 }

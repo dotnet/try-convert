@@ -61,9 +61,6 @@ namespace MSBuild.Conversion.Facts
             { "Microsoft.Toolkit", "2.6.6" }
         });
 
-        public const string PackageReferenceName = "PackageReference";
-        public const string NetCore5 = "net5.0";
-        public const string VSVersionGroup = "VisualStudioVersion";
         public const string MSBIncompatImport = "Xaml.CSharp.targets";
         public const string MSBIncompatReplace = @"$(MSBuildToolsPath)\Microsoft.CSharp.targets";
         public const string CommunityToolkit = "Microsoft.Toolkit";

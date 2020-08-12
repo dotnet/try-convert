@@ -186,15 +186,15 @@ namespace MSBuild.Abstractions
         }
 
         /// <summary>
-        /// 
-        ///Dtermines if a given project is a WinUI Project by looking at PackageReferences
+        /// Determines if a given project is a WinUI Project by looking at PackageReferences
+        /// TODO: Change this method? is theis the best way to check If it is WinUI?
         /// </summary>
         /// <param name="projectRoot"></param>
         /// <returns></returns>
         public static bool IsWinUI(IProjectRootElement projectRoot)
         {
-            var packageReferences = projectRoot.ItemGroups.SelectMany(GetPackageReferences)?.Select(elem => elem.Include.Split(',').First());
-            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
+            var packageReferences = projectRoot.ItemGroups.SelectMany(GetPackageReferences)?.Select(elem => elem.Include.Split(',').FirstOrDefault());
+            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').FirstOrDefault());
             var both = packageReferences.Union(references);
             return WinUIFacts.KnownWinUIReferences.Any(reference => both.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
@@ -203,7 +203,7 @@ namespace MSBuild.Abstractions
         /// Gets all Package Reference items from a given item group.
         /// </summary>
         private static IEnumerable<ProjectItemElement> GetPackageReferences(ProjectItemGroupElement itemGroup) =>
-            itemGroup.Items.Where(item => item.ElementName.Equals(WinUIFacts.PackageReferenceName, StringComparison.OrdinalIgnoreCase));
+            itemGroup.Items.Where(item => item.ElementName.Equals(PackageFacts.PackageReferenceItemType, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
         /// Determines if a given project references Desktop assemblies.

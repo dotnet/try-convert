@@ -19,6 +19,10 @@
     <SystemCommandLineVersion> 2.0.0-beta1.20214.1</SystemCommandLineVersion>
     <SystemConfigurationConfigurationManagerVersion>4.7.0</SystemConfigurationConfigurationManagerVersion>
     <SystemSecurityPrincipalWindowsVersion>4.7.0</SystemSecurityPrincipalWindowsVersion>
+    <MicrosoftWinUIVersion>3.0.0-development.200810.0</MicrosoftWinUIVersion>
+    <MicrosoftWinUIConvertVersion>1.2.4</MicrosoftWinUIConvertVersion>
+    <MicrosoftCodeAnalysisVersion>3.7.0-4.final</MicrosoftCodeAnalysisVersion>
+    <MicrosoftWindowsSDKContractsVersion>10.0.19041.1</MicrosoftWindowsSDKContractsVersion>
   </PropertyGroup>
   <!--
     Nuget package versions for tests

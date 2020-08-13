@@ -182,13 +182,21 @@ namespace MSBuild.Conversion.Project
                 }
             }
 
-            if(!hasWinUIRef)
+            if (!hasWinUIRef)
             {
                 // Always Add Win UI
                 string winUIPkg = "Microsoft.WinUI";
                 string version = TryGetPackageVersion(winUIPkg);
                 projectRootElement.AddPackage(winUIPkg, version);
             }
+            
+            if (baselineProject.OutputType == ProjectOutputType.Library)
+            {
+                // if Its a library always add this pkg for msbuildextras
+                // TODO: convert these strings to facts and check if exists before adding this package ref
+                projectRootElement.AddPackage("MSBuild.Sdk.Extras", "2.1.2");
+            }
+            
             return projectRootElement;
         }
 

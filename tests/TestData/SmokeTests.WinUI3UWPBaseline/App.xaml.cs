@@ -71,7 +71,7 @@ namespace OldCsProj
                     // When the navigation stack isn't restored navigate to the first page,
                     // configuring the new page by passing required information as a navigation
                     // parameter
-                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    rootFrame.Navigate(typeof(MainPage), e.UWPLaunchActivatedEventArgs.Arguments);
                 }
                 // Ensure the current window is active
                 Window.Current.Activate();
@@ -93,7 +93,7 @@ namespace OldCsProj
                 }
             }
         }
-        private class oldICommand : ICommand
+        private class oldICommand : Microsoft.UI.Xaml.Input.ICommand
         {
             event EventHandler ICommand.CanExecuteChanged
             {
@@ -121,17 +121,17 @@ namespace OldCsProj
 
         void TestAnalyzers()
         {
-            PropertyChangedEventArgs changeArgs = new PropertyChangedEventArgs("tstProp");
+            PropertyChangedEventArgs changeArgs = new Microsoft.UI.Xaml.Data.PropertyChangedEventArgs("tstProp");
             ObservableCollection<string> c = new ObservableCollection<string>(); //Cannot run in try-convert
-            var cornerRadius1 = new CornerRadius(2);
-            var cornerRadius2 = new CornerRadius(1,2,3,4);
-            var duration = new Duration(new TimeSpan(33));
-            var gridLength1 = new GridLength(12);
-            var gridLength2 = new GridLength(1, GridUnitType.Pixel);
-            var thickness1 = new Thickness(2);
-            var thickness2 = new Thickness(2, 3, 4, 5);
-            var generatorPosition = new GeneratorPosition(23, 123);
-            var matrix = new Matrix(6, 5, 4, 3, 2, 1);
+            var cornerRadius1 = Microsoft.UI.Xaml.CornerRadiusHelper.FromUniformRadius(2);
+            var cornerRadius2 = Microsoft.UI.Xaml.CornerRadiusHelper.FromRadii(1,2,3,4);
+            var duration = Microsoft.UI.Xaml.DurationHelper.FromTimeSpan(new TimeSpan(33));
+            var gridLength1 = Microsoft.UI.Xaml.GridLengthHelper.FromPixels(12);
+            var gridLength2 = Microsoft.UI.Xaml.GridLengthHelper.FromValueAndType(1, GridUnitType.Pixel);
+            var thickness1 = Microsoft.UI.Xaml.ThicknessHelper.FromUniformLength(2);
+            var thickness2 = Microsoft.UI.Xaml.ThicknessHelper.FromLengths(2, 3, 4, 5);
+            var generatorPosition = Microsoft.UI.Xaml.Controls.Primitives.GeneratorPositionHelper.FromIndexAndOffset(23, 123);
+            var matrix = Microsoft.UI.Xaml.Media.MatrixHelper.FromElements(6, 5, 4, 3, 2, 1);
             var repeatBehavior1 = new RepeatBehavior(12);
             var repeatBehavior2 = new RepeatBehavior(new TimeSpan(10));
         }

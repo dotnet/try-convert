@@ -34,7 +34,7 @@ namespace MSBuild.Abstractions
                 }
 
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
-                // maybe do it here to root?
+
                 if (winUI3)
                 {
                     // remove from root improrts and import groups...
@@ -66,27 +66,9 @@ namespace MSBuild.Abstractions
                     // need to check here if is library and add import for sdkextras if it is.
                     if (GetProjectOutputType(root) == ProjectOutputType.Library)
                     {
-                        //root.CreatePropertyElement
-                        foreach (var itemGroup in root.ItemGroups)
-                        {
-                            var configurationName = MSBuildHelpers.GetConfigurationName(itemGroup.Condition);
-                            foreach (var item in itemGroup.Items.Where(item => ProjectItemHelpers.IsPackageReference(item)))
-                            {
-                                // add pkg here? check if package exists?
-                            }
-                            // <PackageReference Include="MSBuild.Sdk.Extras" Version ="2.1.2" />
-                        }
-                        // Always Add Win UI
-                        /*
-                        string winUIPkg = "MSBuild.Sdk.Extras";
-                        string version = "2.1.2";
-                        var packageReferencesItemGroup = MSBuildHelpers.GetOrCreatePackageReferencesItemGroup(root);
-                        var packageReference = packageReferencesItemGroup.AddItem(PackageFacts.PackageReferenceItemType, winUIPkg);
-                        packageReference.GetXml().SetAttribute(PackageFacts.VersionAttribute, version);
-                        */
+                       // Modify global.json here
                     }
                 }
-
 
                 if (IsSupportedProjectType(root)) //Need to also check if it is a UWP/WinUIProject and ensure the WinUI3 flag is set
                 {
@@ -224,7 +206,7 @@ namespace MSBuild.Abstractions
                 ProjectOutputType.Exe => true,
                 ProjectOutputType.Library => true,
                 ProjectOutputType.WinExe => true,
-                ProjectOutputType.AppContainer => true, // Este Add AppContainer supportedOutput
+                ProjectOutputType.AppContainer => true,
                 _ => false
             };
 
@@ -248,7 +230,7 @@ namespace MSBuild.Abstractions
             {
                 return ProjectOutputType.WinExe;
             }
-            else if (ProjectPropertyHelpers.IsAppContainerOutputType(outputTypeNode)) // Este added check for app container
+            else if (ProjectPropertyHelpers.IsAppContainerOutputType(outputTypeNode))
             {
                 return ProjectOutputType.AppContainer;
             }

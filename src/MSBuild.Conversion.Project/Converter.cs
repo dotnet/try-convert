@@ -35,17 +35,33 @@ namespace MSBuild.Conversion.Project
         {
             var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
             Console.WriteLine("Converting WinUI Refrences");
+            var projectStyle = _sdkBaselineProject.ProjectStyle;
+            var outputType = _sdkBaselineProject.OutputType;
+
+            // if any old style package refs, convert to new version
             _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
-                .ConvertWinUIItems(_differs, _sdkBaselineProject, tfm);
-            //Save this version of XML csproj
-            XDocument oldXml = _projectRootElement.Xml;
-            //remove lines so msbuild works
-            _projectRootElement.RemoveUWPLines(_sdkBaselineProject, tfm);
-            CleanUpProjectFile(outputPath, false);
-            //msbuild rewrite c# files with analyzers
-            WinUI3Analyzers.RunWinUIAnalysis(outputPath).Wait();
-            //rewrite .csproj file with original xml
-            CleanUpProjectFile(outputPath, false, oldXml);
+               .ConvertWinUIItems(_differs, _sdkBaselineProject, tfm); // Convert pkg refs to WinUI3
+            if (outputType == ProjectOutputType.Library)
+            {
+                // if library change the sdk style
+                _projectRootElement
+                    .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject);
+                CleanUpProjectFile(outputPath, true);
+            }
+            else
+            {
+                // otherwise
+                //Save this version of XML csproj
+                XDocument oldXml = _projectRootElement.Xml;
+                //remove C# target lines so msbuild works
+                _projectRootElement.RemoveUWPLines(_sdkBaselineProject, tfm);
+                // write this version to disk
+                CleanUpProjectFile(outputPath, false);
+                // Roslyn/msbuild rewrite c# files with analyzers
+                WinUI3Analyzers.RunWinUIAnalysis(outputPath).Wait();
+                //rewrite .csproj file with original xml do disk
+                CleanUpProjectFile(outputPath, false, oldXml);
+            }
         }
 
         internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)

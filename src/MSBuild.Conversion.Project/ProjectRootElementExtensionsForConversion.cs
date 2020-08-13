@@ -20,18 +20,25 @@ namespace MSBuild.Conversion.Project
                 case ProjectStyle.DefaultSubset:
                 case ProjectStyle.WindowsDesktop:
                 case ProjectStyle.MSTest:
-                // case ProjectStyle.WinUI: //Este Added for winui import removal and sdk FOR NOW skip so sdk does not change
-                    foreach (var import in projectRootElement.Imports)
+                case ProjectStyle.WinUI:
+                     foreach (var import in projectRootElement.Imports)
                     {
                         projectRootElement.RemoveChild(import);
                     }
-
-                    projectRootElement.Sdk = MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement)
-                        ? DesktopFacts.WinSDKAttribute
-                        : MSBuildFacts.DefaultSDKAttribute;
+                    if (baselineProject.ProjectStyle == ProjectStyle.WinUI)
+                    {
+                        projectRootElement.Sdk = MSBuildFacts.SDKExtrasAttribute;
+                    }
+                    else
+                    {
+                        projectRootElement.Sdk = (MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement) 
+                            || MSBuildHelpers.IsDesktop(projectRootElement))
+                            ? DesktopFacts.WinSDKAttribute
+                            : MSBuildFacts.DefaultSDKAttribute;
+                    }
                     break;
             }
-
+            
             return projectRootElement;
         }
 

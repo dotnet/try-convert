@@ -33,7 +33,7 @@ namespace MSBuild.Conversion.Project
 
         public void ConvertWinUI3(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
-            var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
+            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK); // todo: improve this? or just hardcode in targetframeworkproperty
             Console.WriteLine("Converting WinUI Refrences");
             var projectStyle = _sdkBaselineProject.ProjectStyle;
             var outputType = _sdkBaselineProject.OutputType;
@@ -43,9 +43,19 @@ namespace MSBuild.Conversion.Project
                .ConvertWinUIItems(_differs, _sdkBaselineProject, tfm); // Convert pkg refs to WinUI3
             if (outputType == ProjectOutputType.Library)
             {
-                // if library change the sdk style
+                // if library change the sdk style, follow old conversion pattern for now
                 _projectRootElement
-                    .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject);
+                    .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject)// change sdk style
+                    .RemoveDefaultedProperties(_sdkBaselineProject, _differs) // este: may need to revisit?
+                    .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle) // here
+                    .AddTargetFrameworkProperty(_sdkBaselineProject, tfm) // if library need to add adjustment for target multiple 
+                    .AddGenerateAssemblyInfoAsFalse()
+                    .AddDesktopProperties(_sdkBaselineProject)
+                    .AddCommonPropertiesToTopLevelPropertyGroup()
+                    .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)
+                    .AddItemRemovesForIntroducedItems(_differs)
+                    .RemoveUnnecessaryTargetsIfTheyExist()
+                    .ModifyProjectElement();
                 CleanUpProjectFile(outputPath, true);
             }
             else
@@ -66,11 +76,11 @@ namespace MSBuild.Conversion.Project
 
         internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
-            var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK); // Este: done
+            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK); // Este: done
 
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways
-                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm) //Este: nothing to do, converts old packages.config style
+                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
 
                 // Now we can convert the project over
                 .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject) // este: Remove old imports and use sdk style
@@ -85,7 +95,7 @@ namespace MSBuild.Conversion.Project
                 .RemoveUnnecessaryTargetsIfTheyExist()
                 .ModifyProjectElement();
         }
-        internal static string GetBestTFM(BaselineProject baselineProject, bool keepCurrentTfm, string? specifiedTFM, bool usePreviewSDK)
+        internal static string GetBestTFM(IProjectRootElement root, BaselineProject baselineProject, bool keepCurrentTfm, string? specifiedTFM, bool usePreviewSDK)
         {
             if (string.IsNullOrWhiteSpace(specifiedTFM))
             {
@@ -100,6 +110,19 @@ namespace MSBuild.Conversion.Project
                 {
                     specifiedTFM = tfmForApps;
                 }
+                else if (baselineProject.ProjectStyle == ProjectStyle.WinUI && baselineProject.OutputType == ProjectOutputType.Library)
+                {
+                    // if using sdkExtras then get custom tfm from target platform
+                    var targetPlatfromVersion = MSBuildHelpers.GetTargetPlatformVersionItem(root);
+                    if (targetPlatfromVersion != null)
+                    {
+                        specifiedTFM = $"{MSBuildFacts.Net50} - windows{targetPlatfromVersion.Value}; uap{targetPlatfromVersion.Value}";
+                    }
+                    else
+                    {
+                        specifiedTFM = MSBuildFacts.Net50;
+                    }
+                }
                 else if (baselineProject.OutputType == ProjectOutputType.Library)
                 {
                     specifiedTFM = MSBuildFacts.Netstandard20;
@@ -111,7 +134,7 @@ namespace MSBuild.Conversion.Project
                 /* Do Not change the tfm for now, leave as default
                 else if (baselineProject.ProjectStyle == ProjectStyle.WinUI) // Este: all winUI proj use net5.0 now
                 {
-                    specifiedTFM = WinUIFacts.NetCore5;
+                    specifiedTFM = MSBuildFacts.NetCore5;
                 }
                 */
                 else

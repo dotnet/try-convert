@@ -251,6 +251,27 @@ namespace MSBuild.Abstractions
             packagesConfigItemGroup.Items.Single(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
+        /// Finds TargetPlatformVersion Property Element. null if one does not exist.
+        /// </summary>
+        /// <param name="root"></param>
+        /// <returns></returns>
+        public static ProjectPropertyElement? GetTargetPlatformVersionItem(IProjectRootElement root)
+        {
+            //root.ItemGroups.a (pige => pige.Items.Any(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));
+            foreach (var pg in root.PropertyGroups)
+            {
+                foreach (var pe in pg.Properties)
+                {
+                    if (pe.Name.Equals("TargetPlatformVersionNodeName", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return pe;
+                    }
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Adds the UseWindowsForms=True property to the top-level project property group.
         /// </summary>
         public static void AddUseWinForms(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.UseWinFormsPropertyName, "true");
@@ -263,9 +284,14 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Finds the property group with the TFM specified, which is normally the top-level property group.
         /// </summary>
-        public static ProjectPropertyGroupElement GetOrCreateTopLevelPropertyGroupWithTFM(IProjectRootElement rootElement) =>
-            rootElement.PropertyGroups.Single(pg => pg.Properties.Any(p => p.ElementName.Equals(MSBuildFacts.TargetFrameworkNodeName, StringComparison.OrdinalIgnoreCase)))
+        public static ProjectPropertyGroupElement GetOrCreateTopLevelPropertyGroupWithTFM(IProjectRootElement rootElement)
+        {
+            // If is special case sdkExtras type use targetFramworks (plural)
+            var targetNode = (rootElement.Sdk == MSBuildFacts.SDKExtrasAttribute) ? MSBuildFacts.TargetFrameworksNodeName : MSBuildFacts.TargetFrameworkNodeName;
+            return rootElement.PropertyGroups.Single(pg => pg.Properties.Any(p => p.ElementName.Equals(targetNode, StringComparison.OrdinalIgnoreCase)))
             ?? rootElement.AddPropertyGroup();
+        }
+            
 
         /// <summary>
         /// Finds the item group where PackageReferences are specified. Usually there is only one.

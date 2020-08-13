@@ -195,6 +195,8 @@ namespace MSBuild.Conversion.Project
                 // if Its a library always add this pkg for msbuildextras
                 // TODO: convert these strings to facts and check if exists before adding this package ref
                 projectRootElement.AddPackage("MSBuild.Sdk.Extras", "2.1.2");
+                //multi-targeting for net5.0-windows10.0.ver.0 and uap10.0.ver, where ver is the value of the MSBuild property TargetPlatformVersion.
+                //-Example: `< TargetFrameworks > net5.0 - windows10.0.17134.0; uap10.0.17134 </ TargetFrameworks >`
             }
             
             return projectRootElement;
@@ -559,9 +561,22 @@ namespace MSBuild.Conversion.Project
         public static IProjectRootElement AddTargetFrameworkProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string tfm)
         {
             var propGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroup(baselineProject, projectRootElement);
-            var targetFrameworkElement = projectRootElement.CreatePropertyElement(MSBuildFacts.TargetFrameworkNodeName);
-            targetFrameworkElement.Value = tfm;
-            propGroup.PrependChild(targetFrameworkElement);
+
+            if (baselineProject.OutputType == ProjectOutputType.Library && baselineProject.ProjectStyle == ProjectStyle.WinUI)
+            {
+                //multi-targeting for net5.0-windows10.0.ver.0 and uap10.0.ver, where ver is the value of the MSBuild property TargetPlatformVersion.
+                //-Example: `< TargetFrameworks > net5.0 - windows10.0.17134.0; uap10.0.17134 </ TargetFrameworks >`
+                var targetFrameworksElement = projectRootElement.CreatePropertyElement(MSBuildFacts.TargetFrameworksNodeName);
+                targetFrameworksElement.Value = tfm;
+                propGroup.PrependChild(targetFrameworksElement);
+            }
+            else
+            {
+                var targetFrameworkElement = projectRootElement.CreatePropertyElement(MSBuildFacts.TargetFrameworkNodeName);
+                targetFrameworkElement.Value = tfm;
+                propGroup.PrependChild(targetFrameworkElement);
+            }
+            
             return projectRootElement;
         }
 

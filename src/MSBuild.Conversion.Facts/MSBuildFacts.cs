@@ -235,6 +235,6 @@ namespace MSBuild.Conversion.Facts
         public const string VSVersionGroup = "VisualStudioVersion";
         public const string AppConfig = "App.config";
         public const string AppContainerOutputType = "AppContainerExe";
-        public const string SDKExtrasAttribute = "MSBuild.Sdk.Extras";
+        public const string SDKExtrasAttribute = "MSBuild.Sdk.Extras/2.1.2";
     }
 }

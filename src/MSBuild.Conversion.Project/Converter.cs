@@ -49,7 +49,7 @@ namespace MSBuild.Conversion.Project
                     .RemoveDefaultedProperties(_sdkBaselineProject, _differs) // este: may need to revisit?
                     .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle) // here
                     .AddTargetFrameworkProperty(_sdkBaselineProject, tfm) // if library need to add adjustment for target multiple 
-                    .AddGenerateAssemblyInfoAsFalse()
+                    //.AddGenerateAssemblyInfoAsFalse()  We want to generate the assembly info
                     .AddDesktopProperties(_sdkBaselineProject)
                     .AddCommonPropertiesToTopLevelPropertyGroup()
                     .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)

@@ -50,17 +50,32 @@ namespace SmokeTests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
 
-        private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath)
+        [Fact(Skip = "MSBuild Issues on test, presently breaks and cannot load")]
+        public void ConvertsWinUI3UWPTemplate()
         {
-            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath);
+            var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WinUI3UWP");
+            var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WinUI3UWPBaseline");
+            AssertWinUI3ConversionWorks(projectToConvertPath, projectBaselinePath);
+        }
+
+        private void AssertWinUI3ConversionWorks(string projectToConvertPath, string projectBaselinePath)
+        {
+            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath, true);
             AssertPropsEqual(baselineRootElement, convertedRootElement);
             AssertItemsEqual(baselineRootElement, convertedRootElement);
         }
 
-        private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath)
+        private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath)
+        {
+            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath, false);
+            AssertPropsEqual(baselineRootElement, convertedRootElement);
+            AssertItemsEqual(baselineRootElement, convertedRootElement);
+        }
+
+        private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath, bool isWinUI)
         {
             var conversionLoader = new MSBuildConversionWorkspaceLoader(projectToConvertPath, MSBuildConversionWorkspaceType.Project);
-            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true, winUI3: false);
+            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true, winUI3: isWinUI);
 
             var baselineLoader = new MSBuildConversionWorkspaceLoader(projectBaselinePath, MSBuildConversionWorkspaceType.Project);
             var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);

@@ -57,6 +57,8 @@ namespace MSBuild.Conversion.Project
                     .RemoveUnnecessaryTargetsIfTheyExist()
                     .ModifyProjectElement();
                 CleanUpProjectFile(outputPath, true);
+                var analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.ClassLibrary);
+                analyzers.RunWinUIAnalysis(outputPath).Wait();
             }
             else
             {
@@ -68,7 +70,8 @@ namespace MSBuild.Conversion.Project
                 // write this version to disk
                 CleanUpProjectFile(outputPath, false);
                 // Roslyn/msbuild rewrite c# files with analyzers
-                WinUI3Analyzers.RunWinUIAnalysis(outputPath).Wait();
+                var analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.UWPApp);
+                analyzers.RunWinUIAnalysis(outputPath).Wait();
                 //rewrite .csproj file with original xml do disk
                 CleanUpProjectFile(outputPath, false, oldXml);
             }

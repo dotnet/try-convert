@@ -20,7 +20,7 @@
     <SystemConfigurationConfigurationManagerVersion>4.7.0</SystemConfigurationConfigurationManagerVersion>
     <SystemSecurityPrincipalWindowsVersion>4.7.0</SystemSecurityPrincipalWindowsVersion>
     <MicrosoftWinUIVersion>3.0.0-development.200810.0</MicrosoftWinUIVersion>
-    <MicrosoftWinUIConvertVersion>1.2.4</MicrosoftWinUIConvertVersion>
+    <MicrosoftWinUIConvertVersion>1.2.5</MicrosoftWinUIConvertVersion>
     <MicrosoftCodeAnalysisVersion>3.7.0-4.final</MicrosoftCodeAnalysisVersion>
     <MicrosoftWindowsSDKContractsVersion>10.0.19041.1</MicrosoftWindowsSDKContractsVersion>
   </PropertyGroup>

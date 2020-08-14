@@ -262,7 +262,7 @@ namespace MSBuild.Abstractions
             {
                 foreach (var pe in pg.Properties)
                 {
-                    if (pe.Name.Equals("TargetPlatformVersionNodeName", StringComparison.OrdinalIgnoreCase))
+                    if (pe.Name.Equals(MSBuildFacts.TargetPlatformVersionNodeName, StringComparison.OrdinalIgnoreCase))
                     {
                         return pe;
                     }

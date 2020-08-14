@@ -561,6 +561,7 @@ namespace MSBuild.Conversion.Project
         public static IProjectRootElement AddTargetFrameworkProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string tfm)
         {
             var propGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroup(baselineProject, projectRootElement);
+            // todo: does not seem to be targetging the top property for WinUIApps
 
             if (baselineProject.OutputType == ProjectOutputType.Library && baselineProject.ProjectStyle == ProjectStyle.WinUI)
             {

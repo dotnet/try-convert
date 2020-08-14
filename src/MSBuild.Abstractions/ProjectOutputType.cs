@@ -13,7 +13,7 @@ namespace MSBuild.Abstractions
         Exe,
         WinExe,
         Other,
-        AppContainer, //Este new type
+        AppContainer,
         None
     }
 }

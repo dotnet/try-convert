@@ -15,6 +15,11 @@ namespace MSBuild.Conversion.Project
 {
     public class WinUI3Analyzers
     {
+        // make an enum for the type
+        public enum ProjectOutputType { UWPApp, ClassLibrary, DesktopApp};
+        private ProjectOutputType projectType;
+
+        // metadata refrences
         private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
         private static readonly MetadataReference SystemCoreReference = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
         private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
@@ -25,7 +30,12 @@ namespace MSBuild.Conversion.Project
         private static readonly MetadataReference MicrosoftXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
         private static readonly MetadataReference INotifyReference = MetadataReference.CreateFromFile(typeof(System.ComponentModel.INotifyPropertyChanged).Assembly.Location);
 
-        internal static DiagnosticAnalyzer[] GetAnalyzers()
+        public WinUI3Analyzers(ProjectOutputType projectType)
+        {
+            this.projectType = projectType;
+        }
+
+        internal DiagnosticAnalyzer[] GetAnalyzers()
         {
             // Get all analyzers, Order Matters!
             return new DiagnosticAnalyzer[] { new Analyzer.UWPStructAnalyzer(), new Analyzer.UWPProjectionAnalyzer(),
@@ -33,15 +43,24 @@ namespace MSBuild.Conversion.Project
             // Cannot create new Documents in this workspace, Analyzer will not work: new Analyzer.ObservableCollectionAnalyzer()
         }
 
-        internal static CodeFixProvider[] GetCodeFixes()
+        internal CodeFixProvider[] GetCodeFixes()
         {
-            return new CodeFixProvider[] { new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix(), 
-                new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix(),
-                 };
+            if (projectType == ProjectOutputType.UWPApp)
+            {
+                return new CodeFixProvider[] { new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix(),
+                    new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
+            } 
+            else if (projectType == ProjectOutputType.ClassLibrary)
+            {
+                // return ifDefFixes for libraries instead
+                return new CodeFixProvider[] { new Analyzer.UWPStructIfDefCodeFix(), new Analyzer.UWPProjectionCodeFix(),
+                    new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
+            }
+            return new CodeFixProvider[] { };
             // Will not currently work : new Analyzer.ObservableCollectionCodeFix()
         }
 
-        internal static CodeFixProvider? GetCodeFixer(DiagnosticAnalyzer analyzer)
+        internal CodeFixProvider? GetCodeFixer(DiagnosticAnalyzer analyzer)
         {
             var codeFixes = GetCodeFixes();
             var v = analyzer.SupportedDiagnostics;
@@ -55,7 +74,7 @@ namespace MSBuild.Conversion.Project
             return null;         
         }
 
-        public static async Task RunWinUIAnalysis(string projectFilePath)
+        public async Task RunWinUIAnalysis(string projectFilePath)
         {
             Console.WriteLine($"Running Analyzers on {projectFilePath}");
             // The test solution is copied to the output directory when you build this sample.
@@ -163,7 +182,7 @@ namespace MSBuild.Conversion.Project
         /// <param name="analyzer"></param>
         /// <param name="documents"></param>
         /// <returns></returns>
-        internal static IEnumerable<Diagnostic> GetSortedDiagnosticsFromDocument(DiagnosticAnalyzer analyzer, Document document, Microsoft.CodeAnalysis.Project project)
+        internal IEnumerable<Diagnostic> GetSortedDiagnosticsFromDocument(DiagnosticAnalyzer analyzer, Document document, Microsoft.CodeAnalysis.Project project)
         {
             // create a list to hold all the diagnostics
             var diagnostics = new List<Diagnostic>();
@@ -206,7 +225,7 @@ namespace MSBuild.Conversion.Project
         /// </summary>
         /// <param name="diagnostics">The list of Diagnostics to be sorted</param>
         /// <returns>An IEnumerable containing the Diagnostics in order of Location</returns>
-        internal static IEnumerable<Diagnostic> SortDiagnostics(IEnumerable<Diagnostic> diagnostics)
+        internal IEnumerable<Diagnostic> SortDiagnostics(IEnumerable<Diagnostic> diagnostics)
         {
             return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
         }
@@ -217,7 +236,7 @@ namespace MSBuild.Conversion.Project
         /// <param name="document"></param>
         /// <param name="codeAction"></param>
         /// <returns></returns>
-        internal static Document ApplyFix(Document document, CodeAction codeAction)
+        internal Document ApplyFix(Document document, CodeAction codeAction)
         {
             try
             {

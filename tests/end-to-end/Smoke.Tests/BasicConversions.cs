@@ -50,20 +50,12 @@ namespace SmokeTests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
 
-        [Fact]//(Skip = "MSBuild Issues on test, presently breaks and cannot load")]
+        [Fact]
         public void ConvertsWinUI3UWPTemplate()
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WinUI3UWP");
             var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WinUI3UWPBaseline");
-            AssertWinUI3ConversionWorks(projectToConvertPath, projectBaselinePath);
-        }
-
-        private void AssertWinUI3ConversionWorks(string projectToConvertPath, string projectBaselinePath)
-        {
-            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath);
-            //TODO break up file so tests run, need to have convert winui project in its own line.
-            AssertPropsEqual(baselineRootElement, convertedRootElement);
-            AssertItemsEqual(baselineRootElement, convertedRootElement);
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
 
         private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath)

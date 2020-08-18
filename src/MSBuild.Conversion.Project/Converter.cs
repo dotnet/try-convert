@@ -63,8 +63,8 @@ namespace MSBuild.Conversion.Project
             {
                 // if flag not set then always change the sdk style
                 _projectRootElement.ChangeImportsAndAddSdkAttribute(_sdkBaselineProject);// change old style imports and add sdk attribute
-                _projectRootElement.ModifyOutputType(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.OutputType);
-                _projectRootElement.RemoveDefaultedProperties(_sdkBaselineProject, _differs); // este: may need to revisit?
+                _projectRootElement.ModifyOutputType(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.OutputType);// change desktop output type
+                _projectRootElement.RemoveDefaultedProperties(_sdkBaselineProject, _differs); // Removes default sdk properties
                 _projectRootElement.RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle); // here
                 _projectRootElement.AddTargetFrameworkProperty(_sdkBaselineProject, tfm); // if library need to add adjustment for target multiple 
                 _projectRootElement.AddDesktopProperties(_sdkBaselineProject);

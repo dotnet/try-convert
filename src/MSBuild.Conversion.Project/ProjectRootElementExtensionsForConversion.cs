@@ -12,6 +12,12 @@ namespace MSBuild.Conversion.Project
 {
     public static class ProjectRootElementExtensionsForConversion
     {
+        /// <summary>
+        /// Removes any leftover old style imports and updates sdk attribute
+        /// </summary>
+        /// <param name="projectRootElement"></param>
+        /// <param name="baselineProject"></param>
+        /// <returns></returns>
         public static IProjectRootElement ChangeImportsAndAddSdkAttribute(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {
             switch (baselineProject.ProjectStyle)
@@ -41,6 +47,13 @@ namespace MSBuild.Conversion.Project
             
             return projectRootElement;
         }
+        /// <summary>
+        /// Changes Output to winExe if converting Desktop style winui app
+        /// </summary>
+        /// <param name="projectRootElement"></param>
+        /// <param name="projectStyle"></param>
+        /// <param name="projectOutputType"></param>
+        /// <returns></returns>
         public static IProjectRootElement ModifyOutputType(this IProjectRootElement projectRootElement, ProjectStyle projectStyle, ProjectOutputType projectOutputType)
         {
             // If winUI style and Desktop then should be WinExe
@@ -55,6 +68,13 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
+        /// <summary>
+        /// Removes Default SDK properties
+        /// </summary>
+        /// <param name="projectRootElement"></param>
+        /// <param name="baselineProject"></param>
+        /// <param name="differs"></param>
+        /// <returns></returns>
         public static IProjectRootElement RemoveDefaultedProperties(this IProjectRootElement projectRootElement, BaselineProject baselineProject, ImmutableDictionary<string, Differ> differs)
         {
             foreach (var propGroup in projectRootElement.PropertyGroups)
@@ -302,19 +322,17 @@ namespace MSBuild.Conversion.Project
                     {
                         itemGroup.RemoveChild(item);
                     }
+                    else if (IsWinUIRemovableItem(baselineProject, itemGroup, item))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
                     else
                     {
                         var itemsDiff = differs[configurationName].GetItemsDiff();
                         UpdateBasedOnDiff(itemsDiff, itemGroup, item);
                     }
                 }
-                foreach (var item in itemGroup.Items.Where(item => ProjectItemHelpers.IsPackageReference(item)))
-                {
-                    //TODO check if win UI and needs to be updated
-                    var i = item;
-                }
-
-                    if (itemGroup.Items.Count == 0)
+                if (itemGroup.Items.Count == 0)
                 {
                     projectRootElement.RemoveChild(itemGroup);
                 }
@@ -357,6 +375,17 @@ namespace MSBuild.Conversion.Project
                            || ProjectItemHelpers.DesktopReferencesNeedsRemoval(item)
                            || ProjectItemHelpers.IsDesktopRemovableGlobbedItem(sdkBaselineProject.ProjectStyle, item));
             }
+        }
+
+        private static bool IsWinUIRemovableItem(BaselineProject sdkBaselineProject, ProjectItemGroupElement itemGroup, ProjectItemElement item)
+        {
+            if (ProjectItemHelpers.IsDependentUponXamlDesignerItem(item))
+            {
+
+            }
+            return sdkBaselineProject.ProjectStyle == ProjectStyle.WinUI
+                && (ProjectItemHelpers.IsLegacyXamlDesignerItem(item)
+                    || ProjectItemHelpers.IsDependentUponXamlDesignerItem(item));
         }
 
         public static IProjectRootElement AddItemRemovesForIntroducedItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs)

@@ -31,38 +31,22 @@ namespace MSBuild.Conversion.Project
             CleanUpProjectFile(outputPath, true);
         }
 
-        public void ConvertWinUI3(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
+        public void ConvertWinUI3(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK, bool keepUWP)
         {
-            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK); // todo: improve this? or just hardcode in targetframeworkproperty
+            // if winUI will return uap/windows multi target tfm
+            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
+
             Console.WriteLine("Converting WinUI Refrences");
-            var projectStyle = _sdkBaselineProject.ProjectStyle;
-            var outputType = _sdkBaselineProject.OutputType;
+            var projectStyle = _sdkBaselineProject.ProjectStyle;//should always be winui
+            var outputType = _sdkBaselineProject.OutputType; 
 
             // if any old style package refs, convert to new version
             _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
                .ConvertWinUIItems(_differs, _sdkBaselineProject, tfm); // Convert pkg refs to WinUI3
-            if (outputType == ProjectOutputType.Library)
+            
+            if (outputType == ProjectOutputType.AppContainer && keepUWP)
             {
-                // if library change the sdk style, follow old conversion pattern for now
-                _projectRootElement
-                    .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject)// change sdk style
-                    .RemoveDefaultedProperties(_sdkBaselineProject, _differs) // este: may need to revisit?
-                    .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle) // here
-                    .AddTargetFrameworkProperty(_sdkBaselineProject, tfm) // if library need to add adjustment for target multiple 
-                    //.AddGenerateAssemblyInfoAsFalse()  We want to generate the assembly info
-                    .AddDesktopProperties(_sdkBaselineProject)
-                    .AddCommonPropertiesToTopLevelPropertyGroup()
-                    .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)
-                    .AddItemRemovesForIntroducedItems(_differs)
-                    .RemoveUnnecessaryTargetsIfTheyExist()
-                    .ModifyProjectElement();
-                CleanUpProjectFile(outputPath, true);
-                var analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.ClassLibrary);
-                analyzers.RunWinUIAnalysis(outputPath).Wait();
-            }
-            else
-            {
-                // otherwise
+                // if this is staying UWP...
                 //Save this version of XML csproj
                 XDocument oldXml = _projectRootElement.Xml;
                 //remove C# target lines so msbuild works
@@ -74,6 +58,31 @@ namespace MSBuild.Conversion.Project
                 analyzers.RunWinUIAnalysis(outputPath).Wait();
                 //rewrite .csproj file with original xml do disk
                 CleanUpProjectFile(outputPath, false, oldXml);
+            }
+            else
+            {
+                // if flag not set then always change the sdk style
+                _projectRootElement.ChangeImportsAndAddSdkAttribute(_sdkBaselineProject);// change sdk style
+                _projectRootElement.RemoveDefaultedProperties(_sdkBaselineProject, _differs); // este: may need to revisit?
+                _projectRootElement.RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle); // here
+                _projectRootElement.AddTargetFrameworkProperty(_sdkBaselineProject, tfm); // if library need to add adjustment for target multiple 
+                _projectRootElement.AddDesktopProperties(_sdkBaselineProject);
+                _projectRootElement.AddCommonPropertiesToTopLevelPropertyGroup();
+                _projectRootElement.RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm);
+                _projectRootElement.AddItemRemovesForIntroducedItems(_differs);
+                _projectRootElement.RemoveUnnecessaryTargetsIfTheyExist();
+                _projectRootElement.ModifyProjectElement();
+                CleanUpProjectFile(outputPath, true);
+                WinUI3Analyzers analyzers; 
+                if (outputType == ProjectOutputType.Library)
+                {
+                    analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.ClassLibrary);
+                }
+                else
+                {
+                    analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.DesktopApp);
+                }
+                    analyzers.RunWinUIAnalysis(outputPath).Wait();
             }
         }
 

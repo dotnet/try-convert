@@ -114,7 +114,7 @@ namespace MSBuild.Conversion
                     {
                         // only call convert. add/removenuget imports
                         var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-                        converter.ConvertWinUI3(item.ProjectRootElement.FullPath, tfm, keepCurrentTfms, allowPreviews);
+                        converter.ConvertWinUI3(item.ProjectRootElement.FullPath, tfm, keepCurrentTfms, allowPreviews, keepUWP);
                     }
                     else
                     {

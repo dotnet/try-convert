@@ -25,7 +25,7 @@ namespace MSBuild.Conversion.Project
                     {
                         projectRootElement.RemoveChild(import);
                     }
-                    if (baselineProject.ProjectStyle == ProjectStyle.WinUI)
+                    if (baselineProject.ProjectStyle == ProjectStyle.WinUI && baselineProject.OutputType == ProjectOutputType.Library)
                     {
                         projectRootElement.Sdk = MSBuildFacts.SDKExtrasAttribute;
                     }

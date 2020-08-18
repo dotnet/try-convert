@@ -34,7 +34,7 @@ namespace MSBuild.Conversion.Project
         public void ConvertWinUI3(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK, bool keepUWP)
         {
             // if winUI will return uap/windows multi target tfm
-            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
+            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK, keepUWP);
 
             Console.WriteLine("Converting WinUI Refrences");
             var projectStyle = _sdkBaselineProject.ProjectStyle;//should always be winui
@@ -88,7 +88,7 @@ namespace MSBuild.Conversion.Project
 
         internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
-            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK); 
+            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK, false); 
 
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways
@@ -107,7 +107,7 @@ namespace MSBuild.Conversion.Project
                 .RemoveUnnecessaryTargetsIfTheyExist()
                 .ModifyProjectElement();
         }
-        internal static string GetBestTFM(IProjectRootElement root, BaselineProject baselineProject, bool keepCurrentTfm, string? specifiedTFM, bool usePreviewSDK)
+        internal static string GetBestTFM(IProjectRootElement root, BaselineProject baselineProject, bool keepCurrentTfm, string? specifiedTFM, bool usePreviewSDK, bool keepUWP)
         {
             if (string.IsNullOrWhiteSpace(specifiedTFM))
             {
@@ -122,18 +122,21 @@ namespace MSBuild.Conversion.Project
                 {
                     specifiedTFM = tfmForApps;
                 }
-                else if (baselineProject.ProjectStyle == ProjectStyle.WinUI && baselineProject.OutputType == ProjectOutputType.Library)
+                else if (!keepUWP && baselineProject.ProjectStyle == ProjectStyle.WinUI) 
                 {
-                    // if using sdkExtras then get custom tfm from target platform
-                    var targetPlatfromVersion = MSBuildHelpers.GetTargetPlatformVersionItem(root);
-                    if (targetPlatfromVersion != null)
+                    // if updating UWP SDK always use at least net5.0
+                    specifiedTFM = MSBuildFacts.Net50;
+
+                    // if its a library try and multi target platform
+                    if (baselineProject.OutputType == ProjectOutputType.Library)
                     {
-                        specifiedTFM = $"{MSBuildFacts.Net50} - windows{targetPlatfromVersion.Value}; uap{targetPlatfromVersion.Value}";
-                    }
-                    else
-                    {
-                        specifiedTFM = MSBuildFacts.Net50;
-                    }
+                        // if using sdkExtras then get custom tfm from target platform
+                        var targetPlatfromVersion = MSBuildHelpers.GetTargetPlatformVersionItem(root);
+                        if (targetPlatfromVersion != null)
+                        {
+                            specifiedTFM = $"{MSBuildFacts.Net50} - windows{targetPlatfromVersion.Value}; uap{targetPlatfromVersion.Value}";
+                        }
+                    }  
                 }
                 else if (baselineProject.OutputType == ProjectOutputType.Library)
                 {
@@ -143,19 +146,11 @@ namespace MSBuild.Conversion.Project
                 {
                     specifiedTFM = tfmForApps;
                 }
-                /* Do Not change the tfm for now, leave as default
-                else if (baselineProject.ProjectStyle == ProjectStyle.WinUI) // Este: all winUI proj use net5.0 now
-                {
-                    specifiedTFM = MSBuildFacts.NetCore5;
-                }
-                */
                 else
                 {
                     // Default is to just use what exists in the project
                     specifiedTFM = baselineProject.GetTfm();
                 }
-                // if UWP use net5.0
-                // if Desktop use net5.0 
             }
             return specifiedTFM;
         }

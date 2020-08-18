@@ -15,7 +15,7 @@ namespace MSBuild.Abstractions
     {
         public ImmutableArray<MSBuildConversionWorkspaceItem> WorkspaceItems { get; }
 
-        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup, bool winUI3)
+        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup)
         {
             var items = ImmutableArray.CreateBuilder<MSBuildConversionWorkspaceItem>();
 

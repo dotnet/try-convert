@@ -237,5 +237,6 @@ namespace MSBuild.Conversion.Facts
         public const string AppContainerOutputType = "AppContainerExe";
         public const string SDKExtrasAttribute = "MSBuild.Sdk.Extras/2.1.2";
         public const string WindowsAppContainerPropertyNode = "WindowsAppContainer";
+        public const string TargetPlatformIdentifierPropertyNode = "TargetPlatformIdentifier";
     }
 }

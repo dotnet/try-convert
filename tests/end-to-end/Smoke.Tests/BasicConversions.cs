@@ -75,7 +75,7 @@ namespace SmokeTests
         private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath, bool isWinUI)
         {
             var conversionLoader = new MSBuildConversionWorkspaceLoader(projectToConvertPath, MSBuildConversionWorkspaceType.Project);
-            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true, winUI3: isWinUI);
+            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true);
 
             var baselineLoader = new MSBuildConversionWorkspaceLoader(projectBaselinePath, MSBuildConversionWorkspaceType.Project);
             var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);

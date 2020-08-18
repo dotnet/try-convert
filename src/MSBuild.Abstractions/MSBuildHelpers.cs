@@ -193,10 +193,17 @@ namespace MSBuild.Abstractions
         /// <returns></returns>
         public static bool IsWinUI(IProjectRootElement projectRoot)
         {
-            var packageReferences = projectRoot.ItemGroups.SelectMany(GetPackageReferences)?.Select(elem => elem.Include.Split(',').FirstOrDefault());
-            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').FirstOrDefault());
-            var both = packageReferences.Union(references);
-            return WinUIFacts.KnownWinUIReferences.Any(reference => both.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            foreach (var pg in projectRoot.PropertyGroups)
+            {
+                foreach (var p in pg.Properties)
+                {
+                    if (p.Name.Equals(MSBuildFacts.TargetPlatformIdentifierPropertyNode, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return p.Value.Equals(WinUIFacts.UWPTargetPlatformValue, StringComparison.OrdinalIgnoreCase);
+                    }
+                }
+            }
+            return false;
         }
 
         /// <summary>

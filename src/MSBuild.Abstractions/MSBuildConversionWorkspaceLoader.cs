@@ -29,7 +29,7 @@ namespace MSBuild.Abstractions
             _workspaceType = workspaceType;
         }
 
-        public MSBuildConversionWorkspace LoadWorkspace(string path, bool noBackup, bool winUI3)
+        public MSBuildConversionWorkspace LoadWorkspace(string path, bool noBackup)
         {
             var projectPaths =
                 _workspaceType switch
@@ -42,7 +42,7 @@ namespace MSBuild.Abstractions
                     _ => throw new InvalidOperationException("Somehow, an enum that isn't possible was passed in here.")
                 };
 
-            return new MSBuildConversionWorkspace(projectPaths, noBackup, winUI3);
+            return new MSBuildConversionWorkspace(projectPaths, noBackup);
 
             static bool IsSupportedSolutionItemType(ProjectInSolution project)
             {

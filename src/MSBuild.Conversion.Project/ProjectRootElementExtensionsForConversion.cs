@@ -379,10 +379,6 @@ namespace MSBuild.Conversion.Project
 
         private static bool IsWinUIRemovableItem(BaselineProject sdkBaselineProject, ProjectItemGroupElement itemGroup, ProjectItemElement item)
         {
-            if (ProjectItemHelpers.IsDependentUponXamlDesignerItem(item))
-            {
-
-            }
             return sdkBaselineProject.ProjectStyle == ProjectStyle.WinUI
                 && (ProjectItemHelpers.IsLegacyXamlDesignerItem(item)
                     || ProjectItemHelpers.IsDependentUponXamlDesignerItem(item));

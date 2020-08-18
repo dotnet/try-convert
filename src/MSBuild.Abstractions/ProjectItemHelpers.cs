@@ -92,8 +92,9 @@ namespace MSBuild.Abstractions
         /// Checks if a given item has DependentUpon metadata for a globbed designer (and can thus be globbed).
         /// </summary>
         public static bool IsDependentUponXamlDesignerItem(ProjectItemElement item) =>
-            item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
-                                     && pme.Value.Equals(MSBuildFacts.CodeSubTypeValue, StringComparison.OrdinalIgnoreCase))
+            (item.Include.EndsWith(".xaml.cs") 
+                || item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
+                                     && pme.Value.Equals(MSBuildFacts.CodeSubTypeValue, StringComparison.OrdinalIgnoreCase)))
             && item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.DependentUponName, StringComparison.OrdinalIgnoreCase)
                                         && pme.Value.EndsWith(DesktopFacts.XamlFileExtension, StringComparison.OrdinalIgnoreCase));
 

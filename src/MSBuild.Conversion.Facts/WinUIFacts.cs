@@ -56,13 +56,11 @@ namespace MSBuild.Conversion.Facts
         {
             { "Microsoft.WinUI", "3.0.0-preview2.200713.0" },
             { "Microsoft.Xaml.Behaviors.WinUI", "NeedVersion" },
-            { "Microsoft.Win2D.WinUI", "NeedsVersion"},
-            { "Microsoft.Toolkit", "2.6.6" }
+            { "Microsoft.Win2D.WinUI", "NeedsVersion"}
         });
 
         public const string MSBuildIncompatibleImport = "Microsoft.Windows.UI.Xaml.CSharp.targets";
         public const string MSBuildIncompatibleReplace = @"$(MSBuildToolsPath)\Microsoft.CSharp.targets";
-        public const string CommunityToolkit = "Microsoft.Toolkit";
         public const string UWPTargetPlatformValue = "UAP";
     }
 }

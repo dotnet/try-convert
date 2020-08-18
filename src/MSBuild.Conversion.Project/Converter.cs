@@ -79,7 +79,7 @@ namespace MSBuild.Conversion.Project
 
         internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
-            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK); // Este: done
+            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK); 
 
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways

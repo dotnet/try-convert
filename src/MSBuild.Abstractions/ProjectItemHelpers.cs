@@ -53,7 +53,7 @@ namespace MSBuild.Abstractions
         /// Checks if a NuGet package can be updated for WinUI3
         /// </summary>
         public static bool IsReferenceConvertibleToWinUIReference(ProjectItemElement item) =>
-            WinUIFacts.ConvertiblePackages.ContainsKey(item.Include) || item.Include.StartsWith(WinUIFacts.CommunityToolkit, StringComparison.OrdinalIgnoreCase);
+            WinUIFacts.ConvertiblePackages.ContainsKey(item.Include);
 
         public static bool IsWinUIRef(ProjectItemElement item) =>
             WinUIFacts.WinUIRefs.Contains(item.Include, StringComparer.OrdinalIgnoreCase);

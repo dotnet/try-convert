@@ -62,7 +62,8 @@ namespace MSBuild.Conversion.Project
             else
             {
                 // if flag not set then always change the sdk style
-                _projectRootElement.ChangeImportsAndAddSdkAttribute(_sdkBaselineProject);// change sdk style
+                _projectRootElement.ChangeImportsAndAddSdkAttribute(_sdkBaselineProject);// change old style imports and add sdk attribute
+                _projectRootElement.ModifyOutputType(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.OutputType);
                 _projectRootElement.RemoveDefaultedProperties(_sdkBaselineProject, _differs); // este: may need to revisit?
                 _projectRootElement.RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle); // here
                 _projectRootElement.AddTargetFrameworkProperty(_sdkBaselineProject, tfm); // if library need to add adjustment for target multiple 

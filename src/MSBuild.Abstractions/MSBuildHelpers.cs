@@ -299,7 +299,6 @@ namespace MSBuild.Abstractions
             ?? rootElement.AddPropertyGroup();
         }
             
-
         /// <summary>
         /// Finds the item group where PackageReferences are specified. Usually there is only one.
         /// </summary>

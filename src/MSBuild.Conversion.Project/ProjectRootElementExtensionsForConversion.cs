@@ -41,6 +41,19 @@ namespace MSBuild.Conversion.Project
             
             return projectRootElement;
         }
+        public static IProjectRootElement ModifyOutputType(this IProjectRootElement projectRootElement, ProjectStyle projectStyle, ProjectOutputType projectOutputType)
+        {
+            // If winUI style and Desktop then should be WinExe
+            if (projectStyle == ProjectStyle.WinUI && projectOutputType == ProjectOutputType.AppContainer)
+            {
+                var outputNode = projectRootElement.GetOutputTypeNode();
+                if (outputNode != null)
+                {
+                    outputNode.Value = MSBuildFacts.WinExeOutputType;
+                }
+            }
+            return projectRootElement;
+        }
 
         public static IProjectRootElement RemoveDefaultedProperties(this IProjectRootElement projectRootElement, BaselineProject baselineProject, ImmutableDictionary<string, Differ> differs)
         {

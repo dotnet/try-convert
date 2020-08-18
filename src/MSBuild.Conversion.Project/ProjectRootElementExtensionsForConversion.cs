@@ -49,9 +49,10 @@ namespace MSBuild.Conversion.Project
                 var configurationName = MSBuildHelpers.GetConfigurationName(propGroup.Condition);
                 if (!differs.ContainsKey(configurationName))
                 {
-                    continue;// Este: temporary fix, what is differs and why does it still have a reference to the old removed properties for winui?
+                    // skip if this is a property we removed to get around the MSBuild targets error
+                    continue;
                 }
-                var propDiff = differs[configurationName].GetPropertiesDiff();// Este:  broke here, project root elment does not have the same key (we removed it)
+                var propDiff = differs[configurationName].GetPropertiesDiff();
                 var def = propDiff.DefaultedProperties;
                 foreach (var prop in propGroup.Properties)
                 {
@@ -603,10 +604,10 @@ namespace MSBuild.Conversion.Project
             }
             foreach (var import in projectRootElement.Imports)
             {
-                if (import.Project.EndsWith(WinUIFacts.MSBIncompatImport, StringComparison.OrdinalIgnoreCase))
+                if (import.Project.EndsWith(WinUIFacts.MSBuildIncompatibleImport, StringComparison.OrdinalIgnoreCase))
                 {
                     projectRootElement.RemoveChild(import);
-                    projectRootElement.AddImport(WinUIFacts.MSBIncompatReplace);
+                    projectRootElement.AddImport(WinUIFacts.MSBuildIncompatibleReplace);
                     break;
                 }
             }

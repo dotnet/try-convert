@@ -40,11 +40,11 @@ namespace MSBuild.Conversion.Facts
             "Put.Bad.Pkg.Here"
         );
 
+        //TODO Delete this
         public static ImmutableArray<string> WinUIRefs => ImmutableArray.Create(
             "Microsoft.UI.Xaml", 
             "Microsoft.WinUI" 
         );
-
 
         public static ImmutableDictionary<string, string> ConvertiblePackages => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
@@ -61,8 +61,8 @@ namespace MSBuild.Conversion.Facts
             { "Microsoft.Toolkit", "2.6.6" }
         });
 
-        public const string MSBIncompatImport = "Xaml.CSharp.targets";
-        public const string MSBIncompatReplace = @"$(MSBuildToolsPath)\Microsoft.CSharp.targets";
+        public const string MSBuildIncompatibleImport = "Microsoft.Windows.UI.Xaml.CSharp.targets";
+        public const string MSBuildIncompatibleReplace = @"$(MSBuildToolsPath)\Microsoft.CSharp.targets";
         public const string CommunityToolkit = "Microsoft.Toolkit";
     }
 }

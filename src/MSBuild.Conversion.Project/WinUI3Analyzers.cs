@@ -47,13 +47,13 @@ namespace MSBuild.Conversion.Project
         {
             if (projectType == ProjectOutputType.UWPApp)
             {
-                return new CodeFixProvider[] { new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix(),
+                return new CodeFixProvider[] { new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix(), 
                     new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
             } 
             else if (projectType == ProjectOutputType.ClassLibrary)
             {
-                // return ifDefFixes for libraries instead
-                return new CodeFixProvider[] { new Analyzer.UWPStructIfDefCodeFix(), new Analyzer.UWPProjectionCodeFix(),
+                // return ifDefFixes for libraries instead, passing in false ensures ObservableCollectionFix is not implemented
+                return new CodeFixProvider[] { new Analyzer.UWPIfDefCodeFix(true),
                     new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
             }
             return new CodeFixProvider[] { };
@@ -164,13 +164,15 @@ namespace MSBuild.Conversion.Project
 
             // Actually apply the accumulated changes and save them to disk. At this point
             // workspace.CurrentSolution is updated to point to the new solution.
-            if (workspace.TryApplyChanges(newProject.Solution))
+            try
             {
+                workspace.TryApplyChanges(newProject.Solution);
                 Console.WriteLine("Solution updated.");
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("Update failed!");
+                Console.WriteLine("Could not update solution!");
+                Console.WriteLine(e.Message);
             }
             
         }

@@ -35,42 +35,37 @@ namespace MSBuild.Abstractions
 
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
 
-                if (winUI3)
+                // MSBuild cannot resolve the following path and crashes.
+                // Remove incompatible winui imports if they exist
+                foreach (ProjectImportElement pie in root.Imports)
                 {
-                    // remove from root improrts and import groups...
-                    foreach (ProjectImportElement i in root.Imports)
+                    if (pie.Project.EndsWith(WinUIFacts.MSBuildIncompatibleImport))
                     {
-                        if (i.Project.EndsWith("Xaml.CSharp.targets"))
+                        root.RemoveChild(pie);
+                        root.AddImport(WinUIFacts.MSBuildIncompatibleReplace);
+                        var g = root.AddPropertyGroup();
+                        g.AddProperty(MSBuildFacts.WindowsAppContainerPropertyNode, "true");
+                        Console.WriteLine("Removed incompatible targets from MSBuild Project");
+                        break;
+                    }
+                }
+
+                // MSBuild crashes when evaluating VS Version. Remove if it exists
+                foreach (ProjectPropertyGroupElement pGroup in root.PropertyGroups)
+                {
+                    foreach (var p in pGroup.AllChildren)
+                    {
+                        if (p.ElementName.Equals(MSBuildFacts.VSVersionGroup))
                         {
-                            root.RemoveChild(i);
-                            root.AddImport(@"$(MSBuildToolsPath)\Microsoft.CSharp.targets");
-                            var g = root.AddPropertyGroup();
-                            g.AddProperty("WindowsAppContainer", "true");
-                            Console.WriteLine("Removed targets from MSBuild Project");
+                            root.RemoveChild(pGroup);
                             break;
 
                         }
                     }
-                    foreach (ProjectPropertyGroupElement pGroup in root.PropertyGroups)
-                    {
-                        foreach (var p in pGroup.AllChildren)
-                        {
-                            if (p.ElementName.Equals(MSBuildFacts.VSVersionGroup))
-                            {
-                                root.RemoveChild(pGroup);
-                                break;
-
-                            }
-                        }
-                    }
-                    // need to check here if is library and add import for sdkextras if it is.
-                    if (GetProjectOutputType(root) == ProjectOutputType.Library)
-                    {
-                       // Modify global.json here
-                    }
                 }
+                
 
-                if (IsSupportedProjectType(root)) //Need to also check if it is a UWP/WinUIProject and ensure the WinUI3 flag is set
+                if (IsSupportedProjectType(root))
                 {
                     if (!noBackup)
                     {

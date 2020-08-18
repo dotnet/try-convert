@@ -3,18 +3,18 @@
 This document details how to use the Try-Convert Tool to convert a C# UWP App to WinUI3 using .NET Native.
 
 ## Introduction
-<!-- Use this section to provide background context for the new API(s) 
-in this spec. -->
-- WinUI2 is an official library with support for native Windows UI elements for Windows apps. 
-- WinUI3 Update now supports both Windows Desktop and UWP apps. 
+
+- WinUI is a native user experience (UX) framework for both Windows Desktop and UWP applications. WinUI ships as part of the Windows OS. 
+[More on WinUI](https://microsoft.github.io/microsoft-ui-xaml/), [Docs](https://docs.microsoft.com/en-us/windows/apps/winui/)
+- WinUI3 is the next version of WinUI. It runs on the native Windows 10 UI platform and supports both Windows Desktop and UWP apps. WinUI3 ships as a NuGet package.
+[More on WinUI3](https://docs.microsoft.com/en-us/windows/apps/winui/winui3/)
 
 Updating a C# UWP App to WinUI3 can be an involved process and requires several changes to the .csproj as well as C# code. Running this tool will automate the process. 
 
 ## Description
-This tool assists with the conversion process by first modifying .csproj files to use the new `Microsoft.WinUI` nuget package. It converts nuget packages which are incompatible with the new WinUI3 where possible and removes them otherwise and converts
+This tool assists with the conversion process by first modifying .csproj files to use the new `Microsoft.WinUI` nuget package. It converts nuget packages which are incompatible with the new WinUI3 where possible and removes them otherwise. It also uses [WinUI3 Conversion Analyzers](https://github.com/microsoft/microsoft-ui-xaml/blob/master/docs/preview_conversion_analyzer.md) to apply changes to the C# source code.
 
 ### .csproj File Examples
-Highlighting changes not entire proj file () witre this better
 
 #### .csproj Before Running Try-Convert
 ```xml
@@ -34,6 +34,10 @@ Highlighting changes not entire proj file () witre this better
     <PackageReference Include="Microsoft.WinUI" />
 </ItemGroup>
 ```
+## Source Code Changes
+
+**See the [WinUI3 Docs](https://github.com/microsoft/microsoft-ui-xaml/blob/master/docs/preview_conversion_analyzer.md) for more information on the Conversion Analyzers**
+
 This tool also uses the code analyzers packaged as part of `Microsoft.WinUI.Convert` to apply the following changes to C# code. 
 
 - Updates Namespaces for Xaml Types from `Windows.UI.Xaml` to `Microsoft.UI.Xaml`
@@ -42,6 +46,13 @@ This tool also uses the code analyzers packaged as part of `Microsoft.WinUI.Conv
     - 2 Updates need to be made to the `App.OnLaunched` method when converting to WinUI3
     1. Target `Microsoft.UI.Xaml.LaunchactivatedEvenArgs` as the method parameter type
     2. Instances of the parameter name in the `App.OnLaunched` method body must invoke `UWPLaunchActivatedEventArgs`
+
+### UWP Only:
+- Some types are moving in UWP and projects need to target the new projected types.
+- `ObservableCollection<T>` is being removed try-convert will provide its own helper class.
+    - `System.Collections.ObjectModel.ObservableCollection` -> `Microsoft.UI.Xaml.Interop.INotifyCollectionChanged`
+- UWP Projects cannot use struct constructors. 
+The analyzer replaces these constructors with their associated WinRT Helper classes.
 
 ### C# Examples
 

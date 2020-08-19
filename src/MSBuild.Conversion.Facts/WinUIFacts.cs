@@ -48,7 +48,9 @@ namespace MSBuild.Conversion.Facts
         public static ImmutableDictionary<string, string> SDKDefaultProperties => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
             { "TargetPlatformIdentifier", "UAP" },
-            { "EnableTypeInfoReflection", "false" }
+            { "EnableTypeInfoReflection", "false" },
+            { "IsWinUIAlpha", "true" },
+            { "UseVSHostingProcess", "false"}
         });
 
         public static ImmutableDictionary<string, string> ConvertiblePackages => ImmutableDictionary.CreateRange(new Dictionary<string, string>
@@ -103,5 +105,6 @@ namespace MSBuild.Conversion.Facts
         public const string MSBuildIncompatibleImport = "Microsoft.Windows.UI.Xaml.CSharp.targets";
         public const string MSBuildIncompatibleReplace = @"$(MSBuildToolsPath)\Microsoft.CSharp.targets";
         public const string UWPTargetPlatformValue = "UAP";
+        public const string RdXmlFileExtension = ".rd.xml";
     }
 }

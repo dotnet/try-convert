@@ -89,6 +89,15 @@ namespace MSBuild.Abstractions
                                        && pme.Value.Equals(MSBuildFacts.DesignerSubType, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
+        /// Checks if a given item is a legacy reflection concept from .NET Native
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static bool IsLegacyReflectionItem(ProjectItemElement item) =>
+            item.Include.EndsWith(WinUIFacts.RdXmlFileExtension, StringComparison.OrdinalIgnoreCase);
+
+
+        /// <summary>
         /// Checks if a given item has DependentUpon metadata for a globbed designer (and can thus be globbed).
         /// </summary>
         public static bool IsDependentUponXamlDesignerItem(ProjectItemElement item) =>

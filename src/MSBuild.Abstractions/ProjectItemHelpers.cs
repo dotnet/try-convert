@@ -144,5 +144,6 @@ namespace MSBuild.Abstractions
         public static bool IsRemovableAsset(ProjectItemElement item) =>
             item.ElementName.Equals("Content", StringComparison.OrdinalIgnoreCase)
                 && item.Include.StartsWith("Assets", StringComparison.OrdinalIgnoreCase);
+
     }
 }

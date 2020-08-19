@@ -123,6 +123,15 @@ namespace MSBuild.Abstractions
             IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').All(guidString => DesktopFacts.KnownSupportedDesktopProjectTypeGuids.Contains(Guid.Parse(guidString)));
 
         /// <summary>
+        /// Checks if a property property is set to default sdk value
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        public static bool IsWinUIDefault(ProjectPropertyElement prop) =>
+            WinUIFacts.SDKDefaultProperties.ContainsKey(prop.Name) 
+                && WinUIFacts.SDKDefaultProperties[prop.Name].Equals(prop.Value, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
         /// Checks if all projecttypeguids specified are known desktop project type guids.
         /// </summary>
         /// <param name="prop"></param>

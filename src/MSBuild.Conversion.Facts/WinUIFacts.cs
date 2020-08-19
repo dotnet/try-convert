@@ -45,6 +45,12 @@ namespace MSBuild.Conversion.Facts
             "Microsoft.WinUI" 
         );
 
+        public static ImmutableDictionary<string, string> SDKDefaultProperties => ImmutableDictionary.CreateRange(new Dictionary<string, string>
+        {
+            { "TargetPlatformIdentifier", "UAP" },
+            { "EnableTypeInfoReflection", "false" }
+        });
+
         public static ImmutableDictionary<string, string> ConvertiblePackages => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
             { "Microsoft.UI.Xaml", "Microsoft.WinUI" },

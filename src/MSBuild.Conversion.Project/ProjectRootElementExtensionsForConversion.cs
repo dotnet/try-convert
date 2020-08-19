@@ -157,7 +157,8 @@ namespace MSBuild.Conversion.Project
                         // Old MSTest projects specify library, but this is not valid since tests on .NET Core are netcoreapp projects.
                         propGroup.RemoveChild(prop);
                     }
-                    else if (projectStyle == ProjectStyle.WinUI && WinUIFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase)) 
+                    else if (projectStyle == ProjectStyle.WinUI 
+                        && (WinUIFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase) || ProjectPropertyHelpers.IsWinUIDefault(prop))) 
                     {
                         // Este remove winui specific unecessary properties
                         propGroup.RemoveChild(prop);
@@ -383,7 +384,6 @@ namespace MSBuild.Conversion.Project
                 && (ProjectItemHelpers.IsLegacyXamlDesignerItem(item)
                     || ProjectItemHelpers.IsDependentUponXamlDesignerItem(item)
                     || ProjectItemHelpers.IsRemovableAsset(item));
-            //TODO : remove everything under assets
         }
 
         public static IProjectRootElement AddItemRemovesForIntroducedItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs)

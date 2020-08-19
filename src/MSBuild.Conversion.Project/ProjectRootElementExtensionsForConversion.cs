@@ -383,7 +383,8 @@ namespace MSBuild.Conversion.Project
             return sdkBaselineProject.ProjectStyle == ProjectStyle.WinUI
                 && (ProjectItemHelpers.IsLegacyXamlDesignerItem(item)
                     || ProjectItemHelpers.IsDependentUponXamlDesignerItem(item)
-                    || ProjectItemHelpers.IsRemovableAsset(item));
+                    || ProjectItemHelpers.IsRemovableAsset(item)
+                    || ProjectItemHelpers.IsLegacyReflectionItem(item));
         }
 
         public static IProjectRootElement AddItemRemovesForIntroducedItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs)

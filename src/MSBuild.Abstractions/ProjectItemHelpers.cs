@@ -89,7 +89,7 @@ namespace MSBuild.Abstractions
                                        && pme.Value.Equals(MSBuildFacts.DesignerSubType, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
-        /// Checks if a given item is a legacy reflection concept from .NET Native
+        /// Checks if a given item is a legacy reflection concept from .NET Native ending in .rd.xml
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>

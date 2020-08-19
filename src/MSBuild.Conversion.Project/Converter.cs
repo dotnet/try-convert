@@ -72,6 +72,7 @@ namespace MSBuild.Conversion.Project
                 _projectRootElement.RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm); // removes winui defaults 
                 _projectRootElement.AddItemRemovesForIntroducedItems(_differs);
                 _projectRootElement.RemoveUnnecessaryTargetsIfTheyExist();
+                WinUI3AppGenerator.GenerateWapproj(_projectRootElement, outputPath);
                 _projectRootElement.ModifyProjectElement();
                 CleanUpProjectFile(outputPath, true);
                 WinUI3Analyzers analyzers; 

@@ -381,7 +381,9 @@ namespace MSBuild.Conversion.Project
         {
             return sdkBaselineProject.ProjectStyle == ProjectStyle.WinUI
                 && (ProjectItemHelpers.IsLegacyXamlDesignerItem(item)
-                    || ProjectItemHelpers.IsDependentUponXamlDesignerItem(item));
+                    || ProjectItemHelpers.IsDependentUponXamlDesignerItem(item)
+                    || ProjectItemHelpers.IsRemovableAsset(item));
+            //TODO : remove everything under assets
         }
 
         public static IProjectRootElement AddItemRemovesForIntroducedItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs)

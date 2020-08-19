@@ -69,7 +69,7 @@ namespace MSBuild.Conversion.Project
                 _projectRootElement.AddTargetFrameworkProperty(_sdkBaselineProject, tfm); // if library need to add adjustment for target multiple 
                 _projectRootElement.AddDesktopProperties(_sdkBaselineProject);
                 _projectRootElement.AddCommonPropertiesToTopLevelPropertyGroup();
-                _projectRootElement.RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm);
+                _projectRootElement.RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm); // removes winui defaults 
                 _projectRootElement.AddItemRemovesForIntroducedItems(_differs);
                 _projectRootElement.RemoveUnnecessaryTargetsIfTheyExist();
                 _projectRootElement.ModifyProjectElement();

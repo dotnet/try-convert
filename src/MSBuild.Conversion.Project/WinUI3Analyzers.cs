@@ -45,18 +45,17 @@ namespace MSBuild.Conversion.Project
 
         internal CodeFixProvider[] GetCodeFixes()
         {
-            if (projectType == ProjectOutputType.UWPApp)
-            {
-                return new CodeFixProvider[] { new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix(), 
-                    new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
-            } 
-            else if (projectType == ProjectOutputType.ClassLibrary)
+            if (projectType == ProjectOutputType.ClassLibrary)
             {
                 // return ifDefFixes for libraries instead, passing in false ensures ObservableCollectionFix is not implemented
                 return new CodeFixProvider[] { new Analyzer.UWPIfDefCodeFix(true),
                     new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
             }
-            return new CodeFixProvider[] { };
+            else
+            {
+                return new CodeFixProvider[] { new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix(),
+                    new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
+            }
             // Will not currently work : new Analyzer.ObservableCollectionCodeFix()
         }
 

@@ -253,7 +253,7 @@ namespace MSBuild.Conversion.Project
                 // Network failure of some kind
             }
 
-            if (version is null)
+            if (version is null || string.Compare(version, WinUIFacts.PackageVersions[packageName], StringComparison.OrdinalIgnoreCase) < 0)
             {
                 // fall back to hard-coded version in the event of a network failure
                 version = WinUIFacts.PackageVersions[packageName];

@@ -49,14 +49,49 @@ namespace MSBuild.Conversion.Facts
         {
             { "Microsoft.UI.Xaml", "Microsoft.WinUI" },
             { "Microsoft.Xaml.Behaviors.UWP", "Microsoft.Xaml.Behaviors.WinUI" },
-            { "Microsoft.Win2D.UWP", "Microsoft.Win2D.WinUI"}
+            { "Microsoft.Win2D.UWP", "Microsoft.Win2D.WinUI" },
+            { "Microsoft.Toolkit", "Microsoft.Toolkit" },
+            { "Microsoft.Toolkit.HighPerformance", "Microsoft.Toolkit.HighPerformance" },
+            { "Microsoft.Toolkit.Parsers", "Microsoft.Toolkit.Parsers" },
+            { "Microsoft.Toolkit.Services", "Microsoft.Toolkit.Services" },
+            { "Microsoft.Toolkit.Uwp", "Microsoft.Toolkit.Uwp" },
+            { "Microsoft.Toolkit.Uwp.Connectivity", "Microsoft.Toolkit.Uwp.Connectivity" },
+            { "Microsoft.Toolkit.Uwp.DeveloperTools", "Microsoft.Toolkit.Uwp.DeveloperTools" },
+            { "Microsoft.Toolkit.Uwp.Input.GazeInteraction", "Microsoft.Toolkit.Uwp.Input.GazeInteraction" },
+            { "Microsoft.Toolkit.Uwp.Notifications", "Microsoft.Toolkit.Uwp.Notifications" },
+            { "Microsoft.Toolkit.Uwp.Notifications.JavaScript", "Microsoft.Toolkit.Uwp.Notifications.JavaScript" },
+            { "Microsoft.Toolkit.Uwp.PlatformSpecificAnalyzer", "Microsoft.Toolkit.Uwp.PlatformSpecificAnalyzer" },
+            { "Microsoft.Toolkit.Uwp.UI", "Microsoft.Toolkit.Uwp.UI" },
+            { "Microsoft.Toolkit.Uwp.UI.Animations", "Microsoft.Toolkit.Uwp.UI.Animations" },
+            { "Microsoft.Toolkit.Uwp.UI.Controls", "Microsoft.Toolkit.Uwp.UI.Controls" },
+            { "Microsoft.Toolkit.Uwp.UI.Controls.DataGrid", "Microsoft.Toolkit.Uwp.UI.Controls.DataGrid" },
+            { "Microsoft.Toolkit.Uwp.UI.Controls.Layout", "Microsoft.Toolkit.Uwp.UI.Controls.Layout" },
+            { "Microsoft.Toolkit.Uwp.UI.Media", "Microsoft.Toolkit.Uwp.UI.Media" }
+
         });
 
         public static ImmutableDictionary<string, string> PackageVersions => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
             { "Microsoft.WinUI", "3.0.0-preview2.200713.0" },
-            { "Microsoft.Xaml.Behaviors.WinUI", "NeedVersion" },
-            { "Microsoft.Win2D.WinUI", "NeedsVersion"}
+            { "Microsoft.Xaml.Behaviors.WinUI", "NeedVersion" },// needs version
+            { "Microsoft.Win2D.WinUI", "NeedsVersion"},// needs version
+            { "Microsoft.Toolkit", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.HighPerformance", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Parsers", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Services", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.Connectivity", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.DeveloperTools", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.Input.GazeInteraction", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.Notifications", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.Notifications.JavaScript", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.PlatformSpecificAnalyzer", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.UI", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.UI.Animations", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.UI.Controls", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.UI.Controls.DataGrid", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.UI.Controls.Layout", "8.0.0-preview2" },
+            { "Microsoft.Toolkit.Uwp.UI.Media", "8.0.0-preview2" }
         });
 
         public const string MSBuildIncompatibleImport = "Microsoft.Windows.UI.Xaml.CSharp.targets";

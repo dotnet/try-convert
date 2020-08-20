@@ -38,22 +38,23 @@ namespace MSBuild.Conversion.Project
         internal DiagnosticAnalyzer[] GetAnalyzers()
         {
             // Get all analyzers, Order Matters!
-            return new DiagnosticAnalyzer[] { new Analyzer.UWPStructAnalyzer(), new Analyzer.UWPProjectionAnalyzer(),
+            return new DiagnosticAnalyzer[] {// new Analyzer.UWPStructAnalyzer(), new Analyzer.UWPProjectionAnalyzer(), 
                 new Analyzer.EventArgsAnalyzer() , new Analyzer.NamespaceAnalyzer() };
             // Cannot create new Documents in this workspace, Analyzer will not work: new Analyzer.ObservableCollectionAnalyzer()
         }
 
         internal CodeFixProvider[] GetCodeFixes()
         {
+            return new CodeFixProvider[] { }; // remove this after testing
             if (projectType == ProjectOutputType.ClassLibrary)
             {
                 // return ifDefFixes for libraries instead, passing in false ensures ObservableCollectionFix is not implemented
-                return new CodeFixProvider[] { new Analyzer.UWPIfDefCodeFix(true),
+                return new CodeFixProvider[] {// new Analyzer.UWPIfDefCodeFix(true),
                     new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
             }
             else
             {
-                return new CodeFixProvider[] { new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix(),
+                return new CodeFixProvider[] {// new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix(),
                     new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
             }
             // Will not currently work : new Analyzer.ObservableCollectionCodeFix()

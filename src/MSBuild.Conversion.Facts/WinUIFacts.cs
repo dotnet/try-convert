@@ -45,6 +45,30 @@ namespace MSBuild.Conversion.Facts
             "Microsoft.WinUI" 
         );
 
+        /// <summary>
+        /// Set of items that belong in .wapproj file
+        /// </summary>
+        public static ImmutableArray<string> WapprojItems => ImmutableArray.Create(
+            "AppxManifest"
+        );
+        /// <summary>
+        /// Set of Properties that belong in .wapproj file
+        /// </summary>
+        public static ImmutableArray<string> WapprojProperties => ImmutableArray.Create(
+            "PackageCertificateKeyFile",
+            "GenerateAppInstallerFile",
+            "AppxAutoIncrementPackageRevision",
+            "AppxBundle",
+            "AppxBundlePlatforms",
+            "AppInstallerUpdateFrequency",
+            "AppInstallerCheckForUpdateFrequency",
+            "AppxPackageName",
+            "AppxPackageSigningEnabled",
+            "PackageCertificateThumbprint",
+            "AppxPackageSigningTimestampDigestAlgorithm",
+            "HoursBetweenUpdateChecks"
+        );
+
         public static ImmutableDictionary<string, string> SDKDefaultProperties => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
             { "TargetPlatformIdentifier", "UAP" },
@@ -57,7 +81,8 @@ namespace MSBuild.Conversion.Facts
         {
             { "Microsoft.UI.Xaml", "Microsoft.WinUI" },
             { "Microsoft.Xaml.Behaviors.UWP", "Microsoft.Xaml.Behaviors.WinUI" },
-            { "Microsoft.Win2D.UWP", "Microsoft.Win2D.WinUI" },
+            { "Win2D.UWP", "Microsoft.Win2D.WinUI" },
+            { "ColorCode.UWP", "ColorCode.WinUI" },
             { "Microsoft.Toolkit", "Microsoft.Toolkit" },
             { "Microsoft.Toolkit.HighPerformance", "Microsoft.Toolkit.HighPerformance" },
             { "Microsoft.Toolkit.Parsers", "Microsoft.Toolkit.Parsers" },
@@ -83,6 +108,7 @@ namespace MSBuild.Conversion.Facts
             { "Microsoft.WinUI", "3.0.0-preview2.200713.0" },
             { "Microsoft.Xaml.Behaviors.WinUI", "NeedVersion" },// needs version
             { "Microsoft.Win2D.WinUI", "NeedsVersion"},// needs version
+            { "ColorCode.WinUI", "8.0.0-preview2" },
             { "Microsoft.Toolkit", "8.0.0-preview2" },
             { "Microsoft.Toolkit.HighPerformance", "8.0.0-preview2" },
             { "Microsoft.Toolkit.Parsers", "8.0.0-preview2" },
@@ -103,8 +129,10 @@ namespace MSBuild.Conversion.Facts
         });
 
         public const string MSBuildIncompatibleImport = "Microsoft.Windows.UI.Xaml.CSharp.targets";
+        public const string UWPNuGetReference = "Microsoft.NETCore.UniversalWindowsPlatform";
         public const string MSBuildIncompatibleReplace = @"$(MSBuildToolsPath)\Microsoft.CSharp.targets";
         public const string UWPTargetPlatformValue = "UAP";
         public const string RdXmlFileExtension = ".rd.xml";
+        public const string DotNetNativeReference = "DotNetNative";
     }
 }

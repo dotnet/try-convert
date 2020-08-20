@@ -42,7 +42,7 @@ namespace MSBuild.Conversion.Project
 
             // if any old style package refs, convert to new version
             _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
-               .ConvertWinUIItems(_differs, _sdkBaselineProject, tfm); // Convert pkg refs to WinUI3
+               .ConvertWinUIItems(_sdkBaselineProject, keepUWP); // Convert pkg refs to WinUI3
             
             if (outputType == ProjectOutputType.AppContainer && keepUWP)
             {

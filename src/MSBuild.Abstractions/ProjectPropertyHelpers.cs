@@ -123,7 +123,15 @@ namespace MSBuild.Abstractions
             IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').All(guidString => DesktopFacts.KnownSupportedDesktopProjectTypeGuids.Contains(Guid.Parse(guidString)));
 
         /// <summary>
-        /// Checks if a property property is set to default sdk value
+        /// Checks if a given property is related to DotNetNative
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        public static bool IsDotNetNative(ProjectPropertyElement prop) =>
+            prop.Name.Contains(WinUIFacts.DotNetNativeReference, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if a property is set to default sdk value
         /// </summary>
         /// <param name="prop"></param>
         /// <returns></returns>

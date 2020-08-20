@@ -188,7 +188,7 @@ namespace MSBuild.Conversion.Project
         /// <param name="baselineProject"></param>
         /// <param name="tfm"></param>
         /// <returns></returns>
-        public static IProjectRootElement ConvertWinUIItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string tfm)
+        public static IProjectRootElement ConvertWinUIItems(this IProjectRootElement projectRootElement, BaselineProject baselineProject, bool keepUWP)
         {
             bool hasWinUIRef = false;
             foreach (var itemGroup in projectRootElement.ItemGroups)
@@ -204,7 +204,7 @@ namespace MSBuild.Conversion.Project
 
                     if (ProjectItemHelpers.IsReferenceConvertibleToWinUIReference(item))
                     {
-                        //convert it...
+                        // convert it...
                         var packageName = NugetHelpers.FindPackageNameFromReferenceName(WinUIFacts.ConvertiblePackages[item.Include]);
                         string version = TryGetPackageVersion(packageName);
                         projectRootElement.AddPackage(packageName, version);
@@ -212,6 +212,11 @@ namespace MSBuild.Conversion.Project
                     }
                     else if (ProjectItemHelpers.IsReferenceIncompatibleWithWinUI(item))
                     {
+                        itemGroup.RemoveChild(item);
+                    }
+                    else if (!keepUWP && item.Include.Equals(WinUIFacts.UWPNuGetReference, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // UPDating SDK, remove ref to <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
                         itemGroup.RemoveChild(item);
                     }
                 }

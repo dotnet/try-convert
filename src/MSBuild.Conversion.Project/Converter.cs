@@ -65,11 +65,11 @@ namespace MSBuild.Conversion.Project
                 _projectRootElement.ChangeImportsAndAddSdkAttribute(_sdkBaselineProject);// change old style imports and add sdk attribute
                 _projectRootElement.ModifyOutputType(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.OutputType);// change desktop output type
                 _projectRootElement.RemoveDefaultedProperties(_sdkBaselineProject, _differs); // Removes default sdk properties
-                _projectRootElement.RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle); // here
-                _projectRootElement.AddTargetFrameworkProperty(_sdkBaselineProject, tfm); // if library need to add adjustment for target multiple 
+                _projectRootElement.RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle); 
+                _projectRootElement.AddTargetFrameworkProperty(_sdkBaselineProject, tfm); 
                 _projectRootElement.AddDesktopProperties(_sdkBaselineProject);
                 _projectRootElement.AddCommonPropertiesToTopLevelPropertyGroup();
-                _projectRootElement.RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm); // removes winui defaults 
+                _projectRootElement.RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm);
                 _projectRootElement.AddItemRemovesForIntroducedItems(_differs);
                 _projectRootElement.RemoveUnnecessaryTargetsIfTheyExist();
                 WinUI3AppGenerator.GenerateWapproj(_projectRootElement, outputPath);
@@ -97,9 +97,9 @@ namespace MSBuild.Conversion.Project
                 .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
 
                 // Now we can convert the project over
-                .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject) // este: Remove old imports and use sdk style
-                .RemoveDefaultedProperties(_sdkBaselineProject, _differs) // este: may need to revisit?
-                .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle) // here
+                .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject) 
+                .RemoveDefaultedProperties(_sdkBaselineProject, _differs) 
+                .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle) 
                 .AddTargetFrameworkProperty(_sdkBaselineProject, tfm)
                 .AddGenerateAssemblyInfoAsFalse()
                 .AddDesktopProperties(_sdkBaselineProject)

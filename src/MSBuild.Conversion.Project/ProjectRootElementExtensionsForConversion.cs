@@ -114,6 +114,14 @@ namespace MSBuild.Conversion.Project
         {
             foreach (var propGroup in projectRootElement.PropertyGroups)
             {
+                if (projectStyle == ProjectStyle.WinUI
+                        && propGroup.Condition.StartsWith(@"'$(Configuration)|$(Platform)'", StringComparison.OrdinalIgnoreCase))
+                {
+                    // remove winui property groups with condition|platform condition style
+                    projectRootElement.RemoveChild(propGroup);
+                    continue;
+                }
+
                 foreach (var prop in propGroup.Properties)
                 {
                     if (MSBuildFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
@@ -156,9 +164,11 @@ namespace MSBuild.Conversion.Project
                     {
                         // Old MSTest projects specify library, but this is not valid since tests on .NET Core are netcoreapp projects.
                         propGroup.RemoveChild(prop);
-                    }
+                    }      
                     else if (projectStyle == ProjectStyle.WinUI 
-                        && (WinUIFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase) || ProjectPropertyHelpers.IsWinUIDefault(prop))) 
+                        && (WinUIFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase) 
+                            || ProjectPropertyHelpers.IsWinUIDefault(prop)
+                            || ProjectPropertyHelpers.IsDotNetNative(prop))) 
                     {
                         // Este remove winui specific unecessary properties
                         propGroup.RemoveChild(prop);

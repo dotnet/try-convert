@@ -95,18 +95,60 @@ mv /artifacts/bin/try-convert/Debug/netcoreapp3.1/publish C:/Users/<user>/try-co
 ```
 You can invoke the tool from the publish directory as well.
 
-## How to convert to WinUI3
+# How to convert to WinUI3
 
-It may be useful to invoke the -w flag to ensure the correct path to your .csproj file. 
+While the converter will create a .csproj.old before attempting any changes, it will modify C# source code files **In Place**!
 
-You **Must** invoke `--winui3` flag or the program may fail!
+It is **Highly Recommended** that you use this tool on a project that is under **Source Control**. 
+
+It may be useful to invoke the **-w** flag to ensure the correct path to your .csproj file. 
+
+## UWP App -> UWP App
+
+If you wish to remain on UWP and not upgrade to a .NET 5.0 SDK style project you must invoke the **--keep-uwp** flag.
 
 EX:
 ```
-./try-convert -w C:\PathToYour\file.csproj --winui3
+./try-convert -w C:\PathToYour\file.csproj --keep-uwp
 ```
-Opening your project for the first time after conversion will require you to Clean and Rebuild your project. 
+
+try-convert will:
+1. Convert and update any NuGet References to WinUI.
+2. Remove Incompatible NuGet References.
+3. Use the [WinUI3 Analyzers](https://github.com/microsoft/microsoft-ui-xaml/blob/master/docs/preview_conversion_analyzer.md) to update C# source code. 
+
+## UWP App -> .Net 5.0 Desktop App
+
+To convert a UWP App to .NET 5.0 SDK style App simply run the tool **Without** the --keep-uwp flag. 
+
+EX:
+```
+./try-convert -w C:\PathToYour\file.csproj
+```
+
+try-convert will:
+1. Convert .csproj files to .NET 5.0 SDK
+2. Convert and update any NuGet References to WinUI.
+3. Remove Incompatible NuGet References.
+4. Use the [WinUI3 Analyzers](https://github.com/microsoft/microsoft-ui-xaml/blob/master/docs/preview_conversion_analyzer.md) to update C# source code. 
+5. Attempt to add a App Package to your solution
+
+## UWP Library -> .NET 5.0 Multitarget Library
+
+When converting to a WinUI Library, some source code chages will require #ifDef comments.
+
+To convert a UWP Library to .NET 5.0 SDK style App simply run the tool **Without** the --keep-uwp flag. 
+
+EX:
+```
+./try-convert -w C:\PathToYour\file.csproj
+```
+
+try-convert will:
+1. Convert .csproj files to .NET 5.0 SDK
+2. Convert and update any NuGet References to WinUI.
+3. Remove Incompatible NuGet References.
+4. Use the [WinUI3 Analyzers](https://github.com/microsoft/microsoft-ui-xaml/blob/master/docs/preview_conversion_analyzer.md) to update C# source code **With** #ifdef comments enabled.
+5. Attempt to add a App Package to your solution
 
 ## Notes
-
-While the converter will create a .csproj.old before attempting any changes it is highly recommended that you use this tool on a project that is under source control. 

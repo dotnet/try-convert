@@ -212,22 +212,43 @@ namespace MSBuild.Conversion.Project
                         hasWinUIRef = true;
                     }
 
-                    if (ProjectItemHelpers.IsReferenceConvertibleToWinUIReference(item))
+                    if (keepUWP)
                     {
-                        // convert it...
-                        var packageName = NugetHelpers.FindPackageNameFromReferenceName(WinUIFacts.ConvertiblePackages[item.Include]);
-                        string version = TryGetPackageVersion(packageName);
-                        projectRootElement.AddPackage(packageName, version);
-                        itemGroup.RemoveChild(item);
+                        // for sdky stype
+                        if (ProjectItemHelpers.IsReferenceConvertibleToWinUIUWPReference(item))
+                        {
+                            // convert it...
+                            var packageName = NugetHelpers.FindPackageNameFromReferenceName(WinUIFacts.UWPConvertiblePackages[item.Include]);
+                            string version = TryGetPackageVersion(packageName);
+                            projectRootElement.AddPackage(packageName, version);
+                            itemGroup.RemoveChild(item);
+                        }
+                        // if keeping uwp then compatible package list is different
+                        if (ProjectItemHelpers.IsReferenceIncompatibleWithWinUIUWP(item))
+                        {
+                            itemGroup.RemoveChild(item);
+                        }
                     }
-                    else if (ProjectItemHelpers.IsReferenceIncompatibleWithWinUI(item))
+                    else
                     {
-                        itemGroup.RemoveChild(item);
-                    }
-                    else if (!keepUWP && item.Include.Equals(WinUIFacts.UWPNuGetReference, StringComparison.OrdinalIgnoreCase))
-                    {
-                        // UPDating SDK, remove ref to <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-                        itemGroup.RemoveChild(item);
+                        // for sdky stype
+                        if (ProjectItemHelpers.IsReferenceConvertibleToWinUIReference(item))
+                        {
+                            // convert it...
+                            var packageName = NugetHelpers.FindPackageNameFromReferenceName(WinUIFacts.ConvertiblePackages[item.Include]);
+                            string version = TryGetPackageVersion(packageName);
+                            projectRootElement.AddPackage(packageName, version);
+                            itemGroup.RemoveChild(item);
+                        }
+                        else if (ProjectItemHelpers.IsReferenceIncompatibleWithWinUI(item))
+                        {
+                            itemGroup.RemoveChild(item);
+                        }
+                        else if (item.Include.Equals(WinUIFacts.UWPNuGetReference, StringComparison.OrdinalIgnoreCase))
+                        {
+                            // UPDating SDK, remove ref to <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
+                            itemGroup.RemoveChild(item);
+                        }
                     }
                 }
             }

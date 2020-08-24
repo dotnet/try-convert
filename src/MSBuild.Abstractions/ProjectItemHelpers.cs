@@ -50,10 +50,17 @@ namespace MSBuild.Abstractions
             MSBuildFacts.DefaultItemsThatHavePackageEquivalents.ContainsKey(item.Include);
 
         /// <summary>
-        /// Checks if a NuGet package can be updated for WinUI3
+        /// Checks if a NuGet package can be updated for WinUI3 NET 5 SDK
         /// </summary>
         public static bool IsReferenceConvertibleToWinUIReference(ProjectItemElement item) =>
             WinUIFacts.ConvertiblePackages.ContainsKey(item.Include);
+
+        /// <summary>
+        /// Checks if a NuGet package can be updated for WinUI3 UWP
+        /// </summary>
+        public static bool IsReferenceConvertibleToWinUIUWPReference(ProjectItemElement item) =>
+            WinUIFacts.UWPConvertiblePackages.ContainsKey(item.Include);
+
 
         public static bool IsWinUIRef(ProjectItemElement item) =>
             WinUIFacts.WinUIRefs.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
@@ -64,6 +71,14 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static bool IsReferenceIncompatibleWithWinUI(ProjectItemElement item) =>
             WinUIFacts.IncompatiblePackages.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if a NuGet package is incompatible with WinUI3 that stays UWP
+        /// </summary>
+        public static bool IsReferenceIncompatibleWithWinUIUWP(ProjectItemElement item) =>
+            WinUIFacts.UWPIncompatiblePackages.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
+
+        
 
         /// <summary>
         /// Checks if a reference is coming from an old-stlye NuGet package.

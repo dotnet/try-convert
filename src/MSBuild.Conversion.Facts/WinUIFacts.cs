@@ -34,10 +34,17 @@ namespace MSBuild.Conversion.Facts
         );
 
         /// <summary>
-        /// Set of NuGet packages incompatible with WinUI3
+        /// Set of NuGet packages incompatible with WinUI3 SDK NET5 Conversion
         /// </summary>
         public static ImmutableArray<string> IncompatiblePackages => ImmutableArray.Create(
-            "Put.Bad.Pkg.Here"
+            "Win2D.UWP"
+        );
+
+        /// <summary>
+        /// Set of NuGet packages incompatible with WinUI3 UWP Conversion
+        /// </summary>
+        public static ImmutableArray<string> UWPIncompatiblePackages => ImmutableArray.Create(
+            "Microsoft.Xaml.Behaviors.UWP"
         );
 
         public static ImmutableArray<string> WinUIRefs => ImmutableArray.Create(
@@ -77,11 +84,16 @@ namespace MSBuild.Conversion.Facts
             { "UseVSHostingProcess", "false"}
         });
 
+        public static ImmutableDictionary<string, string> UWPConvertiblePackages => ImmutableDictionary.CreateRange(new Dictionary<string, string>
+        {
+            { "Microsoft.UI.Xaml", "Microsoft.WinUI" }
+        });
+
         public static ImmutableDictionary<string, string> ConvertiblePackages => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
             { "Microsoft.UI.Xaml", "Microsoft.WinUI" },
             { "Microsoft.Xaml.Behaviors.UWP", "Microsoft.Xaml.Behaviors.WinUI" },
-            { "Win2D.UWP", "Microsoft.Win2D.WinUI" },
+            //{ "Win2D.UWP", "Microsoft.Win2D.WinUI" }, currently incompatible
             { "ColorCode.UWP", "ColorCode.WinUI" },
             { "Microsoft.Toolkit", "Microsoft.Toolkit" },
             { "Microsoft.Toolkit.HighPerformance", "Microsoft.Toolkit.HighPerformance" },
@@ -100,14 +112,13 @@ namespace MSBuild.Conversion.Facts
             { "Microsoft.Toolkit.Uwp.UI.Controls.DataGrid", "Microsoft.Toolkit.Uwp.UI.Controls.DataGrid" },
             { "Microsoft.Toolkit.Uwp.UI.Controls.Layout", "Microsoft.Toolkit.Uwp.UI.Controls.Layout" },
             { "Microsoft.Toolkit.Uwp.UI.Media", "Microsoft.Toolkit.Uwp.UI.Media" }
-
         });
 
         public static ImmutableDictionary<string, string> PackageVersions => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
             { "Microsoft.WinUI", "3.0.0-preview2.200713.0" },
             { "Microsoft.Xaml.Behaviors.WinUI", "NeedVersion" },// needs version
-            { "Microsoft.Win2D.WinUI", "NeedsVersion"},// needs version
+            //{ "Microsoft.Win2D.WinUI", "NeedsVersion"},// needs version Currently no version
             { "ColorCode.WinUI", "8.0.0-preview2" },
             { "Microsoft.Toolkit", "8.0.0-preview2" },
             { "Microsoft.Toolkit.HighPerformance", "8.0.0-preview2" },

@@ -56,7 +56,7 @@ namespace MSBuild.Conversion.Project
                 // Roslyn/msbuild rewrite c# files with analyzers
                 var analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.UWPApp);
                 analyzers.RunWinUIAnalysis(outputPath).Wait();
-                //rewrite .csproj file with original xml do disk
+                //rewrite .csproj file with original xml to disk
                 CleanUpProjectFile(outputPath, false, oldXml);
             }
             else
@@ -72,7 +72,12 @@ namespace MSBuild.Conversion.Project
                 _projectRootElement.RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm);
                 _projectRootElement.AddItemRemovesForIntroducedItems(_differs);
                 _projectRootElement.RemoveUnnecessaryTargetsIfTheyExist();
-                WinUI3AppGenerator.GenerateWapproj(_projectRootElement, outputPath);
+                if (outputType == ProjectOutputType.AppContainer)
+                {
+                    // if a winui desktop app, generate the .wapproj
+                    WinUI3AppGenerator.GenerateWapproj(_projectRootElement, outputPath);
+                }
+                
                 _projectRootElement.ModifyProjectElement();
                 CleanUpProjectFile(outputPath, true);
                 WinUI3Analyzers analyzers; 

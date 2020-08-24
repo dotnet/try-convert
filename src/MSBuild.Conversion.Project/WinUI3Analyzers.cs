@@ -28,7 +28,9 @@ namespace MSBuild.Conversion.Project
         private static readonly MetadataReference WindowsXamlReference = MetadataReference.CreateFromFile(typeof(Windows.UI.Xaml.DependencyObject).Assembly.Location);
 #pragma warning restore ConvertNamespace // Windows Namespace should be Microsoft
         private static readonly MetadataReference MicrosoftXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
+#pragma warning disable UWPMovedType
         private static readonly MetadataReference INotifyReference = MetadataReference.CreateFromFile(typeof(System.ComponentModel.INotifyPropertyChanged).Assembly.Location);
+#pragma warning restore UWPMovedType
 
         public WinUI3Analyzers(ProjectOutputType projectType)
         {
@@ -82,14 +84,12 @@ namespace MSBuild.Conversion.Project
         public async Task RunWinUIAnalysis(string projectFilePath)
         {
             Console.WriteLine($"Running Analyzers on {projectFilePath}");
-            // The test solution is copied to the output directory when you build this sample.
             MSBuildWorkspace workspace = MSBuildWorkspace.Create();
-            //workspace.LoadMetadataForReferencedProjects = true;
             
             // Open the solution within the workspace.
             Microsoft.CodeAnalysis.Project originalProject = workspace.OpenProjectAsync(projectFilePath).Result;
 
-            // try add metadata to solution
+            // Add MetaData so analyzers have access to assemblies etc in the workspace
             var withMeta = originalProject
                 .AddMetadataReference(CorlibReference)
                 .AddMetadataReference(SystemCoreReference)
@@ -109,11 +109,8 @@ namespace MSBuild.Conversion.Project
             //Get an array of all the analyzers to apply
             var analyzers = GetAnalyzers();
 
-            // Note how we can't simply iterate over originalSolution.Projects or project.Documents
-            // because it will return objects from the unmodified originalSolution, not from the newSolution.
-            // We need to use the ProjectIds and DocumentIds (that don't change) to look up the corresponding
-            // snapshots in the newSolution.
-            int count = -1;
+            // Iterate over project Id's in solution
+            int count = 0;
             foreach (DocumentId documentId in newProject.DocumentIds)
             {
                 count++;

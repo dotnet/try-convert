@@ -1,23 +1,18 @@
-﻿using System.Composition;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
+﻿using System;
 using System.Collections.Immutable;
-using System.Threading.Tasks;
+using System.Composition;
 using System.Linq;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.CodeActions;
 using System.Threading;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Formatting;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-using System.ComponentModel.Design;
-using System;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace WinUI.Analyzer
 {
     [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UWPIfDefCodeFix)), Shared]
-    public class UWPIfDefCodeFix : CodeFixProvider 
+    public class UWPIfDefCodeFix : CodeFixProvider
     {
         private const string title = "Replace within IfDef";
         private bool includeObservable;
@@ -70,7 +65,7 @@ namespace WinUI.Analyzer
                     createChangedDocument: c => ReplaceDocumentLineAsync(context.Document, idNode, diagnostic.Id, c),
                     equivalenceKey: title),
                 diagnostic);
-            }         
+            }
         }
 
         private async Task<Solution> ReplaceSolutionLineAsync(Document doc, SyntaxNode idNode, CancellationToken c)
@@ -91,7 +86,7 @@ namespace WinUI.Analyzer
             if (Id.Equals(UWPStructAnalyzer.ID, StringComparison.OrdinalIgnoreCase))
             {
                 return UWPStruct.ReplaceStructAsync(newDoc, (ObjectCreationExpressionSyntax)idNode, c).Result;
-            } 
+            }
             else if (Id.Equals(UWPProjectionAnalyzer.InterfaceID, StringComparison.OrdinalIgnoreCase))
             {
                 return UWPProjection.ReplaceInterfaceAsync(newDoc, (SimpleBaseTypeSyntax)idNode, c).Result;

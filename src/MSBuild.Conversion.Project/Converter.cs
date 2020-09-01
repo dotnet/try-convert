@@ -38,12 +38,12 @@ namespace MSBuild.Conversion.Project
 
             Console.WriteLine("Converting WinUI Refrences");
             var projectStyle = _sdkBaselineProject.ProjectStyle;//should always be winui
-            var outputType = _sdkBaselineProject.OutputType; 
+            var outputType = _sdkBaselineProject.OutputType;
 
             // if any old style package refs, convert to new version
             _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
                .ConvertWinUIItems(_sdkBaselineProject, keepUWP); // Convert pkg refs to WinUI3
-            
+
             if (outputType == ProjectOutputType.AppContainer && keepUWP)
             {
                 // if this is staying UWP... Save this version of XML csproj
@@ -67,7 +67,7 @@ namespace MSBuild.Conversion.Project
                 _projectRootElement.ChangeImportsAndAddSdkAttribute(_sdkBaselineProject);// change old style imports and add sdk attribute
                 _projectRootElement.ModifyOutputType(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.OutputType);// change desktop output type
                 _projectRootElement.RemoveDefaultedProperties(_sdkBaselineProject, _differs); // Removes default sdk properties
-                _projectRootElement.RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle); 
+                _projectRootElement.RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle);
                 _projectRootElement.AddTargetFrameworkProperty(_sdkBaselineProject, tfm);
                 _projectRootElement.AddGenerateAssemblyInfoAsFalse();
                 _projectRootElement.AddDesktopProperties(_sdkBaselineProject);
@@ -80,7 +80,7 @@ namespace MSBuild.Conversion.Project
                     // if a winui desktop app, generate the .wapproj
                     WinUI3AppGenerator.GenerateWapproj(_projectRootElement, outputPath);
                 }
-                
+
                 _projectRootElement.ModifyProjectElement();
                 CleanUpProjectFile(outputPath, true);
                 if (!keepSourceCode)
@@ -95,22 +95,22 @@ namespace MSBuild.Conversion.Project
                         analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.DesktopApp);
                     }
                     analyzers.RunWinUIAnalysis(outputPath).Wait();
-                }  
+                }
             }
         }
 
         internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
         {
-            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK, false); 
+            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK, false);
 
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways
                 .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
 
                 // Now we can convert the project over
-                .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject) 
-                .RemoveDefaultedProperties(_sdkBaselineProject, _differs) 
-                .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle) 
+                .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject)
+                .RemoveDefaultedProperties(_sdkBaselineProject, _differs)
+                .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle)
                 .AddTargetFrameworkProperty(_sdkBaselineProject, tfm)
                 .AddGenerateAssemblyInfoAsFalse()
                 .AddDesktopProperties(_sdkBaselineProject)
@@ -135,7 +135,7 @@ namespace MSBuild.Conversion.Project
                 {
                     specifiedTFM = tfmForApps;
                 }
-                else if (!keepUWP && baselineProject.ProjectStyle == ProjectStyle.WinUI) 
+                else if (!keepUWP && baselineProject.ProjectStyle == ProjectStyle.WinUI)
                 {
                     // if updating UWP SDK always use at least net5.0
                     specifiedTFM = MSBuildFacts.Net50;
@@ -149,7 +149,7 @@ namespace MSBuild.Conversion.Project
                         {
                             specifiedTFM = $"{MSBuildFacts.Net50} - windows{targetPlatfromVersion.Value}; uap{targetPlatfromVersion.Value}";
                         }
-                    }  
+                    }
                 }
                 else if (baselineProject.OutputType == ProjectOutputType.Library)
                 {
@@ -167,19 +167,19 @@ namespace MSBuild.Conversion.Project
             }
             return specifiedTFM;
         }
-        
+
 
         internal ImmutableDictionary<string, Differ> GetDiffers() =>
             _project.ConfiguredProjects.Select(p => (p.Key, new Differ(p.Value, _sdkBaselineProject.Project.ConfiguredProjects[p.Key]))).ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Item2);
 
-        private void CleanUpProjectFile(string outputPath, bool removeXMLHeader,XDocument? xDoc = null)
+        private void CleanUpProjectFile(string outputPath, bool removeXMLHeader, XDocument? xDoc = null)
         {
             XDocument projectXml;
             //If optional element passed, use that xml instead
             if (xDoc != null)
             {
                 projectXml = xDoc;
-            } 
+            }
             else
             {
                 projectXml = _projectRootElement.Xml;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 
 using Microsoft.Build.Construction;
@@ -298,7 +297,7 @@ namespace MSBuild.Abstractions
             return rootElement.PropertyGroups.Single(pg => pg.Properties.Any(p => p.ElementName.Equals(targetNode, StringComparison.OrdinalIgnoreCase)))
             ?? rootElement.AddPropertyGroup();
         }
-            
+
         /// <summary>
         /// Finds the item group where PackageReferences are specified. Usually there is only one.
         /// </summary>

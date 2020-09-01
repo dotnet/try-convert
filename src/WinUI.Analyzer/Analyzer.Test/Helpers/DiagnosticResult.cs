@@ -1,5 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
-using System;
+﻿using System;
+using Microsoft.CodeAnalysis;
 
 namespace TestHelper
 {
@@ -45,7 +45,7 @@ namespace TestHelper
                 {
                     this.locations = new DiagnosticResultLocation[] { };
                 }
-                
+
                 return this.locations;
             }
 

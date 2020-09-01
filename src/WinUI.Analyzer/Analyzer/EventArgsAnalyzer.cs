@@ -1,11 +1,10 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System;
+using System.Collections.Immutable;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.FindSymbols;
-using System;
-using System.Collections.Immutable;
-using System.Linq;
 
 namespace WinUI.Analyzer
 {
@@ -64,7 +63,7 @@ namespace WinUI.Analyzer
             var MicrosoftApps = Utils.GetTypesByMetadataName(compilation, "Microsoft.UI.Xaml.Application");
             var WindowsApps = Utils.GetTypesByMetadataName(compilation, "Windows.UI.Xaml.Application");
             var bothApps = MicrosoftApps.Union(WindowsApps);
-            
+
             // Roslyn Having issues comparing types, using toString...
             if (bothApps.Any(b => baseType.ToString().Equals(b.ToString(), StringComparison.OrdinalIgnoreCase)))
             {

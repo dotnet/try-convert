@@ -10,7 +10,7 @@ using MSBuild.Conversion.Facts;
 namespace MSBuild.Conversion.Package
 {
     internal static class PackagesConfigParser
-    { 
+    {
 
         internal static IEnumerable<PackagesConfigPackage> Parse(string path)
         {

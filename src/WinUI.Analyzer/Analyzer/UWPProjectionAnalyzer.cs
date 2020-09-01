@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Windows.Input;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -11,7 +10,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace WinUI.Analyzer
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class UWPProjectionAnalyzer : DiagnosticAnalyzer  
+    public class UWPProjectionAnalyzer : DiagnosticAnalyzer
     {
         // Analyzer IDs are reported as Error Codes
         public const string ID = "UWPProjection";
@@ -20,12 +19,12 @@ namespace WinUI.Analyzer
         public const string TypeID = "UWPMovedType";
         public const string EventID = "UWPICommandEvent";
 
-        private static readonly string[] iCommands = new string[] { 
-            "System.Windows.Input.ICommand", 
-            "Microsoft.UI.Xaml.Input.ICommand" 
+        private static readonly string[] iCommands = new string[] {
+            "System.Windows.Input.ICommand",
+            "Microsoft.UI.Xaml.Input.ICommand"
         };
 
-        private static readonly string[] DotNetInterfaces = new string[]{ 
+        private static readonly string[] DotNetInterfaces = new string[]{
             "System.ComponentModel.INotifyPropertyChanged",
             "System.Windows.Input.ICommand"
         };
@@ -63,7 +62,7 @@ namespace WinUI.Analyzer
             context.EnableConcurrentExecution();
 
             context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.BaseList);
-            context.RegisterSyntaxNodeAction(AnalyzeObject, SyntaxKind.ObjectCreationExpression); 
+            context.RegisterSyntaxNodeAction(AnalyzeObject, SyntaxKind.ObjectCreationExpression);
             context.RegisterSyntaxNodeAction(AnalyzeIdentifier, SyntaxKind.IdentifierName);
             context.RegisterSyntaxNodeAction(AnalyzeEvent, SyntaxKind.EventFieldDeclaration);
         }
@@ -91,7 +90,7 @@ namespace WinUI.Analyzer
         private void AnalyzeIdentifier(SyntaxNodeAnalysisContext context)
         {
             var node = (IdentifierNameSyntax)context.Node;
-            
+
             // do not continue if part of simple name syntax
             if (node.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression)) return;
             // do not continue if interface declaration
@@ -163,7 +162,7 @@ namespace WinUI.Analyzer
             {
                 var type1 = compilation.GetTypeByMetadataName(s);
                 if (type1 == null) continue;
-               if (SymbolEqualityComparer.Default.Equals(objectType, type1))
+                if (SymbolEqualityComparer.Default.Equals(objectType, type1))
                 {
                     var identifier = node.ChildNodes().OfType<IdentifierNameSyntax>().First();
                     context.ReportDiagnostic(Diagnostic.Create(ChangedObjectRule, identifier.GetLocation()));

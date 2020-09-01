@@ -63,7 +63,7 @@ namespace MSBuild.Abstractions
                         }
                     }
                 }
-                
+
 
                 if (IsSupportedProjectType(root))
                 {
@@ -313,7 +313,7 @@ namespace MSBuild.Abstractions
             }
 
             if (!IsSupportedOutputType(GetProjectOutputType(root)))
-             {
+            {
                 Console.WriteLine($"{root.FullPath} does not have a supported OutputType.");
                 return false;
             }
@@ -362,7 +362,7 @@ namespace MSBuild.Abstractions
                     {
                         return true;
                     }
-                }
+            }
 
             static void PrintGuidMessage(IEnumerable<string> allSupportedProjectTypeGuids, IEnumerable<string> allReadProjectTypeGuids)
             {

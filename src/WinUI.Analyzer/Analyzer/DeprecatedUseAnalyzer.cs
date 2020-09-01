@@ -11,7 +11,7 @@ namespace WinUI.Analyzer
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class DeprecatedUseAnalyzer : DiagnosticAnalyzer
     {
-        public const string ID = "IncompatibleAPI"; 
+        public const string ID = "IncompatibleAPI";
 
         //Used for checking valid/invalid namespaces
         private static readonly String[] InvalidNames = Utils.GetDeprecatedNames();
@@ -57,6 +57,6 @@ namespace WinUI.Analyzer
                 context.ReportDiagnostic(Diagnostic.Create(DeprecatedRule, idNameNode.GetLocation()));
             }
         }
-        
+
     }
 }

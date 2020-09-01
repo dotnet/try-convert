@@ -9,17 +9,19 @@
 	<ItemGroup>
 		<!--<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />-->
 		<PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="$(MicrosoftWindowsSDKContractsVersion)" />
+    <!--
 		<PackageReference Include="Microsoft.WinUI">
 			<Version>3.0.0-development.200810.0</Version>
 			<GeneratePathProperty>true</GeneratePathProperty>
 			<ExcludeAssets>build</ExcludeAssets>
 		</PackageReference>
+    -->
 		<PackageReference Include="MSTest.TestAdapter" Version="$(MSTestVersion)" />
 		<PackageReference Include="MSTest.TestFramework" Version="$(MSTestVersion)" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest" Version="$(MicrosoftCodeAnalysisCSharpVersion)" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest" Version="$(MicrosoftCodeAnalysisCSharpVersion)" />
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.MSTest" Version="$(MicrosoftCodeAnalysisCSharpVersion)" />
-		<Reference Include="$(PkgMicrosoft_WinUI)\lib\uap10.0\*.winmd" />
+		<!--<Reference Include="$(PkgMicrosoft_WinUI)\lib\uap10.0\*.winmd" />-->
 	</ItemGroup>
 
 	<ItemGroup>

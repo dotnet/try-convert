@@ -1,13 +1,13 @@
-﻿using System.Composition;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
+using System.Composition;
 using System.Linq;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.CodeActions;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace WinUI.Analyzer
 {
@@ -40,7 +40,7 @@ namespace WinUI.Analyzer
                     createChangedSolution: c => ReplaceObservableCollectionAsync(context.Document, idNode, c),
                     equivalenceKey: title),
                 diagnostic);
-            
+
         }
         internal async Task<Solution> ReplaceObservableCollectionAsync(Document doc, ObjectCreationExpressionSyntax idNode, CancellationToken c)
         {
@@ -74,9 +74,9 @@ namespace WinUI.Analyzer
                             newGenericNode = newGenericNode.WithLeadingTrivia(declareGeneric.GetLeadingTrivia());
                         }
                         newRoot = newRoot.ReplaceNode(declareGeneric, newGenericNode);
-                    } 
+                    }
                 }
-            }    
+            }
             newSolution = newDoc.WithSyntaxRoot(newRoot).Project.Solution;
             return newSolution;
         }

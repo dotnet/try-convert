@@ -27,7 +27,7 @@ namespace MSBuild.Conversion.Project
                 case ProjectStyle.WindowsDesktop:
                 case ProjectStyle.MSTest:
                 case ProjectStyle.WinUI:
-                     foreach (var import in projectRootElement.Imports)
+                    foreach (var import in projectRootElement.Imports)
                     {
                         projectRootElement.RemoveChild(import);
                     }
@@ -37,14 +37,14 @@ namespace MSBuild.Conversion.Project
                     }
                     else
                     {
-                        projectRootElement.Sdk = (MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement) 
+                        projectRootElement.Sdk = (MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement)
                             || MSBuildHelpers.IsDesktop(projectRootElement))
                             ? DesktopFacts.WinSDKAttribute
                             : MSBuildFacts.DefaultSDKAttribute;
                     }
                     break;
             }
-            
+
             return projectRootElement;
         }
         /// <summary>
@@ -164,11 +164,11 @@ namespace MSBuild.Conversion.Project
                     {
                         // Old MSTest projects specify library, but this is not valid since tests on .NET Core are netcoreapp projects.
                         propGroup.RemoveChild(prop);
-                    }      
-                    else if (projectStyle == ProjectStyle.WinUI 
-                        && (WinUIFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase) 
+                    }
+                    else if (projectStyle == ProjectStyle.WinUI
+                        && (WinUIFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase)
                             || ProjectPropertyHelpers.IsWinUIDefault(prop)
-                            || ProjectPropertyHelpers.IsDotNetNative(prop))) 
+                            || ProjectPropertyHelpers.IsDotNetNative(prop)))
                     {
                         // Este remove winui specific unecessary properties
                         propGroup.RemoveChild(prop);
@@ -204,7 +204,7 @@ namespace MSBuild.Conversion.Project
             foreach (var itemGroup in projectRootElement.ItemGroups)
             {
                 var configurationName = MSBuildHelpers.GetConfigurationName(itemGroup.Condition);
-                
+
                 foreach (var item in itemGroup.Items.Where(item => ProjectItemHelpers.IsPackageReference(item)))
                 {
                     if (ProjectItemHelpers.IsWinUIRef(item))
@@ -260,7 +260,7 @@ namespace MSBuild.Conversion.Project
                 string version = TryGetPackageVersion(winUIPkg);
                 projectRootElement.AddPackage(winUIPkg, version);
             }
-            
+
             if (baselineProject.OutputType == ProjectOutputType.Library)
             {
                 // if Its a library always add this pkg for msbuildextras
@@ -269,7 +269,7 @@ namespace MSBuild.Conversion.Project
                 //multi-targeting for net5.0-windows10.0.ver.0 and uap10.0.ver, where ver is the value of the MSBuild property TargetPlatformVersion.
                 //-Example: `< TargetFrameworks > net5.0 - windows10.0.17134.0; uap10.0.17134 </ TargetFrameworks >`
             }
-            
+
             return projectRootElement;
         }
 
@@ -655,7 +655,7 @@ namespace MSBuild.Conversion.Project
                 targetFrameworkElement.Value = tfm;
                 propGroup.PrependChild(targetFrameworkElement);
             }
-            
+
             return projectRootElement;
         }
 

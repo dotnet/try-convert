@@ -49,8 +49,8 @@ namespace MSBuild.Conversion.Facts
         );
 
         public static ImmutableArray<string> WinUIRefs => ImmutableArray.Create(
-            "Microsoft.UI.Xaml", 
-            "Microsoft.WinUI" 
+            "Microsoft.UI.Xaml",
+            "Microsoft.WinUI"
         );
 
         /// <summary>

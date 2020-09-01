@@ -1,12 +1,12 @@
 ﻿using System;
-using System.IO;
-using MSBuild.Abstractions;
-using System.Text.RegularExpressions;
-using MSBuild.Conversion.Facts;
-using System.Linq;
 using System.Collections.Generic;
-using Microsoft.Build.Construction;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
+using Microsoft.Build.Construction;
+using MSBuild.Abstractions;
+using MSBuild.Conversion.Facts;
 
 namespace MSBuild.Conversion.Project
 {
@@ -36,7 +36,7 @@ namespace MSBuild.Conversion.Project
                 foreach (var prop in propGroup.Properties)
                 {
                     if (prop.Name.StartsWith("Appx", StringComparison.OrdinalIgnoreCase)
-                        || WinUIFacts.WapprojProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase)) 
+                        || WinUIFacts.WapprojProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
                         propGroup.RemoveChild(prop);
                         wapProps.Add(prop);
@@ -71,7 +71,7 @@ namespace MSBuild.Conversion.Project
             settings.OmitXmlDeclaration = false;
 
             XmlWriter writer = XmlWriter.Create(wapProjFile, settings);
-            
+
             writer.WriteStartElement("Project");
 
             writer.WriteStartElement("PropertyGroup");

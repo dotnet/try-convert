@@ -1,13 +1,13 @@
-﻿using System.Composition;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
+using System.Composition;
 using System.Linq;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.CodeActions;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace WinUI.Analyzer
 {
@@ -18,8 +18,11 @@ namespace WinUI.Analyzer
 
         public override ImmutableArray<string> FixableDiagnosticIds
         {
-            get { return ImmutableArray.Create(UWPProjectionAnalyzer.InterfaceID, 
-                UWPProjectionAnalyzer.ObjectID, UWPProjectionAnalyzer.TypeID, UWPProjectionAnalyzer.EventID); }
+            get
+            {
+                return ImmutableArray.Create(UWPProjectionAnalyzer.InterfaceID,
+              UWPProjectionAnalyzer.ObjectID, UWPProjectionAnalyzer.TypeID, UWPProjectionAnalyzer.EventID);
+            }
         }
 
         // an optional overide to fix all occurences instead of just one.
@@ -65,7 +68,7 @@ namespace WinUI.Analyzer
             {
                 context.RegisterCodeFix(
                     CodeAction.Create(
-                        title: title, 
+                        title: title,
                         createChangedDocument: c => ReplaceTypeAsync(context.Document, (IdentifierNameSyntax)idNode, c),
                         equivalenceKey: title),
                     diagnostic);
@@ -124,7 +127,7 @@ namespace WinUI.Analyzer
                             SyntaxFactory.IdentifierName("Xaml")),
                         SyntaxFactory.IdentifierName("Data")),
                     SyntaxFactory.IdentifierName("INotifyPropertyChanged")));
-            } 
+            }
             else if (lastType.Equals("ICommand"))
             {
                 newNode = SyntaxFactory.SimpleBaseType(
@@ -137,7 +140,7 @@ namespace WinUI.Analyzer
                             SyntaxFactory.IdentifierName("Xaml")),
                         SyntaxFactory.IdentifierName("Input")),
                     SyntaxFactory.IdentifierName("ICommand")));
-            }            
+            }
             if (newNode == null)
             {
                 return doc;

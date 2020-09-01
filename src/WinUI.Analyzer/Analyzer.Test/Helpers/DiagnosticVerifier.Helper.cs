@@ -1,11 +1,11 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Text;
 
 namespace TestHelper
 {
@@ -20,7 +20,7 @@ namespace TestHelper
         private static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
         private static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
         private static readonly MetadataReference WindowsXamlReference = MetadataReference.CreateFromFile(typeof(Windows.UI.Xaml.DependencyObject).Assembly.Location);
-        private static readonly MetadataReference MicrosoftXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
+        //private static readonly MetadataReference MicrosoftXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
         private static readonly MetadataReference INotifyReference = MetadataReference.CreateFromFile(typeof(System.ComponentModel.INotifyPropertyChanged).Assembly.Location);
         private static readonly MetadataReference TimeSpanReference = MetadataReference.CreateFromFile(typeof(System.TimeSpan).Assembly.Location);
 
@@ -158,7 +158,7 @@ namespace TestHelper
                 .AddMetadataReference(projectId, CSharpSymbolsReference)
                 .AddMetadataReference(projectId, CodeAnalysisReference)
                 .AddMetadataReference(projectId, WindowsXamlReference)
-                .AddMetadataReference(projectId, MicrosoftXamlReference)
+                // .AddMetadataReference(projectId, MicrosoftXamlReference)
                 .AddMetadataReference(projectId, INotifyReference)
                 .AddMetadataReference(projectId, TimeSpanReference);
 

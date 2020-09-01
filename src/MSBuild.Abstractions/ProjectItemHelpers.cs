@@ -64,7 +64,7 @@ namespace MSBuild.Abstractions
 
         public static bool IsWinUIRef(ProjectItemElement item) =>
             WinUIFacts.WinUIRefs.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
-        
+
 
         /// <summary>
         /// Checks if a NuGet package is incompatible with WinUI3
@@ -78,7 +78,7 @@ namespace MSBuild.Abstractions
         public static bool IsReferenceIncompatibleWithWinUIUWP(ProjectItemElement item) =>
             WinUIFacts.UWPIncompatiblePackages.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
 
-        
+
 
         /// <summary>
         /// Checks if a reference is coming from an old-stlye NuGet package.
@@ -116,7 +116,7 @@ namespace MSBuild.Abstractions
         /// Checks if a given item has DependentUpon metadata for a globbed designer (and can thus be globbed).
         /// </summary>
         public static bool IsDependentUponXamlDesignerItem(ProjectItemElement item) =>
-            (item.Include.EndsWith(".xaml.cs") 
+            (item.Include.EndsWith(".xaml.cs")
                 || item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
                                      && pme.Value.Equals(MSBuildFacts.CodeSubTypeValue, StringComparison.OrdinalIgnoreCase)))
             && item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.DependentUponName, StringComparison.OrdinalIgnoreCase)

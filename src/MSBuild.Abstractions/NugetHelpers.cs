@@ -49,7 +49,7 @@ namespace MSBuild.Abstractions
 
         public static string FindPackageNameFromReferenceName(string referenceName)
         {
-            if (StringComparer.OrdinalIgnoreCase.Compare(referenceName, "System.ComponentModel.DataAnnotations")==0)
+            if (StringComparer.OrdinalIgnoreCase.Compare(referenceName, "System.ComponentModel.DataAnnotations") == 0)
             {
                 return "System.ComponentModel.Annotations";
             }

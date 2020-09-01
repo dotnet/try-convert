@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Data;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -44,7 +42,7 @@ namespace WinUI.Analyzer
         private static readonly LocalizableString Description = new LocalizableResourceString(nameof(Resources.UWPStruct_Description), Resources.ResourceManager, typeof(Resources));
         private const string Category = "Usage";
 
-        private static readonly DiagnosticDescriptor UWPStructRule = new DiagnosticDescriptor(ID, Title, MessageFormat, Category, DiagnosticSeverity.Error, isEnabledByDefault: true, description: Description); 
+        private static readonly DiagnosticDescriptor UWPStructRule = new DiagnosticDescriptor(ID, Title, MessageFormat, Category, DiagnosticSeverity.Error, isEnabledByDefault: true, description: Description);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(UWPStructRule); } }
 
@@ -75,6 +73,6 @@ namespace WinUI.Analyzer
             }
         }
 
-       
+
     }
 }

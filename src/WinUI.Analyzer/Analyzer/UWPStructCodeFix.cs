@@ -1,17 +1,14 @@
-﻿using System.Composition;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
+using System.Composition;
 using System.Linq;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.CodeActions;
-using System.Threading;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Formatting;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
-using System.ComponentModel.Design;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace WinUI.Analyzer
 {
@@ -36,7 +33,7 @@ namespace WinUI.Analyzer
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpanSrc = diagnostic.Location.SourceSpan;
-            var idNode = root.FindNode(diagnosticSpanSrc) ;
+            var idNode = root.FindNode(diagnosticSpanSrc);
             context.RegisterCodeFix(
                 CodeAction.Create(
                     title: title,
@@ -85,7 +82,7 @@ namespace WinUI.Analyzer
                 if (argList.Arguments.Count == 4)
                 {
                     helperMethod = "FromRadii";
-                } 
+                }
                 else if (argList.Arguments.Count == 1)
                 {
                     helperMethod = "FromUniformRadius";
@@ -129,7 +126,7 @@ namespace WinUI.Analyzer
                     return null;
                 }
             }
-            else if (helperName.Equals("GeneratorPositionHelper")) 
+            else if (helperName.Equals("GeneratorPositionHelper"))
             {
                 // Lives in Windows.UI.Xaml.Controls.Primitives
                 helperName = "Controls.Primitives.GeneratorPositionHelper";
@@ -142,7 +139,7 @@ namespace WinUI.Analyzer
                     return null;
                 }
             }
-            else if (helperName.Equals("MatrixHelper")) 
+            else if (helperName.Equals("MatrixHelper"))
             {
                 // Lives in Windows.UI.Xaml.Media
                 helperName = "Media.MatrixHelper";
@@ -155,13 +152,13 @@ namespace WinUI.Analyzer
                     return null;
                 }
             }
-            else if (helperName.Equals("KeyTimeHelper")) 
+            else if (helperName.Equals("KeyTimeHelper"))
             {
                 // Lives in Windows.UI.Xaml.Media.Animation
                 helperName = "Media.Animation.KeyTimeHelper";
                 helperMethod = "FromTimeSpan";
             }
-            else if (helperName.Equals("RepeatBehaviorHelper")) 
+            else if (helperName.Equals("RepeatBehaviorHelper"))
             {
                 // Lives in windows.ui.xaml.media.animation
                 helperName = "Media.Animation.RepeatBehaviorHelper";
@@ -198,7 +195,7 @@ namespace WinUI.Analyzer
                     return null;
                 }
             }
-            return  SyntaxFactory.InvocationExpression(
+            return SyntaxFactory.InvocationExpression(
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         SyntaxFactory.MemberAccessExpression(

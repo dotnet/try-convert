@@ -136,7 +136,7 @@ namespace MSBuild.Abstractions
         /// <param name="prop"></param>
         /// <returns></returns>
         public static bool IsWinUIDefault(ProjectPropertyElement prop) =>
-            WinUIFacts.SDKDefaultProperties.ContainsKey(prop.Name) 
+            WinUIFacts.SDKDefaultProperties.ContainsKey(prop.Name)
                 && WinUIFacts.SDKDefaultProperties[prop.Name].Equals(prop.Value, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>

@@ -5,12 +5,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.MSBuild;
-using System.Runtime.InteropServices;
 using WinUI.Analyzer;
 
 namespace MSBuild.Conversion.Project
@@ -18,7 +17,7 @@ namespace MSBuild.Conversion.Project
     public class WinUI3Analyzers
     {
         // make an enum for the type
-        public enum ProjectOutputType { UWPApp, ClassLibrary, DesktopApp};
+        public enum ProjectOutputType { UWPApp, ClassLibrary, DesktopApp };
         private ProjectOutputType projectType;
         private DiagnosticAnalyzer[] analyzers;
         private CodeFixProvider[] codeFixes;
@@ -31,7 +30,6 @@ namespace MSBuild.Conversion.Project
 #pragma warning disable ConvertNamespace // Windows Namespace should be Microsoft
         private static readonly MetadataReference WindowsXamlReference = MetadataReference.CreateFromFile(typeof(Windows.UI.Xaml.DependencyObject).Assembly.Location);
 #pragma warning restore ConvertNamespace // Windows Namespace should be Microsoft
-        private static readonly MetadataReference MicrosoftXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
 #pragma warning disable UWPMovedType
         private static readonly MetadataReference INotifyReference = MetadataReference.CreateFromFile(typeof(System.ComponentModel.INotifyPropertyChanged).Assembly.Location);
 #pragma warning restore UWPMovedType
@@ -46,7 +44,7 @@ namespace MSBuild.Conversion.Project
         internal DiagnosticAnalyzer[] GetAnalyzers()
         {
             // Get all analyzers, Order Matters!
-            return new DiagnosticAnalyzer[] { new UWPStructAnalyzer(), new UWPProjectionAnalyzer(), 
+            return new DiagnosticAnalyzer[] { new UWPStructAnalyzer(), new UWPProjectionAnalyzer(),
                 new EventArgsAnalyzer() , new NamespaceAnalyzer() };
             // Cannot create new Documents in this workspace, Analyzer will not work: new Analyzer.ObservableCollectionAnalyzer()
         }
@@ -83,14 +81,14 @@ namespace MSBuild.Conversion.Project
                     return c;
                 }
             }
-            return null;         
+            return null;
         }
 
         public async Task RunWinUIAnalysis(string projectFilePath)
         {
             Console.WriteLine($"Running Analyzers on {projectFilePath}");
             MSBuildWorkspace workspace = MSBuildWorkspace.Create();
-            
+
             // Open the solution within the workspace.
             Microsoft.CodeAnalysis.Project originalProject = workspace.OpenProjectAsync(projectFilePath).Result;
 
@@ -101,7 +99,6 @@ namespace MSBuild.Conversion.Project
                 .AddMetadataReference(CSharpSymbolsReference)
                 .AddMetadataReference(CodeAnalysisReference)
                 .AddMetadataReference(WindowsXamlReference)
-                .AddMetadataReference(MicrosoftXamlReference)
                 .AddMetadataReference(INotifyReference);
 
             // Declare a variable to store the intermediate solution snapshot at each step.
@@ -174,7 +171,6 @@ namespace MSBuild.Conversion.Project
                 .RemoveMetadataReference(CSharpSymbolsReference)
                 .RemoveMetadataReference(CodeAnalysisReference)
                 .RemoveMetadataReference(WindowsXamlReference)
-                .RemoveMetadataReference(MicrosoftXamlReference)
                 .RemoveMetadataReference(INotifyReference);
 
             // Actually apply the accumulated changes and save them to disk. At this point
@@ -189,7 +185,7 @@ namespace MSBuild.Conversion.Project
                 Console.WriteLine("Could not update solution!");
                 Console.WriteLine(e.Message);
             }
-            
+
         }
 
         /// <summary>
@@ -217,7 +213,7 @@ namespace MSBuild.Conversion.Project
             {
                 return diagnostics;
             }
-            
+
             foreach (var diag in diags)
             {
                 if (diag.Location == Location.None || diag.Location.IsInMetadata)
@@ -229,7 +225,7 @@ namespace MSBuild.Conversion.Project
                     if (tree == diag.Location.SourceTree)
                     {
                         diagnostics.Add(diag);
-                    }    
+                    }
                 }
             }
             var results = SortDiagnostics(diagnostics);
@@ -260,7 +256,7 @@ namespace MSBuild.Conversion.Project
                 var operations = codeAction.GetOperationsAsync(CancellationToken.None).Result;
                 var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
                 return solution.GetDocument(document.Id);
-            } 
+            }
             catch (Exception e)
             {
                 return document;

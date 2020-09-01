@@ -26,17 +26,12 @@
         <PackageReference Include="System.Collections.Immutable" Version="$(SystemCollectionsImmutableVersion)" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="$(SystemConfigurationConfigurationManagerVersion)" />
     <PackageReference Include="System.Security.Principal.Windows" Version="$(SystemSecurityPrincipalWindowsVersion)" />
-    <PackageReference Include="Microsoft.WinUI">
-      <Version>$(MicrosoftWinUIVersion)</Version>
-      <GeneratePathProperty>true</GeneratePathProperty>
-      <ExcludeAssets>build</ExcludeAssets>
-    </PackageReference>
     <!--<PackageReference Include="Microsoft.WinUI.Convert" Version="$(MicrosoftWinUIConvertVersion)" GeneratePathProperty="true" />-->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(MicrosoftCodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="$(MicrosoftWindowsSDKContractsVersion)" />
     <!--<Reference Include="$(PkgMicrosoft_WinUI_Convert)\analyzers\dotnet\cs\Analyzer.dll" />-->
-    <Reference Include="$(PkgMicrosoft_WinUI)\lib\uap10.0\*.winmd"/>
+    <!--<Reference Include="$(PkgMicrosoft_WinUI)\lib\uap10.0\*.winmd" />-->
   </ItemGroup>
 
 </Project>

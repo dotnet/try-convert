@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -10,7 +8,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace WinUI.Analyzer
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class ObservableCollectionAnalyzer : DiagnosticAnalyzer  
+    public class ObservableCollectionAnalyzer : DiagnosticAnalyzer
     {
         // Analyzer IDs are reported as Error Codes
         public const string ID = "ObservableCollection";

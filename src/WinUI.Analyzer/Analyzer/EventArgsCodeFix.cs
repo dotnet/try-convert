@@ -1,15 +1,13 @@
-﻿using System.Composition;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
+using System.Composition;
 using System.Linq;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.CodeActions;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
-using System.ComponentModel.Design;
-using System;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace WinUI.Analyzer
 {
@@ -70,8 +68,8 @@ namespace WinUI.Analyzer
             var replaceNode = SyntaxFactory.QualifiedName(
                 SyntaxFactory.QualifiedName(
                     SyntaxFactory.QualifiedName(
-                        SyntaxFactory.IdentifierName("Microsoft"), SyntaxFactory.IdentifierName("UI")), 
-                    SyntaxFactory.IdentifierName("Xaml")), 
+                        SyntaxFactory.IdentifierName("Microsoft"), SyntaxFactory.IdentifierName("UI")),
+                    SyntaxFactory.IdentifierName("Xaml")),
                 SyntaxFactory.IdentifierName("LaunchActivatedEventArgs"));
             var parChild = paramNode.ChildNodes().First();
             var oldRoot = await doc.GetSyntaxRootAsync(c);

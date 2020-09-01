@@ -16,12 +16,14 @@
     <NewtonsoftJsonVersion>12.0.2</NewtonsoftJsonVersion>
     <NuGetVersioningVersion>5.5.0</NuGetVersioningVersion>
     <SystemCollectionsImmutableVersion>1.5.0</SystemCollectionsImmutableVersion>
-    <SystemCommandLineVersion> 2.0.0-beta1.20214.1</SystemCommandLineVersion>
+    <SystemCommandLineVersion>2.0.0-beta1.20214.1</SystemCommandLineVersion>
     <SystemConfigurationConfigurationManagerVersion>4.7.0</SystemConfigurationConfigurationManagerVersion>
     <SystemSecurityPrincipalWindowsVersion>4.7.0</SystemSecurityPrincipalWindowsVersion>
     <MicrosoftWinUIVersion>3.0.0-development.200810.0</MicrosoftWinUIVersion>
-    <MicrosoftWinUIConvertVersion>3.0.0-development.200819.1</MicrosoftWinUIConvertVersion>
+    <MicrosoftWinUIConvertVersion>1.2.904</MicrosoftWinUIConvertVersion>
     <MicrosoftCodeAnalysisVersion>3.7.0-4.final</MicrosoftCodeAnalysisVersion>
+    <MicrosoftCodeAnalysisAnalyzersVersion>3.0.0</MicrosoftCodeAnalysisAnalyzersVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>1.0.1-beta1.*</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftWindowsSDKContractsVersion>10.0.19041.1</MicrosoftWindowsSDKContractsVersion>
   </PropertyGroup>
   <!--
@@ -30,6 +32,7 @@
   <PropertyGroup>
     <CoverletCollectorVersion>1.0.1</CoverletCollectorVersion>
     <MoqVersion>4.13.0</MoqVersion>
+    <MSTestVersion>2.1.2</MSTestVersion>
   </PropertyGroup>
   <PropertyGroup>
     <DiscoverEditorConfigFiles>true</DiscoverEditorConfigFiles>

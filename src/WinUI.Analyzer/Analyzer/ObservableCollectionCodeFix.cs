@@ -1,0 +1,105 @@
+﻿using System.Composition;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CodeFixes;
+using System.Collections.Immutable;
+using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CodeActions;
+using System.Threading;
+using Microsoft.CodeAnalysis.CSharp;
+
+namespace WinUI.Analyzer
+{
+    [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(ObservableCollectionCodeFix)), Shared]
+    public class ObservableCollectionCodeFix : CodeFixProvider
+    {
+        private const string title = "Fix ObservableCollection";
+
+        public override ImmutableArray<string> FixableDiagnosticIds
+        {
+            get { return ImmutableArray.Create(ObservableCollectionAnalyzer.ID); }
+        }
+
+        // an optional overide to fix all occurences instead of just one.
+        public sealed override FixAllProvider GetFixAllProvider()
+        {
+            return WellKnownFixAllProviders.BatchFixer;
+        }
+
+        public override async Task RegisterCodeFixesAsync(CodeFixContext context)
+        {
+            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            var diagnostic = context.Diagnostics.First();
+            var diagnosticSpanSrc = diagnostic.Location.SourceSpan;
+            var idNode = root.FindNode(diagnosticSpanSrc) as ObjectCreationExpressionSyntax;
+            // Register a code action that will invoke the fix.
+            context.RegisterCodeFix(
+                CodeAction.Create(
+                    title: title,
+                    createChangedSolution: c => ReplaceObservableCollectionAsync(context.Document, idNode, c),
+                    equivalenceKey: title),
+                diagnostic);
+            
+        }
+        internal async Task<Solution> ReplaceObservableCollectionAsync(Document doc, ObjectCreationExpressionSyntax idNode, CancellationToken c)
+        {
+            var project = doc.Project;
+            var originalSolution = project.Solution;
+            var workspace = originalSolution.Workspace;
+            var newSolution = GetCollectionReplacement(project, originalSolution);
+            // replace object creation and declaration with the new type
+            var genericNode = idNode.DescendantNodes().OfType<GenericNameSyntax>().FirstOrDefault();
+            if (genericNode == null) return originalSolution;
+            var typeArgList = genericNode.DescendantNodes().OfType<TypeArgumentListSyntax>().FirstOrDefault();
+            if (typeArgList == null) return originalSolution;
+            var newGenericNode = SyntaxFactory.GenericName(SyntaxFactory.Identifier("AppUIBasics.ObservableCollection")).WithTypeArgumentList(typeArgList);
+            // get new docs 
+            var newDoc = newSolution.GetDocument(doc.Id);
+            var oldRoot = await newDoc.GetSyntaxRootAsync(c);
+            var newRoot = oldRoot.ReplaceNode(genericNode, newGenericNode);
+            if (!idNode.Parent.IsKind(SyntaxKind.Argument))
+            {
+                // need to also replace the other kind get variable declaration
+                var declaration = newRoot.FindNode(idNode.Span).Ancestors().OfType<VariableDeclarationSyntax>().FirstOrDefault();
+                if (declaration != null)
+                {
+                    // replace generic
+                    var declareGeneric = declaration.ChildNodes().OfType<GenericNameSyntax>().FirstOrDefault();
+                    if (declareGeneric != null)
+                    {
+                        // need to check for trivia first and keep any
+                        if (declareGeneric.HasLeadingTrivia)
+                        {
+                            newGenericNode = newGenericNode.WithLeadingTrivia(declareGeneric.GetLeadingTrivia());
+                        }
+                        newRoot = newRoot.ReplaceNode(declareGeneric, newGenericNode);
+                    } 
+                }
+            }    
+            newSolution = newDoc.WithSyntaxRoot(newRoot).Project.Solution;
+            return newSolution;
+        }
+
+        private Solution GetCollectionReplacement(Project project, Solution solution)
+        {
+            //TODO, check if class exists instead?
+            // use type instead of this.
+            foreach (Document d in project.Documents)
+            {
+                if (d.Name.Equals("CollectionsInterop.cs"))
+                {
+                    var dText = d.GetTextAsync().Result.ToString();
+                    if (dText.Equals(Utils.GetCollectionString()))
+                    {
+                        return solution;
+                    }
+                }
+            }
+            // Create new doc, did not exist
+            var newDocID = DocumentId.CreateNewId(project.Id, "testID");
+            return solution.AddAdditionalDocument(newDocID, "CollectionsInterop.cs", Utils.GetCollectionString());
+        }
+    }
+}
+

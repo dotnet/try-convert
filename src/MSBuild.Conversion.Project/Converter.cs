@@ -31,7 +31,7 @@ namespace MSBuild.Conversion.Project
             CleanUpProjectFile(outputPath, true);
         }
 
-        public void ConvertWinUI3(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK, bool keepUWP)
+        public void ConvertWinUI3(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK, bool keepUWP, bool keepSourceCode)
         {
             // if winUI will return uap/windows multi target tfm
             var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK, keepUWP);
@@ -46,16 +46,18 @@ namespace MSBuild.Conversion.Project
             
             if (outputType == ProjectOutputType.AppContainer && keepUWP)
             {
-                // if this is staying UWP...
-                //Save this version of XML csproj
+                // if this is staying UWP... Save this version of XML csproj
                 XDocument oldXml = _projectRootElement.Xml;
                 //remove C# target lines so msbuild works
                 _projectRootElement.RemoveUWPLines(_sdkBaselineProject, tfm);
                 // write this version to disk
                 CleanUpProjectFile(outputPath, false);
-                // Roslyn/msbuild rewrite c# files with analyzers
-                var analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.UWPApp);
-                analyzers.RunWinUIAnalysis(outputPath).Wait();
+                if (!keepSourceCode)
+                {
+                    // Roslyn/msbuild rewrite c# files with analyzers
+                    var analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.UWPApp);
+                    analyzers.RunWinUIAnalysis(outputPath).Wait();
+                }
                 //rewrite .csproj file with original xml to disk
                 CleanUpProjectFile(outputPath, false, oldXml);
             }
@@ -66,7 +68,8 @@ namespace MSBuild.Conversion.Project
                 _projectRootElement.ModifyOutputType(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.OutputType);// change desktop output type
                 _projectRootElement.RemoveDefaultedProperties(_sdkBaselineProject, _differs); // Removes default sdk properties
                 _projectRootElement.RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle); 
-                _projectRootElement.AddTargetFrameworkProperty(_sdkBaselineProject, tfm); 
+                _projectRootElement.AddTargetFrameworkProperty(_sdkBaselineProject, tfm);
+                _projectRootElement.AddGenerateAssemblyInfoAsFalse();
                 _projectRootElement.AddDesktopProperties(_sdkBaselineProject);
                 _projectRootElement.AddCommonPropertiesToTopLevelPropertyGroup();
                 _projectRootElement.RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm);
@@ -80,16 +83,19 @@ namespace MSBuild.Conversion.Project
                 
                 _projectRootElement.ModifyProjectElement();
                 CleanUpProjectFile(outputPath, true);
-                WinUI3Analyzers analyzers; 
-                if (outputType == ProjectOutputType.Library)
+                if (!keepSourceCode)
                 {
-                    analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.ClassLibrary);
-                }
-                else
-                {
-                    analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.DesktopApp);
-                }
+                    WinUI3Analyzers analyzers;
+                    if (outputType == ProjectOutputType.Library)
+                    {
+                        analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.ClassLibrary);
+                    }
+                    else
+                    {
+                        analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.DesktopApp);
+                    }
                     analyzers.RunWinUIAnalysis(outputPath).Wait();
+                }  
             }
         }
 

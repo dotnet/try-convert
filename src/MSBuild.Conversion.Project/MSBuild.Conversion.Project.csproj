@@ -14,6 +14,7 @@
     <ProjectReference Include="..\MSBuild.Abstractions\MSBuild.Abstractions.csproj" />
     <ProjectReference Include="..\MSBuild.Conversion.Package\MSBuild.Conversion.Package.csproj" />
     <ProjectReference Include="..\MSBuild.Conversion.SDK\MSBuild.Conversion.SDK.csproj" />
+    <ProjectReference Include="..\WinUI.Analyzer\Analyzer\WinUI.Analyzer.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,11 +31,11 @@
       <GeneratePathProperty>true</GeneratePathProperty>
       <ExcludeAssets>build</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.WinUI.Convert" Version="$(MicrosoftWinUIConvertVersion)" GeneratePathProperty="true" />
+    <!--<PackageReference Include="Microsoft.WinUI.Convert" Version="$(MicrosoftWinUIConvertVersion)" GeneratePathProperty="true" />-->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(MicrosoftCodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="$(MicrosoftWindowsSDKContractsVersion)" />
-    <Reference Include="$(PkgMicrosoft_WinUI_Convert)\analyzers\dotnet\cs\Analyzer.dll" />
+    <!--<Reference Include="$(PkgMicrosoft_WinUI_Convert)\analyzers\dotnet\cs\Analyzer.dll" />-->
     <Reference Include="$(PkgMicrosoft_WinUI)\lib\uap10.0\*.winmd"/>
   </ItemGroup>
 

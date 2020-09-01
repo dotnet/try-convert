@@ -37,7 +37,8 @@ namespace MSBuild.Conversion.Facts
         /// Set of NuGet packages incompatible with WinUI3 SDK NET5 Conversion
         /// </summary>
         public static ImmutableArray<string> IncompatiblePackages => ImmutableArray.Create(
-            "Win2D.UWP"
+            "Win2D.UWP",
+            "Microsoft.Xaml.Behaviors.Uwp.Managed"
         );
 
         /// <summary>
@@ -92,8 +93,8 @@ namespace MSBuild.Conversion.Facts
         public static ImmutableDictionary<string, string> ConvertiblePackages => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
             { "Microsoft.UI.Xaml", "Microsoft.WinUI" },
-            { "Microsoft.Xaml.Behaviors.UWP", "Microsoft.Xaml.Behaviors.WinUI" },
-            //{ "Win2D.UWP", "Microsoft.Win2D.WinUI" }, currently incompatible
+            // { "Microsoft.Xaml.Behaviors.UWP", "Microsoft.Xaml.Behaviors.WinUI" },
+            // { "Win2D.UWP", "Microsoft.Win2D.WinUI" }, currently incompatible
             { "ColorCode.UWP", "ColorCode.WinUI" },
             { "Microsoft.Toolkit", "Microsoft.Toolkit" },
             { "Microsoft.Toolkit.HighPerformance", "Microsoft.Toolkit.HighPerformance" },

@@ -22,14 +22,13 @@ namespace MSBuild.Conversion.Project
             string csProjFile = MatchCsProjFileRegex.Match(csProjPath).Value;
             string wapProjFile = MatchCsProjExtensionRegex.Replace(csProjPath, "wapproj");
 
-            //Need to see if one already exists, if it does, (why would it?) overwrite with ,old
+            //Need to see if one already exists, if it does, (why would it?) overwrite with .old
             if (File.Exists(wapProjFile))
             {
                 File.Copy(wapProjFile, wapProjFile + ".old", overwrite: true);
             }
-            // create new string template 
 
-            //go through project root element and remove all the properties that belong in the wapproj
+            // go through project root element and remove all the properties that belong in the wapproj
             var wapProps = new List<ProjectPropertyElement>();
             var wapItems = new List<ProjectItemElement>();
             foreach (var propGroup in projectRootElement.PropertyGroups)
@@ -63,6 +62,7 @@ namespace MSBuild.Conversion.Project
                     projectRootElement.RemoveChild(itemGroup);
                 }
             }
+
             // fill in template and create new file
             XmlWriterSettings settings = new XmlWriterSettings();
             settings.Indent = true;

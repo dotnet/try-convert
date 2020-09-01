@@ -10,6 +10,8 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.MSBuild;
+using System.Runtime.InteropServices;
+using WinUI.Analyzer;
 
 namespace MSBuild.Conversion.Project
 {
@@ -18,6 +20,8 @@ namespace MSBuild.Conversion.Project
         // make an enum for the type
         public enum ProjectOutputType { UWPApp, ClassLibrary, DesktopApp};
         private ProjectOutputType projectType;
+        private DiagnosticAnalyzer[] analyzers;
+        private CodeFixProvider[] codeFixes;
 
         // metadata refrences
         private static readonly MetadataReference CorlibReference = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
@@ -35,13 +39,15 @@ namespace MSBuild.Conversion.Project
         public WinUI3Analyzers(ProjectOutputType projectType)
         {
             this.projectType = projectType;
+            this.analyzers = GetAnalyzers();
+            this.codeFixes = GetCodeFixes();
         }
 
         internal DiagnosticAnalyzer[] GetAnalyzers()
         {
             // Get all analyzers, Order Matters!
-            return new DiagnosticAnalyzer[] { new Analyzer.UWPStructAnalyzer(), new Analyzer.UWPProjectionAnalyzer(), 
-                new Analyzer.EventArgsAnalyzer() , new Analyzer.NamespaceAnalyzer() };
+            return new DiagnosticAnalyzer[] { new UWPStructAnalyzer(), new UWPProjectionAnalyzer(), 
+                new EventArgsAnalyzer() , new NamespaceAnalyzer() };
             // Cannot create new Documents in this workspace, Analyzer will not work: new Analyzer.ObservableCollectionAnalyzer()
         }
 
@@ -50,28 +56,27 @@ namespace MSBuild.Conversion.Project
             if (projectType == ProjectOutputType.ClassLibrary)
             {
                 // return ifDefFixes for libraries instead, passing in false ensures ObservableCollectionFix is not implemented
-                return new CodeFixProvider[] { new Analyzer.UWPIfDefCodeFix(false),
-                    new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
+                return new CodeFixProvider[] { new UWPIfDefCodeFix(false),
+                    new EventArgsCodeFix(), new NamespaceCodeFix() };
             }
             else if (projectType == ProjectOutputType.DesktopApp)
             {
                 // .NET Desktop Apps do not need if defs or projections, only include namespace and event args
-                return new CodeFixProvider[] { new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
+                return new CodeFixProvider[] { new EventArgsCodeFix(), new NamespaceCodeFix() };
             }
             else
             {
                 // UWP -> UWP need the projection codefixes to work
-                return new CodeFixProvider[] { new Analyzer.UWPStructCodeFix(), new Analyzer.UWPProjectionCodeFix(),
-                    new Analyzer.EventArgsCodeFix(), new Analyzer.NamespaceCodeFix() };
+                return new CodeFixProvider[] { new UWPStructCodeFix(), new UWPProjectionCodeFix(),
+                    new EventArgsCodeFix(), new NamespaceCodeFix() };
             }
             // Will not currently work : new Analyzer.ObservableCollectionCodeFix()
         }
 
         internal CodeFixProvider? GetCodeFixer(DiagnosticAnalyzer analyzer)
         {
-            var codeFixes = GetCodeFixes();
             var v = analyzer.SupportedDiagnostics;
-            foreach (var c in codeFixes)
+            foreach (var c in this.codeFixes)
             {
                 if (v.Any(a => c.FixableDiagnosticIds.Contains(a.Id)))
                 {
@@ -106,8 +111,6 @@ namespace MSBuild.Conversion.Project
                 Console.WriteLine("Error Running Conversion Analyzers. Exiting...");
                 return;
             }
-            //Get an array of all the analyzers to apply
-            var analyzers = GetAnalyzers();
 
             // Iterate over project Id's in solution
             int count = 0;
@@ -121,7 +124,7 @@ namespace MSBuild.Conversion.Project
 #nullable enable
                 if (document == null) continue;
                 Console.WriteLine($"Converting Document {count} of {newProject.DocumentIds.Count}");
-                foreach (var analyzer in analyzers)
+                foreach (var analyzer in this.analyzers)
                 {
                     Console.WriteLine($"Running {analyzer.GetType().Name} on {document.FilePath}");
 
@@ -134,19 +137,29 @@ namespace MSBuild.Conversion.Project
                     //apply the changes to the document use total initial diagnostics as max attempts
                     for (int i = 0; i < attempts; ++i)
                     {
+                        // make list of actions to apply 
                         var actions = new List<CodeAction>();
+                        // create new code context for current diagnostic and add to actions
                         var context = new CodeFixContext(document, analyzerDiagnostics.First(), (a, d) => actions.Add(a), CancellationToken.None);
+
                         codeFixProvider.RegisterCodeFixesAsync(context).Wait();
+
+                        // testing batch here 
+                        /*
+                        var fixAll = codeFixProvider.GetFixAllProvider();
+                        var fixAllContext = new FixAllContext(document, codeFixProvider, FixAllScope.Document, "FakeKey", analyzerDiagnostics, )
+                        fixAll.GetFixAsync
+                        */
+
                         if (!actions.Any())
                         {
                             break;
                         }
-                        //Apply fix and store in new solution
+                        // Apply fix and store in new solution
                         document = ApplyFix(document, actions.ElementAt(0));
                         newProject = document.Project;
-                        //apply the new document to the solution
+                        // check if there are analyzer diagnostics left after the code fix
                         analyzerDiagnostics = GetSortedDiagnosticsFromDocument(analyzer, document, newProject);
-                        //check if there are analyzer diagnostics left after the code fix
                         if (!analyzerDiagnostics.Any())
                         {
                             break;

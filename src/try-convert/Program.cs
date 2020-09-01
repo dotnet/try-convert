@@ -40,12 +40,13 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--keep-uwp" }, "Converts C# source code and project NuGet references but keeps existing project format. (Does not convert .csproj to SDK style.)") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "--keep-source-code", "-ksc" }, "Converts WinUI project files but does not modify C# source code.") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool keepUWP)
+        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool keepUWP, bool keepSourceCode)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
@@ -114,7 +115,7 @@ namespace MSBuild.Conversion
                     {
                         // only call convert. add/removenuget imports
                         var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-                        converter.ConvertWinUI3(item.ProjectRootElement.FullPath, tfm, keepCurrentTfms, allowPreviews, keepUWP);
+                        converter.ConvertWinUI3(item.ProjectRootElement.FullPath, tfm, keepCurrentTfms, allowPreviews, keepUWP, keepSourceCode);
                     }
                     else
                     {

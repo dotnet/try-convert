@@ -214,7 +214,7 @@ namespace MSBuild.Conversion.Project
 
                     if (keepUWP)
                     {
-                        // for sdky stype
+                        // for sdk style
                         if (ProjectItemHelpers.IsReferenceConvertibleToWinUIUWPReference(item))
                         {
                             // convert it...

@@ -172,7 +172,6 @@ namespace MSBuild.Abstractions
             using var pc = new ProjectCollection();
             var newProject = new UnconfiguredProject(configurations);
             newProject.LoadProjects(pc, rootElement);
-            //TODO is this where we need to add more default properties?
 
             // If the original project had the TargetFramework property don't touch it during conversion.
             var propertiesInTheBaseline = ImmutableArray.Create(MSBuildFacts.OutputTypeNodeName);

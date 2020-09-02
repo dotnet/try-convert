@@ -118,7 +118,7 @@ namespace WinUI.Analyzer
 
             // replace it in the tree
             // return the new tree 
-            var oldRoot = await doc.GetSyntaxRootAsync(c);
+            if (!(await doc.GetSyntaxRootAsync(c) is SyntaxNode oldRoot)) return doc;
             if (!(oldRoot.ReplaceNode(idNode, equalsAnnotated) is SyntaxNode newRoot)) return doc;
 
             // find the entry node
@@ -137,15 +137,14 @@ namespace WinUI.Analyzer
             // find the first node in that line
             var firstNode = idNode;
             var parentNode = idNode.Parent;
-            if (parentNode == null) return doc;
-            while (parentNode.SpanStart >= lineSpan.Start)
+            while (parentNode != null && parentNode.SpanStart >= lineSpan.Start)
             {
                 firstNode = parentNode;
                 parentNode = firstNode.Parent;
             }
 
             // need to keep track of first node with annotations
-            string firstNodeTag = "firstNode";
+            var firstNodeTag = "firstNode";
             syntaxAnnotation = new SyntaxAnnotation(firstNodeTag);
             var firstAnnotated = firstNode.WithAdditionalAnnotations(syntaxAnnotation);
 
@@ -217,6 +216,7 @@ namespace WinUI.Analyzer
                     ))
                 });
 
+
             // keep leading trivia if any
             if (nextSibling.HasLeadingTrivia)
             {
@@ -226,7 +226,7 @@ namespace WinUI.Analyzer
             // attach 
             var newSibling = nextSibling.WithLeadingTrivia(endDefTrivia);
 
-            if (nextSibling.IsNode)
+            if (nextSibling != null && nextSibling.IsNode)
             {
                 newRoot = newRoot.ReplaceNode((SyntaxNode)nextSibling, (SyntaxNode)newSibling);
             }

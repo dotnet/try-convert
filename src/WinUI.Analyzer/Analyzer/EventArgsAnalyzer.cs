@@ -61,12 +61,12 @@ namespace WinUI.Analyzer
             if (baseType == null) return;
 
             // get types to compare
-            var MicrosoftApps = Utils.GetTypesByMetadataName(compilation, "Microsoft.UI.Xaml.Application");
-            var WindowsApps = Utils.GetTypesByMetadataName(compilation, "Windows.UI.Xaml.Application");
-            var bothApps = MicrosoftApps.Union(WindowsApps);
+            // var MicrosoftApps = Utils.GetTypesByMetadataName(compilation, "Microsoft.UI.Xaml.Application");
+            //var WindowsApps = Utils.GetTypesByMetadataName(compilation, "Windows.UI.Xaml.Application");
+            var bothApps = new[] { "Microsoft.UI.Xaml.Application", "Windows.UI.Xaml.Application" };
 
             // Roslyn Having issues comparing types, using toString...
-            if (bothApps.Any(b => b != null && baseType.ToString().Equals(b.ToString(), StringComparison.OrdinalIgnoreCase)))
+            if (bothApps.Any(b => baseType.ToString().Equals(b, StringComparison.OrdinalIgnoreCase)))
             {
                 // Since derives from correct base method, should only have 1 parameter matching LaunchActivatedEventArgs
                 var eventArgsParam = onLaunchedMethod.ParameterList.ChildNodes().OfType<ParameterSyntax>().SingleOrDefault(p => p.Type != null && p.Type.ToString().Contains("LaunchActivatedEventArgs"));

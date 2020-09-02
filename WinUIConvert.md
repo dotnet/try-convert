@@ -9,16 +9,14 @@ This document details how to use the Try-Convert Tool to convert a C# UWP App to
 - WinUI3 is the next version of WinUI. It runs on the native Windows 10 UI platform and supports both Windows Desktop and UWP apps. WinUI3 ships as a NuGet package.
 [More on WinUI3](https://docs.microsoft.com/en-us/windows/apps/winui/winui3/)
 
-Updating a C# UWP App to WinUI3 can be an involved process and requires several changes to the .csproj as well as C# code. Running this tool will automate the process. 
+Updating a C# UWP App to WinUI3 requires several changes to the .csproj as well as C# code. Running this tool will automate the process. 
 
 ## Description
 This tool assists with the WinUI --> WinUI3 conversion process for three main scenarios:
 
-UWP App --> UWP App
-
-UWP Class Library --> .NET 5 Multi-Targeting Class Library
-
-UWP App --> .NET 5 Desktop App
+- [UWP App --> UWP App](#-UWP-App-->-UWP-App)
+- [UWP Class Library --> .NET 5 Multi-Targeting Class Library](#UWP-Library-->-.NET-5.0-Multi-targeting-Library)
+- [UWP App --> .NET 5 Desktop App](#UWP-App-->-.Net-5.0-Desktop-App)
 
 This tool assists with the conversion process by first modifying .csproj files to use the new `Microsoft.WinUI` nuget package. It converts nuget packages which are incompatible with the new WinUI3 where possible and removes them otherwise. It also uses [WinUI3 Conversion Analyzers](https://github.com/microsoft/microsoft-ui-xaml/blob/master/docs/preview_conversion_analyzer.md) to apply changes to the C# source code.
 

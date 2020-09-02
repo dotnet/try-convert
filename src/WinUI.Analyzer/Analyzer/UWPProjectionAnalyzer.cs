@@ -120,11 +120,12 @@ namespace WinUI.Analyzer
             var baseNodes = baseListNode.DescendantNodes().OfType<SimpleBaseTypeSyntax>();
             var model = context.SemanticModel;
             var compilation = model.Compilation;
-            var symbol = (INamedTypeSymbol)model.GetDeclaredSymbol(baseListNode.Parent);
+            if (!(baseListNode.Parent is SyntaxNode baseParent)) return;
+            var symbol = (INamedTypeSymbol)model.GetDeclaredSymbol(baseParent);
             if (symbol == null) return;
             var allInterfaces = symbol.AllInterfaces;
             // see if any interface implements one that needs to be changed
-            foreach (string s in DotNetInterfaces)
+            foreach (var s in DotNetInterfaces)
             {
                 var type1 = compilation.GetTypeByMetadataName(s);
                 if (type1 == null) continue;

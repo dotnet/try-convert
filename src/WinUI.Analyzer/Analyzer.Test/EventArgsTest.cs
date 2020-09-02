@@ -176,33 +176,6 @@ namespace WinUI.Analyzer.Test
                 }
             }";
 
-        // 5. App with alias namespace
-        private const string Event_5 = @"
-            using Windows.ApplicationModel.Activation;
-            using special = Microsoft.UI.Xaml;
-            namespace FakeNamespace5
-            {
-                class Program : Application
-                {
-                    protected override async void OnLaunched(LaunchActivatedEventArgs e)
-                    {
-                    }
-                }
-            }";
-        private const string EventFix_5 = @"
-            using Windows.ApplicationModel.Activation;
-            using special = Microsoft.UI.Xaml;
-            namespace FakeNamespace5
-            {
-                class Program : Application
-                {
-                    protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs e)
-                    {
-                    }
-                }
-            }";
-
-
         // This contains parameter use in method body that should be reported and fixed
         // 1. App with inline Namespace
         private const string EventUse_1 = @"
@@ -224,42 +197,6 @@ namespace WinUI.Analyzer.Test
                 }
             }";
 
-        // 2. 
-        private const string EventUse_2 = @"
-        namespace FakeNamespace{
-        class Program : Microsoft.UI.Xaml.Application
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs e)
-        {
-            Frame rootFrame = Window.Current.Content as Frame;
-            if (rootFrame == null)
-            {
-                rootFrame = new Frame();
-                rootFrame.NavigationFailed += OnNavigationFailed;
-                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
-                {
-                }
-                // Place the frame in the current Window
-                Window.Current.Content = rootFrame;
-            }
-        }}";
-        private const string EventUseFix_2 = @"
-        namespace FakeNamespace{
-        class Program : Microsoft.UI.Xaml.Application
-        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs e)
-        {
-            Frame rootFrame = Window.Current.Content as Frame;
-            if (rootFrame == null)
-            {
-                rootFrame = new Frame();
-                rootFrame.NavigationFailed += OnNavigationFailed;
-                if (e.UWPLaunchActivatedEventArgs.PreviousExecutionState == ApplicationExecutionState.Terminated)
-                {
-                }
-                // Place the frame in the current Window
-                Window.Current.Content = rootFrame;
-            }
-        }}";
-
 
 
         [DataTestMethod]
@@ -275,8 +212,7 @@ namespace WinUI.Analyzer.Test
         [DataRow(Event_1, EventFix_1, 8, 62),
             DataRow(Event_2, EventFix_2, 7, 62),
             DataRow(Event_3, EventFix_3, 9, 62),
-            DataRow(Event_4, EventFix_4, 8, 62),
-            DataRow(Event_5, EventFix_5, 8, 62)]
+            DataRow(Event_4, EventFix_4, 9, 62)]
         public void EventArgsParamDiagosticIsFixed(
            string test,
            string fixTest,
@@ -301,8 +237,7 @@ namespace WinUI.Analyzer.Test
 
         [DataTestMethod]
         // Tests Method parameters are used in method body correctly.
-        [DataRow(EventUse_1, EventUseFix_1, 7, 130),
-            DataRow(EventUse_2, EventUseFix_2, 11, 21)]
+        [DataRow(EventUse_1, EventUseFix_1, 7, 130)]
         public void EventArgsArgUseDiagnosticFixed(
            string test,
            string fixTest,

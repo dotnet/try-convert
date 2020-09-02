@@ -69,6 +69,7 @@ namespace WinUI.Analyzer
             }
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         private async Task<Solution> ReplaceSolutionLineAsync(Document doc, SyntaxNode idNode, CancellationToken c)
         {
             var tag = $"{doc.Id}idNode";
@@ -100,6 +101,7 @@ namespace WinUI.Analyzer
             }
             return doc;
         }
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
         /// <summary>
         /// Returns the document with the original line surrounded by ifDef. 

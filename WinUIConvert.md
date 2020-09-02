@@ -132,7 +132,8 @@ try-convert will analyze and convert C# files and apply the following changes:
 - [UWP Struct Analyzer/Codefix](#UWP-Struct-Analyzer/Codefix)
 
 ## Namespace Analyzer/Codefix
-
+WinUI3 is shipping Xaml and WinUI seperately from the Windows OS as its own NuGet package. 
+Because of this the namespaces for many Xaml and UX types are moving from `Windows` to `Microsoft`.
 - Updates Type Namespaces from `Windows.*` to `Microsoft.*`
 - Types moving from `Windows` to `Microsoft`:
     - `Windows.UI.Xaml`

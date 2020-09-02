@@ -56,7 +56,7 @@ namespace MSBuild.Conversion.Project
                 {
                     // Roslyn/msbuild rewrite c# files with analyzers
                     var analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.UWPApp);
-                    analyzers.RunWinUIAnalysis(outputPath).Wait();
+                    analyzers.RunWinUIAnalysis(outputPath);
                 }
                 //rewrite .csproj file with original xml to disk
                 CleanUpProjectFile(outputPath, false, oldXml);
@@ -94,7 +94,7 @@ namespace MSBuild.Conversion.Project
                     {
                         analyzers = new WinUI3Analyzers(WinUI3Analyzers.ProjectOutputType.DesktopApp);
                     }
-                    analyzers.RunWinUIAnalysis(outputPath).Wait();
+                    analyzers.RunWinUIAnalysis(outputPath);
                 }
             }
         }

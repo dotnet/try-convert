@@ -224,7 +224,7 @@ namespace TestHelper
         private static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
         {
             var builder = new StringBuilder();
-            for (int i = 0; i < diagnostics.Length; ++i)
+            for (var i = 0; i < diagnostics.Length; ++i)
             {
                 builder.AppendLine("// " + diagnostics[i].ToString());
 
@@ -245,7 +245,12 @@ namespace TestHelper
                             Assert.IsTrue(location.IsInSource,
                                 $"Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata: {diagnostics[i]}\r\n");
 
-                            string resultMethodName = diagnostics[i].Location.SourceTree.FilePath.EndsWith(".cs") ? "GetCSharpResultAt" : "GetBasicResultAt";
+                            if (!(diagnostics[i].Location.SourceTree is SyntaxTree srcTree))
+                            {
+                                Assert.IsNotNull(diagnostics[i].Location.SourceTree);
+                                continue;
+                            }
+                            var resultMethodName = srcTree.FilePath.EndsWith(".cs") ? "GetCSharpResultAt" : "GetBasicResultAt";
                             var linePosition = diagnostics[i].Location.GetLineSpan().StartLinePosition;
 
                             builder.AppendFormat("{0}({1}, {2}, {3}.{4})",

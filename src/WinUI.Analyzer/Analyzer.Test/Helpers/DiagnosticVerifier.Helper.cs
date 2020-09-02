@@ -115,7 +115,7 @@ namespace TestHelper
                 throw new ArgumentException("Unsupported Language");
             }
 
-            var project = CreateProject(sources, language);
+            if (!(CreateProject(sources, language) is Project project)) return new Document[0];
             var documents = project.Documents.ToArray();
 
             if (sources.Length != documents.Length)
@@ -132,9 +132,10 @@ namespace TestHelper
         /// <param name="source">Classes in the form of a string</param>
         /// <param name="language">The language the source code is in</param>
         /// <returns>A Document created from the source string</returns>
-        protected static Document CreateDocument(string source, string language = LanguageNames.CSharp)
+        protected static Document? CreateDocument(string source, string language = LanguageNames.CSharp)
         {
-            return CreateProject(new[] { source }, language).Documents.First();
+            if (!(CreateProject(new[] { source }, language) is Project project)) return null;
+            return project.Documents.FirstOrDefault();
         }
 
         /// <summary>
@@ -143,7 +144,7 @@ namespace TestHelper
         /// <param name="sources">Classes in the form of strings</param>
         /// <param name="language">The language the source code is in</param>
         /// <returns>A Project created out of the Documents created from the source strings</returns>
-        private static Project CreateProject(string[] sources, string language = LanguageNames.CSharp)
+        private static Project? CreateProject(string[] sources, string language = LanguageNames.CSharp)
         {
             var fileNamePrefix = DefaultFilePathPrefix;
             var fileExt = language == LanguageNames.CSharp ? CSharpDefaultFileExt : VisualBasicDefaultExt;
@@ -170,7 +171,7 @@ namespace TestHelper
                 solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
                 count++;
             }
-            //if (!(solution.GetProject(projectId) is Project p)) return; 
+
             return solution.GetProject(projectId);
         }
         #endregion

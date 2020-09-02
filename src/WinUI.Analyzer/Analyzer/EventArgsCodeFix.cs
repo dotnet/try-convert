@@ -33,14 +33,14 @@ namespace WinUI.Analyzer
             if (root == null) return;
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpanSrc = diagnostic.Location.SourceSpan;
-            if (root.FindNode(diagnosticSpanSrc) is ParameterSyntax t)
+            if (root.FindNode(diagnosticSpanSrc) is SyntaxNode srcNode)
             {
                 if (diagnostic.Id == EventArgsAnalyzer.Param_ID)
                 {
                     context.RegisterCodeFix(
                     CodeAction.Create(
                         title: title,
-                        createChangedDocument: c => ReplaceEventArgsAsync(context.Document, (ParameterSyntax)t, c),
+                        createChangedDocument: c => ReplaceEventArgsAsync(context.Document, (ParameterSyntax)srcNode, c),
                         equivalenceKey: title),
                     diagnostic);
                 }
@@ -49,7 +49,7 @@ namespace WinUI.Analyzer
                     context.RegisterCodeFix(
                     CodeAction.Create(
                         title: title,
-                        createChangedDocument: c => ReplaceUWPUseAsync(context.Document, t, c),
+                        createChangedDocument: c => ReplaceUWPUseAsync(context.Document, srcNode, c),
                         equivalenceKey: title),
                     diagnostic);
                 }

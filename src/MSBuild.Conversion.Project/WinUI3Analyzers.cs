@@ -84,7 +84,7 @@ namespace MSBuild.Conversion.Project
             return null;
         }
 
-        public async Task RunWinUIAnalysis(string projectFilePath)
+        public void RunWinUIAnalysis(string projectFilePath)
         {
             Console.WriteLine($"Running Analyzers on {projectFilePath}");
             MSBuildWorkspace workspace = MSBuildWorkspace.Create();
@@ -209,7 +209,7 @@ namespace MSBuild.Conversion.Project
                 var compilationWithAnalyzers = comp.WithAnalyzers(ImmutableArray.Create(analyzer));
                 diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return diagnostics;
             }
@@ -255,9 +255,10 @@ namespace MSBuild.Conversion.Project
             {
                 var operations = codeAction.GetOperationsAsync(CancellationToken.None).Result;
                 var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
-                return solution.GetDocument(document.Id);
+                if (!(solution.GetDocument(document.Id) is Document result)) return document;
+                return result;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return document;
             }

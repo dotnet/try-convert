@@ -25,7 +25,8 @@ namespace TestHelper
         {
             var operations = codeAction.GetOperationsAsync(CancellationToken.None).Result;
             var solution = operations.OfType<ApplyChangesOperation>().Single().ChangedSolution;
-            return solution.GetDocument(document.Id);
+            if (!(solution.GetDocument(document.Id) is Document changedDoc)) return document;
+            return changedDoc;
         }
 
         /// <summary>
@@ -65,7 +66,8 @@ namespace TestHelper
         /// <returns>The compiler diagnostics that were found in the code</returns>
         private static IEnumerable<Diagnostic> GetCompilerDiagnostics(Document document)
         {
-            return document.GetSemanticModelAsync().Result.GetDiagnostics();
+            if (!(document.GetSemanticModelAsync().Result is SemanticModel model)) return Enumerable.Empty<Diagnostic>();
+            return model.GetDiagnostics();
         }
 
         /// <summary>

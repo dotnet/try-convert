@@ -30,28 +30,29 @@ namespace WinUI.Analyzer
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            if (root == null) return;
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpanSrc = diagnostic.Location.SourceSpan;
-
-            if (diagnostic.Id == EventArgsAnalyzer.Param_ID)
+            if (root.FindNode(diagnosticSpanSrc) is ParameterSyntax t)
             {
-                var t = root.FindNode(diagnosticSpanSrc) as ParameterSyntax;
-                context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: title,
-                    createChangedDocument: c => ReplaceEventArgsAsync(context.Document, t, c),
-                    equivalenceKey: title),
-                diagnostic);
-            }
-            else if (diagnostic.Id == EventArgsAnalyzer.Use_ID)
-            {
-                var t = root.FindNode(diagnosticSpanSrc);
-                context.RegisterCodeFix(
-                CodeAction.Create(
-                    title: title,
-                    createChangedDocument: c => ReplaceUWPUseAsync(context.Document, t, c),
-                    equivalenceKey: title),
-                diagnostic);
+                if (diagnostic.Id == EventArgsAnalyzer.Param_ID)
+                {
+                    context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: title,
+                        createChangedDocument: c => ReplaceEventArgsAsync(context.Document, (ParameterSyntax)t, c),
+                        equivalenceKey: title),
+                    diagnostic);
+                }
+                else if (diagnostic.Id == EventArgsAnalyzer.Use_ID)
+                {
+                    context.RegisterCodeFix(
+                    CodeAction.Create(
+                        title: title,
+                        createChangedDocument: c => ReplaceUWPUseAsync(context.Document, t, c),
+                        equivalenceKey: title),
+                    diagnostic);
+                }
             }
         }
 
@@ -73,6 +74,7 @@ namespace WinUI.Analyzer
                 SyntaxFactory.IdentifierName("LaunchActivatedEventArgs"));
             var parChild = paramNode.ChildNodes().First();
             var oldRoot = await doc.GetSyntaxRootAsync(c);
+            if (oldRoot == null) return doc;
             var newRoot = oldRoot.ReplaceNode(parChild, replaceNode);
             return doc.WithSyntaxRoot(newRoot);
         }
@@ -89,11 +91,13 @@ namespace WinUI.Analyzer
         {
             var idNode = tarNode.DescendantNodesAndSelf().OfType<IdentifierNameSyntax>().First();
             var idName = idNode.TryGetInferredMemberName();
+            if (idName == null) return doc;
             var replaceNode = SyntaxFactory.MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
                 SyntaxFactory.IdentifierName(idName),
                 SyntaxFactory.IdentifierName("UWPLaunchActivatedEventArgs"));
             var oldRoot = await doc.GetSyntaxRootAsync(c);
+            if (oldRoot == null) return doc;
             var newRoot = oldRoot.ReplaceNode(idNode, replaceNode);
             return doc.WithSyntaxRoot(newRoot);
         }

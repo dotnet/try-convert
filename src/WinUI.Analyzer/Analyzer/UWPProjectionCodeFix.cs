@@ -33,7 +33,7 @@ namespace WinUI.Analyzer
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            if (!(await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false) is SyntaxNode root)) return;
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpanSrc = diagnostic.Location.SourceSpan;
             var idNode = root.FindNode(diagnosticSpanSrc);
@@ -86,7 +86,7 @@ namespace WinUI.Analyzer
                         SyntaxFactory.SingletonSeparatedList<TypeSyntax>(
                             SyntaxFactory.PredefinedType(
                                 SyntaxFactory.Token(SyntaxKind.ObjectKeyword)))));
-            var oldRoot = await doc.GetSyntaxRootAsync(c);
+            if (!(await doc.GetSyntaxRootAsync(c) is SyntaxNode oldRoot)) return doc;
             var newRoot = oldRoot.ReplaceNode(repNode, newEvent);
             return doc.WithSyntaxRoot(newRoot);
         }
@@ -94,7 +94,7 @@ namespace WinUI.Analyzer
         internal async Task<Document> ReplaceTypeAsync(Document doc, IdentifierNameSyntax idNode, CancellationToken c)
         {
             //get name of node
-            var nodeName = idNode.TryGetInferredMemberName();
+            if (!(idNode.TryGetInferredMemberName() is string nodeName)) return doc;
             var sub = nodeName.Equals("ICommand") ? "Input" : "Data";
             var newQualified = SyntaxFactory.QualifiedName(
                 SyntaxFactory.QualifiedName(
@@ -105,7 +105,7 @@ namespace WinUI.Analyzer
                         SyntaxFactory.IdentifierName("Xaml")),
                     SyntaxFactory.IdentifierName(sub)),
                 idNode);
-            var oldRoot = await doc.GetSyntaxRootAsync(c);
+            if (!(await doc.GetSyntaxRootAsync(c) is SyntaxNode oldRoot)) return doc;
             var newRoot = oldRoot.ReplaceNode(idNode, newQualified);
             return doc.WithSyntaxRoot(newRoot);
         }
@@ -113,8 +113,8 @@ namespace WinUI.Analyzer
         internal async Task<Document> ReplaceInterfaceAsync(Document doc, SimpleBaseTypeSyntax idNode, CancellationToken c)
         {
             // Target the Identification Node for interface to Replace
-            var lastType = idNode.DescendantNodes().OfType<IdentifierNameSyntax>().Last().TryGetInferredMemberName();
-            SimpleBaseTypeSyntax newNode = null;
+            if (!(idNode.DescendantNodes().OfType<IdentifierNameSyntax>().Last().TryGetInferredMemberName() is string lastType)) return doc;
+            SimpleBaseTypeSyntax? newNode = null;
             if (lastType.Equals("INotifyPropertyChanged"))
             {
                 newNode = SyntaxFactory.SimpleBaseType(
@@ -151,7 +151,7 @@ namespace WinUI.Analyzer
                 {
                     newNode = newNode.WithTrailingTrivia(idNode.GetTrailingTrivia());
                 }
-                var oldRoot = await doc.GetSyntaxRootAsync(c);
+                if (!(await doc.GetSyntaxRootAsync(c) is SyntaxNode oldRoot)) return doc;
                 var newRoot = oldRoot.ReplaceNode(idNode, newNode);
                 return doc.WithSyntaxRoot(newRoot);
             }

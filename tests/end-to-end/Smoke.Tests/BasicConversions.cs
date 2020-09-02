@@ -50,7 +50,7 @@ namespace SmokeTests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
 
-        [Fact]
+        [Fact(Skip = "WinUI Conversion is still in development")]
         public void ConvertsWinUI3UWPTemplate()
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WinUI3UWP");

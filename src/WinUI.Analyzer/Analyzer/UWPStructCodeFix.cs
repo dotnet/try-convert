@@ -30,7 +30,7 @@ namespace WinUI.Analyzer
 
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
-            var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            if (!(await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false) is SyntaxNode root)) return ;
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpanSrc = diagnostic.Location.SourceSpan;
             var idNode = root.FindNode(diagnosticSpanSrc);
@@ -51,16 +51,15 @@ namespace WinUI.Analyzer
             if (argList == null) return doc;
             // Need to find the creation syntax, metadata and decide which version to create
             // ObjectCreationExpressionSyntax node = equalsClause.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().First();
-            var model = doc.GetSemanticModelAsync().Result;
-            var objectType = model.GetTypeInfo(creationNode).Type;
+            if (!(doc.GetSemanticModelAsync().Result is SemanticModel model)) return doc;
+            if (!(model.GetTypeInfo(creationNode).Type is ITypeSymbol objectType)) return doc;
             var compilation = model.Compilation;
             // var structs = UWPStructAnalyzer.Structs;
-            string helper = "";
-            if (!UWPStructAnalyzer.Structs.TryGetValue(objectType.ToString(), out helper)) return doc;
-            InvocationExpressionSyntax newCreation = getEqualsClause(helper, argList, model, compilation);
+            if (!UWPStructAnalyzer.Structs.TryGetValue(objectType.ToString(), out var helper)) return doc;
+            var newCreation = getEqualsClause(helper, argList, model, compilation);
             // need a new class to decide how to replace
             if (newCreation == null) return doc;
-            var oldRoot = await doc.GetSyntaxRootAsync(c);
+            if (!(await doc.GetSyntaxRootAsync(c) is SyntaxNode oldRoot)) return doc;
             var newRoot = oldRoot.ReplaceNode(creationNode, newCreation);
             return newRoot != null ? doc.WithSyntaxRoot(newRoot) : doc;
         }

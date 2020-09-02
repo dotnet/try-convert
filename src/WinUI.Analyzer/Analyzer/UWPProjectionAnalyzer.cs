@@ -69,7 +69,8 @@ namespace WinUI.Analyzer
 
         private void AnalyzeEvent(SyntaxNodeAnalysisContext context)
         {
-            var node = (EventFieldDeclarationSyntax)context.Node;
+            var node  = (EventFieldDeclarationSyntax)context.Node;
+            if (node.Parent == null) return;
             // skip trivia
             if (node.IsPartOfStructuredTrivia()) return;
             var baseList = node.Parent.ChildNodes().OfType<BaseListSyntax>().FirstOrDefault();

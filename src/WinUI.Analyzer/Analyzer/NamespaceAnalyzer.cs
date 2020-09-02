@@ -16,7 +16,7 @@ namespace WinUI.Analyzer
         public const string TypeName = "ConvertTypeNamespace";
 
         //Used for checking valid/invalid namespaces
-        private static readonly String[] VALIDNAMES = Utils.GetNamespaceNames();
+        private static readonly string[] VALIDNAMES = Utils.GetNamespaceNames();
 
         // Localized analyzer descriptions
         // See https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Localizing%20Analyzers.md for more on localization
@@ -69,7 +69,7 @@ namespace WinUI.Analyzer
             }
 
             //Get fully qualified name
-            String nodeRep = Utils.GetFullID(node);
+            var nodeRep = Utils.GetFullID(node);
             if (VALIDNAMES.Any(s => nodeRep.StartsWith(s, StringComparison.OrdinalIgnoreCase)) || nodeRep.StartsWith("Windows.UI.Xaml"))
             {
                 var idNameNode = node.ChildNodes().OfType<IdentifierNameSyntax>().First();

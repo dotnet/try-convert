@@ -40,6 +40,7 @@ namespace WinUI.Analyzer
             if (node.IsPartOfStructuredTrivia()) return;
             var model = context.SemanticModel;
             var objectType = model.GetTypeInfo(node).Type;
+            if (objectType == null) return;
             var compilation = model.Compilation;
             var obsType = Utils.GetTypesByMetadataName(compilation, ObservableType);
             if (obsType.Any(t => SymbolEqualityComparer.Default.Equals(objectType.OriginalDefinition, t)))

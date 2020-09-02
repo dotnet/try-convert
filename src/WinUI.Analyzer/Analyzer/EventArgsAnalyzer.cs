@@ -49,10 +49,11 @@ namespace WinUI.Analyzer
             // Only investigate if OnLaunched method
             if (!onLaunchedMethod.Identifier.ToString().Equals("OnLaunched")) return;
             // Only if overide
-            SemanticModel model = context.SemanticModel;
-            Compilation compilation = context.Compilation;
+            var model = context.SemanticModel;
+            var compilation = context.Compilation;
+            if (compilation == null) return;
             var onLaunchedSymbol = model.GetDeclaredSymbol(onLaunchedMethod);
-            if (!onLaunchedSymbol.IsOverride) return;
+            if (onLaunchedSymbol == null || !onLaunchedSymbol.IsOverride) return;
             // Base class must be Microsoft.UI.Xaml.Application
             var classSymbol = onLaunchedSymbol.ContainingType;
             if (classSymbol == null) return;
@@ -65,13 +66,14 @@ namespace WinUI.Analyzer
             var bothApps = MicrosoftApps.Union(WindowsApps);
 
             // Roslyn Having issues comparing types, using toString...
-            if (bothApps.Any(b => baseType.ToString().Equals(b.ToString(), StringComparison.OrdinalIgnoreCase)))
+            if (bothApps.Any(b => b != null && baseType.ToString().Equals(b.ToString(), StringComparison.OrdinalIgnoreCase)))
             {
                 // Since derives from correct base method, should only have 1 parameter matching LaunchActivatedEventArgs
-                var eventArgsParam = onLaunchedMethod.ParameterList.ChildNodes().OfType<ParameterSyntax>().SingleOrDefault(p => p.Type.ToString().Contains("LaunchActivatedEventArgs"));
+                var eventArgsParam = onLaunchedMethod.ParameterList.ChildNodes().OfType<ParameterSyntax>().SingleOrDefault(p => p.Type != null && p.Type.ToString().Contains("LaunchActivatedEventArgs"));
                 if (eventArgsParam == null) return;
                 // check if parameter symbol correctly targets new LaunchActivatedEventArgs 
                 var paramSymbol = model.GetDeclaredSymbol(eventArgsParam);
+                if (paramSymbol == null) return;
                 var pType = model.GetTypeInfo(eventArgsParam);
                 // Convert to fully qualified name string
                 var typeStr = Utils.GetFullDisplayString(paramSymbol.Type);
@@ -85,14 +87,14 @@ namespace WinUI.Analyzer
                 {
                     var paramName = paramSymbol.Name;
                     // Exit if no paramater name has been defined
-                    if (paramName.Equals("")) return;
+                    if (paramName.Equals("") || onLaunchedMethod.Body == null) return;
                     // Throw Diagnostic if parameter use does not access .UWPLaunchActivatedEventArgs
                     var paramUse = onLaunchedMethod.Body.DescendantNodes().OfType<IdentifierNameSyntax>().Where(p => p.Identifier.ToString().Equals(paramName));
-                    foreach (IdentifierNameSyntax i in paramUse)
+                    foreach (var i in paramUse)
                     {
                         var parent = i.Parent;
                         // Throw for all instances
-                        if (!"UWPLaunchActivatedEventArgs".Equals(parent.TryGetInferredMemberName()))
+                        if (parent != null && !"UWPLaunchActivatedEventArgs".Equals(parent.TryGetInferredMemberName()))
                         {
                             context.ReportDiagnostic(Diagnostic.Create(UWPEventArgsRule, i.GetLocation()));
                         }

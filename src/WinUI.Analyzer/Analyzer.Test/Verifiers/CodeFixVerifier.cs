@@ -29,7 +29,7 @@ namespace TestHelper
         /// Returns the codefix being tested (VB) - to be implemented in non-abstract class
         /// </summary>
         /// <returns>The CodeFixProvider to be used for VisualBasic code</returns>
-        protected virtual CodeFixProvider GetBasicCodeFixProvider()
+        protected virtual CodeFixProvider? GetBasicCodeFixProvider()
         {
             return null;
         }

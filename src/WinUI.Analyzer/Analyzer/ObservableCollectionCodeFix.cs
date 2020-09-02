@@ -30,9 +30,10 @@ namespace WinUI.Analyzer
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            if (root == null) return;
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpanSrc = diagnostic.Location.SourceSpan;
-            var idNode = root.FindNode(diagnosticSpanSrc) as ObjectCreationExpressionSyntax;
+            if (!(root.FindNode(diagnosticSpanSrc) is ObjectCreationExpressionSyntax idNode)) return;
             // Register a code action that will invoke the fix.
             context.RegisterCodeFix(
                 CodeAction.Create(
@@ -49,14 +50,12 @@ namespace WinUI.Analyzer
             var workspace = originalSolution.Workspace;
             var newSolution = GetCollectionReplacement(project, originalSolution);
             // replace object creation and declaration with the new type
-            var genericNode = idNode.DescendantNodes().OfType<GenericNameSyntax>().FirstOrDefault();
-            if (genericNode == null) return originalSolution;
-            var typeArgList = genericNode.DescendantNodes().OfType<TypeArgumentListSyntax>().FirstOrDefault();
-            if (typeArgList == null) return originalSolution;
+            if (!(idNode.DescendantNodes().OfType<GenericNameSyntax>().FirstOrDefault() is GenericNameSyntax genericNode)) return originalSolution;
+            if (!(genericNode.DescendantNodes().OfType<TypeArgumentListSyntax>().FirstOrDefault() is TypeArgumentListSyntax typeArgList)) return originalSolution;
             var newGenericNode = SyntaxFactory.GenericName(SyntaxFactory.Identifier("AppUIBasics.ObservableCollection")).WithTypeArgumentList(typeArgList);
-            // get new docs 
-            var newDoc = newSolution.GetDocument(doc.Id);
-            var oldRoot = await newDoc.GetSyntaxRootAsync(c);
+            // get new docs
+            if (!(newSolution.GetDocument(doc.Id) is Document newDoc)) return originalSolution;
+            if (!(await newDoc.GetSyntaxRootAsync(c) is SyntaxNode oldRoot)) return originalSolution;
             var newRoot = oldRoot.ReplaceNode(genericNode, newGenericNode);
             if (!idNode.Parent.IsKind(SyntaxKind.Argument))
             {
@@ -85,7 +84,7 @@ namespace WinUI.Analyzer
         {
             //TODO, check if class exists instead?
             // use type instead of this.
-            foreach (Document d in project.Documents)
+            foreach (var d in project.Documents)
             {
                 if (d.Name.Equals("CollectionsInterop.cs"))
                 {

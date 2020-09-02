@@ -29,6 +29,7 @@ namespace WinUI.Analyzer
         public override async Task RegisterCodeFixesAsync(CodeFixContext context)
         {
             var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
+            if (root == null) return;
             var diagnostic = context.Diagnostics.First();
             var diagnosticSpanSrc = diagnostic.Location.SourceSpan;
             var idNode = root.FindNode(diagnosticSpanSrc);
@@ -49,6 +50,7 @@ namespace WinUI.Analyzer
             var micToken = SyntaxFactory.Identifier(winLeadTrivia, SyntaxKind.IdentifierToken, "Microsoft", "Microsoft", winTrailTrivia);
             var newNode = idNode.ReplaceToken(winToken, micToken);
             var oldRoot = await doc.GetSyntaxRootAsync(c);
+            if (oldRoot == null) return doc;
             var newRoot = oldRoot.ReplaceNode(idNode, newNode);
             return doc.WithSyntaxRoot(newRoot);
         }

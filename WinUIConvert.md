@@ -87,7 +87,17 @@ try-convert will:
 1. Convert .csproj files to .NET 5.0 SDK
 2. Convert and update any NuGet References to WinUI.
 3. Remove Incompatible NuGet References.
-4. Use the [WinUI3 Analyzers](https://github.com/microsoft/microsoft-ui-xaml/blob/master/docs/preview_conversion_analyzer.md) to update C# source code **With** #ifdef comments enabled.
+4. Use the [WinUI3 Analyzers](https://github.com/microsoft/microsoft-ui-xaml/blob/master/docs/preview_conversion_analyzer.md) to update C# source code **With** #ifdef comments enabled:
+    ```C#
+    #if WINDOWS_UWP
+        CornerRadius c1 = CornerRadiusHelper.FromUniformRadius(4); 
+        CornerRadius c2 = CornerRadiusHelper.FromRadii(4, 2, 2 4);
+    #else
+        CornerRadius c1 = new CornerRadius(4); 
+        CornerRadius c2 = new CornerRadius(4, 2, 2 4);
+    #endif
+    ```
+
 5. Attempt to add a App Package to your solution
 
 
@@ -161,11 +171,11 @@ using Microsoft.UI.Xaml.Controls;
 ```
 
 ## EventArgs Analyzer/Codefix
-
+If you take an existing project (WinUI2 or from the Alpha previews) and convert to Preview2, the Application interface has changed and you need to update the OnLaunched method.
 - Converts `App.OnLaunched` Method
-    - Two updates need to be made to the `App.OnLaunched` method when converting to WinUI3:
+    - Two updates need to be made to the `Applicaion.OnLaunched` method when converting to WinUI3:
     1. Target `Microsoft.UI.Xaml.LaunchactivatedEvenArgs` as the method parameter type
-    2. Instances of the parameter name in the `App.OnLaunched` method body must invoke `UWPLaunchActivatedEventArgs`
+    2. Instances of the parameter name in the `Application.OnLaunched` method body must invoke `UWPLaunchActivatedEventArgs`
 
 #### OnLaunched Method Before Running Analyzers:
 ```c#
@@ -184,14 +194,16 @@ protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventA
 ```
 
 ## Changes Specific to UWP (.NET Native) Projects:
+The WinUI3 framework is a set of WinRT components, and while WinRT has similar types and objects like those found in .NET, they are not inherently compatible. 
+The C#/WinRT projections handle the interop between .NET and WinRT in .NET 5, allowing you to freely use .NET interfaces in your .NET 5 app today.
 
-**Note:** WinUI3 will consume .NET5, and some types and projections curretly baked into the .NET Native runtime are changing: [More Info](https://github.com/microsoft/CsWinRT/issues/77#WinRT-to-.NET-Projections). 
-
-These changes are temporary and only necessary until the move to .NET Core: [More Info](https://github.com/microsoft/ProjectReunion/issues/105).
+However, C#/WinRT is not able to handle the interop in .NET Native apps, so the WinUI 3 APIs are projected directly in UWP apps. 
+Thus, you are no longer able to use those same .NET interfaces. Once UWP apps are no longer using .NET Native, this limitation will no longer exist.
+[More Info](https://github.com/microsoft/CsWinRT/issues/77#WinRT-to-.NET-Projections)
 
 ## UWP Projection Analyzer/Codefix
 
-- Some types are moving in UWP and projects need to target the new projected types.
+- Some types are moving in UWP and projects need to target the [new projected types](https://github.com/microsoft/CsWinRT/issues/77#WinRT-to-.NET-Projections).
 - .Net Projections moving to `Microsoft.UI.Xaml` :
     - `System.ComponentModel.INotifyPropertyChanged` -> `Microsoft.UI.Xaml.Data.INotifyPropertyChanged`
     - `System.ComponentModel.PropertyChangedEventArgs`-> `Microsoft.UI.Xaml.Data.PropertyChangedEventArgs`
@@ -215,8 +227,7 @@ public sealed partial class CommandBarPage : INotifyPropertyChanged
         
 ## UWP Struct Analyzer/Codefix
 
-- UWP Projects cannot use struct constructors as they are not being included in the .NET5 projections: 
-[More Info](https://github.com/microsoft/CsWinRT/issues/77#WinRT-to-.NET-Projections).
+- UWP Projects cannot use struct constructors as they are not being included in the [.NET5 projections](https://github.com/microsoft/CsWinRT/issues/77#WinRT-to-.NET-Projections).
 The analyzer replaces these constructors with their associated WinRT Helper classes.
     - `Windows.UI.Xaml.CornerRadius` -> `Microsoft.UI.Xaml.CornerRadiusHelper`
     - `Windows.UI.Xaml.Duration`-> `Microsoft.UI.Xaml.DurationHelper`

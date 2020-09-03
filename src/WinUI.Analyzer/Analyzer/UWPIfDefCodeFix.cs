@@ -230,7 +230,12 @@ namespace WinUI.Analyzer
 
             if (nextSibling != null && nextSibling.IsNode)
             {
-                newRoot = newRoot.ReplaceNode((SyntaxNode)nextSibling, (SyntaxNode)newSibling);
+                // I have no Idea how to deal with nullability for this line...
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8604 // Possible null reference argument.
+                newRoot = newRoot.ReplaceNode(oldNode: (SyntaxNode)nextSibling, newNode: (SyntaxNode)newSibling);
+#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
             }
             else
             {

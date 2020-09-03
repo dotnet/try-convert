@@ -52,6 +52,8 @@ namespace WinUI.Analyzer.Test
             string test = $@"
                 using System;  
                 using Windows.UI.Xaml;
+                using Windows.UI.Xaml.Controls.Primitives;
+                using Windows.UI.Xaml.Media;
                 using Windows.UI.Xaml.Media.Animation;
                 namespace Test2 {{
                 private class Test2
@@ -64,6 +66,8 @@ namespace WinUI.Analyzer.Test
             string fixTest = $@"
                 using System;  
                 using Windows.UI.Xaml;
+                using Windows.UI.Xaml.Controls.Primitives;
+                using Windows.UI.Xaml.Media;
                 using Windows.UI.Xaml.Media.Animation;
                 namespace Test2 {{
                 private class Test2
@@ -73,6 +77,7 @@ namespace WinUI.Analyzer.Test
                         var repeatBehavior1 = Microsoft.UI.Xaml.{additionalNamespace}{structType}Helper.{helperName}({arg});
                     }}
                 }}}}";
+
             var expected = new DiagnosticResult
             {
                 Id = UWPStructAnalyzer.ID,
@@ -80,7 +85,7 @@ namespace WinUI.Analyzer.Test
                 Severity = DiagnosticSeverity.Error,
                 Locations =
                     new[] {
-                            new DiagnosticResultLocation("Test0.cs", 10, 47)
+                            new DiagnosticResultLocation("Test0.cs", 12, 47)
                         }
             };
 
@@ -88,7 +93,6 @@ namespace WinUI.Analyzer.Test
 
             VerifyCSharpFix(test, fixTest, null, true);
         }
-
 
         //Returns a WUX_Using_CodeFix
         protected override CodeFixProvider GetCSharpCodeFixProvider()

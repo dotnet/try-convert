@@ -260,26 +260,6 @@ namespace WinUI.Analyzer.Test
             }";
 
         //9. specific replace
-        private const string specific3 = @"
-            namespace AppUIBasics.ControlPages
-            {
-                public sealed partial class SplitViewPage : Page
-                {
-                    private ObservableCollection<NavLink> _navLinks =  new ObservableCollection<NavLink>()
-                    {
-                        new NavLink() { Label = ""People"", Symbol = Windows.UI.Xaml.Controls.Symbol.People  }
-                    }}};";
-        private const string specific3fix = @"
-            namespace AppUIBasics.ControlPages
-            {
-                public sealed partial class SplitViewPage : Page
-                {
-                    private ObservableCollection<NavLink> _navLinks =  new ObservableCollection<NavLink>()
-                    {
-                        new NavLink() { Label = ""People"", Symbol = Microsoft.UI.Xaml.Controls.Symbol.People  }
-                    }}};";
-
-        //9. specific replace
         private const string colors1 = @"
             using Windows.UI
             namespace AppUIBasics.ControlPages
@@ -307,15 +287,15 @@ namespace WinUI.Analyzer.Test
 
         // TODO: Change all DataRow style tests to look like UWPStructTest.TestReplaceStruct
         [DataTestMethod]
-        //[DataRow(UsingWUX, UsingWUXFix, 3, 19),
-        //    DataRow(UsingWUXAlias, UsingWUXAliasFix, 3, 27),
-        //    DataRow(UsingStaticWUX, UsingStaticWUXFix, 3, 26),
-        //    DataRow(UsingInlineWUXBefore, UsingInlineWUXBeforeFix, 7, 21),
-        //    DataRow(UsingInlineWUXAfter, UsingInlineWUXAfterFix, 7, 92),
-        //    DataRow(UsingInlineStaticWUX, UsingInlineStaticWUXFix, 7, 28),
-        //    DataRow(specific1, specific1fix, 7, 50),
-        //    DataRow(specific2, specific2fix, 7, 34),
-           [ DataRow(colors1, colors1fix, 7, 34)]
+        [DataRow(UsingWUX, UsingWUXFix, 3, 19),
+            DataRow(UsingWUXAlias, UsingWUXAliasFix, 3, 27),
+            DataRow(UsingStaticWUX, UsingStaticWUXFix, 3, 26),
+            DataRow(UsingInlineWUXBefore, UsingInlineWUXBeforeFix, 7, 21),
+            DataRow(UsingInlineWUXAfter, UsingInlineWUXAfterFix, 7, 92),
+            DataRow(UsingInlineStaticWUX, UsingInlineStaticWUXFix, 7, 28),
+            DataRow(specific1, specific1fix, 7, 50),
+            DataRow(specific2, specific2fix, 7, 34)]
+           //[ DataRow(colors1, colors1fix, 7, 34)]
         public void NamespaceFixDiagnosticCode(
            string test,
            string fixTest,
@@ -325,30 +305,6 @@ namespace WinUI.Analyzer.Test
             var expected = new DiagnosticResult
             {
                 Id = NamespaceAnalyzer.ID,
-                Message = new LocalizableResourceString(nameof(Analyzer.Resources.Namespace_MessageFormat), WinUI.Analyzer.Resources.ResourceManager, typeof(Analyzer.Resources)).ToString(),
-                Severity = DiagnosticSeverity.Error,
-                Locations =
-                    new[] {
-                            new DiagnosticResultLocation("Test0.cs", line, column)
-                        }
-            };
-
-            VerifyCSharpDiagnostic(test, expected);
-
-            VerifyCSharpFix(test, fixTest, null, true);
-        }
-
-        [DataTestMethod]
-        [DataRow(specific3, specific3fix, 8, 68)]
-        public void NamespaceTypeFixDiagnosticCode(
-           string test,
-           string fixTest,
-           int line,
-           int column)
-        {
-            var expected = new DiagnosticResult
-            {
-                Id = NamespaceAnalyzer.TypeName,
                 Message = new LocalizableResourceString(nameof(Analyzer.Resources.Namespace_MessageFormat), WinUI.Analyzer.Resources.ResourceManager, typeof(Analyzer.Resources)).ToString(),
                 Severity = DiagnosticSeverity.Error,
                 Locations =

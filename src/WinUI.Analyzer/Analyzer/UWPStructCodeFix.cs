@@ -180,13 +180,9 @@ namespace WinUI.Analyzer
                     {
                         helperMethod = "FromCount";
                     }
-                    else if (timeSpans.Any(t => SymbolEqualityComparer.Default.Equals(t, argType)))
-                    {
-                        helperMethod = "FromDuration";
-                    }
                     else
                     {
-                        return null;
+                        helperMethod = "FromDuration";
                     }
                 }
                 else

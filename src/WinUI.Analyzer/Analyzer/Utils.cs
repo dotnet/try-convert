@@ -66,10 +66,16 @@ namespace WinUI.Analyzer
             var baseType = symbol.BaseType;
             while (baseType != null)
             {
-                if (type.Equals(baseType))
+#pragma warning disable RS1024 // Compare symbols correctly
+                if (!type.Equals(baseType))
+#pragma warning restore RS1024 // Compare symbols correctly
+                {
+                    baseType = baseType.BaseType;
+                }  
+                else
+                {
                     return true;
-
-                baseType = baseType.BaseType;
+                }
             }
             return false;
         }

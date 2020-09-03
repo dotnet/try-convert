@@ -23,6 +23,7 @@ namespace TestHelper
         //private static readonly MetadataReference MicrosoftXamlReference = MetadataReference.CreateFromFile(typeof(Microsoft.UI.Xaml.DependencyObject).Assembly.Location);
         private static readonly MetadataReference INotifyReference = MetadataReference.CreateFromFile(typeof(System.ComponentModel.INotifyPropertyChanged).Assembly.Location);
         private static readonly MetadataReference TimeSpanReference = MetadataReference.CreateFromFile(typeof(System.TimeSpan).Assembly.Location);
+        private static readonly MetadataReference WindowsUIReference = MetadataReference.CreateFromFile(typeof(Windows.UI.Color).Assembly.Location);
 
         internal static string DefaultFilePathPrefix = "Test";
         internal static string CSharpDefaultFileExt = "cs";
@@ -159,7 +160,7 @@ namespace TestHelper
                 .AddMetadataReference(projectId, CSharpSymbolsReference)
                 .AddMetadataReference(projectId, CodeAnalysisReference)
                 .AddMetadataReference(projectId, WindowsXamlReference)
-                // .AddMetadataReference(projectId, MicrosoftXamlReference)
+                .AddMetadataReference(projectId, WindowsUIReference)
                 .AddMetadataReference(projectId, INotifyReference)
                 .AddMetadataReference(projectId, TimeSpanReference);
 

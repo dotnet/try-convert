@@ -42,11 +42,23 @@ namespace WinUI.Analyzer
         private void AnalyzeMemberAccessNames(SyntaxNodeAnalysisContext context)
         {
             var node = (MemberAccessExpressionSyntax)context.Node;
-            // Filter out Qualified Names that are not Windows or Microsoft or part of C# comments
-            if (!node.Expression.ToString().Equals("Windows") || node.IsPartOfStructuredTrivia())
+            // Filter out part of C# comments
+            if (node.IsPartOfStructuredTrivia())
             {
                 return;
             }
+
+            // this is in the works... try to get type of simple expression
+            var model = context.SemanticModel;
+            var compilation = context.Compilation;
+            var idNode = node.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
+            if (idNode != null)
+            {
+                var idType = model.GetTypeInfo(idNode);
+            }
+            var nodeSymbol = model.GetTypeInfo(node);
+            // below is actual working code...
+
             while (node.Parent.IsKind(SyntaxKind.SimpleMemberAccessExpression))
             {
                 node = (MemberAccessExpressionSyntax)node.Parent;

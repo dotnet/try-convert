@@ -15,19 +15,8 @@ namespace MSBuild.Conversion.Project
         private static readonly Regex MatchCsProjFileRegex = new Regex(@"([^/\\]+$)");
         private static readonly Regex MatchCsProjExtensionRegex = new Regex(@"([^.]+$)");
 
-        internal static void GenerateWapproj(IProjectRootElement projectRootElement, string outputPath)
+        internal static void GenerateWapproj(IProjectRootElement projectRootElement, string? outputPath, bool isTest)
         {
-            //first get the new path to a wapproj file
-            string csProjPath = outputPath;
-            string csProjFile = MatchCsProjFileRegex.Match(csProjPath).Value;
-            string wapProjFile = MatchCsProjExtensionRegex.Replace(csProjPath, "wapproj");
-
-            //Need to see if one already exists, if it does, (why would it?) overwrite with .old
-            if (File.Exists(wapProjFile))
-            {
-                File.Copy(wapProjFile, wapProjFile + ".old", overwrite: true);
-            }
-
             // go through project root element and remove all the properties that belong in the wapproj
             var wapProps = new List<ProjectPropertyElement>();
             var wapItems = new List<ProjectItemElement>();
@@ -61,6 +50,26 @@ namespace MSBuild.Conversion.Project
                 {
                     projectRootElement.RemoveChild(itemGroup);
                 }
+            }
+
+            // Dont create a new file if testing
+            if (isTest) return;
+
+            //first get the new path to a wapproj file
+            if (outputPath == null)
+            {
+                Console.WriteLine("Error converting .wapproj");
+                return;
+            }
+
+            string csProjPath = outputPath;
+            string csProjFile = MatchCsProjFileRegex.Match(csProjPath).Value;
+            string wapProjFile = MatchCsProjExtensionRegex.Replace(csProjPath, "wapproj");
+
+            //Need to see if one already exists, if it does, (why would it?) overwrite with .old
+            if (File.Exists(wapProjFile) && !isTest)
+            {
+                File.Copy(wapProjFile, wapProjFile + ".old", overwrite: true);
             }
 
             // fill in template and create new file

@@ -33,16 +33,12 @@ namespace MSBuild.Conversion.Project
 
         public void ConvertWinUI3(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK, bool keepUWP, bool keepSourceCode)
         {
-            // if winUI will return uap/windows multi target tfm
-            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK, keepUWP);
-
             Console.WriteLine("Converting WinUI Refrences");
+            ConvertWinUI3ProjectFile(specifiedTFM, outputPath, keepCurrentTfm, usePreviewSDK, keepUWP, false);
+
+            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK, keepUWP);
             var projectStyle = _sdkBaselineProject.ProjectStyle;//should always be winui
             var outputType = _sdkBaselineProject.OutputType;
-
-            // if any old style package refs, convert to new version
-            _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
-               .ConvertWinUIItems(_sdkBaselineProject, keepUWP); // Convert pkg refs to WinUI3
 
             if (outputType == ProjectOutputType.AppContainer && keepUWP)
             {
@@ -63,25 +59,6 @@ namespace MSBuild.Conversion.Project
             }
             else
             {
-                // if flag not set then always change the sdk style
-                _projectRootElement.ChangeImportsAndAddSdkAttribute(_sdkBaselineProject);// change old style imports and add sdk attribute
-                _projectRootElement.ModifyOutputType(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.OutputType);// change desktop output type
-                _projectRootElement.RemoveDefaultedProperties(_sdkBaselineProject, _differs); // Removes default sdk properties
-                _projectRootElement.RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle);
-                _projectRootElement.AddTargetFrameworkProperty(_sdkBaselineProject, tfm);
-                _projectRootElement.AddGenerateAssemblyInfoAsFalse();
-                _projectRootElement.AddDesktopProperties(_sdkBaselineProject);
-                _projectRootElement.AddCommonPropertiesToTopLevelPropertyGroup();
-                _projectRootElement.RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm);
-                _projectRootElement.AddItemRemovesForIntroducedItems(_differs);
-                _projectRootElement.RemoveUnnecessaryTargetsIfTheyExist();
-                if (outputType == ProjectOutputType.AppContainer)
-                {
-                    // if a winui desktop app, generate the .wapproj
-                    WinUI3AppGenerator.GenerateWapproj(_projectRootElement, outputPath);
-                }
-
-                _projectRootElement.ModifyProjectElement();
                 CleanUpProjectFile(outputPath, true);
                 if (!keepSourceCode)
                 {
@@ -97,6 +74,57 @@ namespace MSBuild.Conversion.Project
                     analyzers.RunWinUIAnalysis(outputPath);
                 }
             }
+        }
+
+        /// <summary>
+        /// Converting the actual project file takes place here to allow for testing.
+        /// </summary>
+        /// <param name="specifiedTFM"></param>
+        /// <param name="outputPath"></param>
+        /// <param name="keepCurrentTfm"></param>
+        /// <param name="usePreviewSDK"></param>
+        /// <param name="keepUWP"></param>
+        /// <param name="isTest"></param>
+        /// <returns></returns>
+        internal IProjectRootElement? ConvertWinUI3ProjectFile(string? specifiedTFM, string? outputPath, bool keepCurrentTfm, bool usePreviewSDK, bool keepUWP, bool isTest)
+        {
+            // if winUI will return uap/windows multi target tfm
+            var tfm = GetBestTFM(_projectRootElement, _sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK, keepUWP);
+
+            //should always be winui
+            var projectStyle = _sdkBaselineProject.ProjectStyle;
+            var outputType = _sdkBaselineProject.OutputType;
+
+            // if any old style package refs, convert to new version
+            _projectRootElement.ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
+               .ConvertWinUIItems(_sdkBaselineProject, keepUWP); // Convert pkg refs to WinUI3
+
+            if (outputType == ProjectOutputType.AppContainer && keepUWP)
+            {
+                return _projectRootElement;
+            }
+
+            // if flag not set then always change the sdk style
+            _projectRootElement.ChangeImportsAndAddSdkAttribute(_sdkBaselineProject);// change old style imports and add sdk attribute
+            _projectRootElement.ModifyOutputType(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.OutputType);// change desktop output type
+            _projectRootElement.RemoveDefaultedProperties(_sdkBaselineProject, _differs); // Removes default sdk properties
+            _projectRootElement.RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle);
+            _projectRootElement.AddTargetFrameworkProperty(_sdkBaselineProject, tfm);
+            _projectRootElement.AddGenerateAssemblyInfoAsFalse();
+            _projectRootElement.AddDesktopProperties(_sdkBaselineProject);
+            _projectRootElement.AddCommonPropertiesToTopLevelPropertyGroup();
+            _projectRootElement.RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm);
+            _projectRootElement.AddItemRemovesForIntroducedItems(_differs);
+            _projectRootElement.RemoveUnnecessaryTargetsIfTheyExist();
+
+            if (outputType == ProjectOutputType.AppContainer)
+            {
+                // if a winui desktop app, generate the .wapproj
+
+                WinUI3AppGenerator.GenerateWapproj(_projectRootElement, outputPath, isTest);
+            }
+            _projectRootElement.ModifyProjectElement();
+            return _projectRootElement;
         }
 
         internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)

@@ -50,6 +50,37 @@ namespace MSBuild.Abstractions
             MSBuildFacts.DefaultItemsThatHavePackageEquivalents.ContainsKey(item.Include);
 
         /// <summary>
+        /// Checks if a NuGet package can be updated for WinUI3 NET 5 SDK
+        /// </summary>
+        public static bool IsReferenceConvertibleToWinUIReference(ProjectItemElement item) =>
+            WinUIFacts.ConvertiblePackages.ContainsKey(item.Include);
+
+        /// <summary>
+        /// Checks if a NuGet package can be updated for WinUI3 UWP
+        /// </summary>
+        public static bool IsReferenceConvertibleToWinUIUWPReference(ProjectItemElement item) =>
+            WinUIFacts.UWPConvertiblePackages.ContainsKey(item.Include);
+
+
+        public static bool IsWinUIRef(ProjectItemElement item) =>
+            WinUIFacts.WinUIRefs.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
+
+
+        /// <summary>
+        /// Checks if a NuGet package is incompatible with WinUI3
+        /// </summary>
+        public static bool IsReferenceIncompatibleWithWinUI(ProjectItemElement item) =>
+            WinUIFacts.IncompatiblePackages.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if a NuGet package is incompatible with WinUI3 that stays UWP
+        /// </summary>
+        public static bool IsReferenceIncompatibleWithWinUIUWP(ProjectItemElement item) =>
+            WinUIFacts.UWPIncompatiblePackages.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
+
+
+
+        /// <summary>
         /// Checks if a reference is coming from an old-stlye NuGet package.
         /// </summary>
         public static bool IsReferenceComingFromOldNuGet(ProjectItemElement item) =>
@@ -73,11 +104,21 @@ namespace MSBuild.Abstractions
                                        && pme.Value.Equals(MSBuildFacts.DesignerSubType, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
+        /// Checks if a given item is a legacy reflection concept from .NET Native ending in .rd.xml
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        public static bool IsLegacyReflectionItem(ProjectItemElement item) =>
+            item.Include.EndsWith(WinUIFacts.RdXmlFileExtension, StringComparison.OrdinalIgnoreCase);
+
+
+        /// <summary>
         /// Checks if a given item has DependentUpon metadata for a globbed designer (and can thus be globbed).
         /// </summary>
         public static bool IsDependentUponXamlDesignerItem(ProjectItemElement item) =>
-            item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
-                                     && pme.Value.Equals(MSBuildFacts.CodeSubTypeValue, StringComparison.OrdinalIgnoreCase))
+            (item.Include.EndsWith(".xaml.cs")
+                || item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.SubTypeNodeName, StringComparison.OrdinalIgnoreCase)
+                                     && pme.Value.Equals(MSBuildFacts.CodeSubTypeValue, StringComparison.OrdinalIgnoreCase)))
             && item.Metadata.Any(pme => pme.Name.Equals(MSBuildFacts.DependentUponName, StringComparison.OrdinalIgnoreCase)
                                         && pme.Value.EndsWith(DesktopFacts.XamlFileExtension, StringComparison.OrdinalIgnoreCase));
 
@@ -123,5 +164,10 @@ namespace MSBuild.Abstractions
         public static bool IsReferencingSystemWeb(ProjectItemElement item) =>
             item.ElementName.Equals(MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase)
             && item.Include.Equals(MSBuildFacts.SystemWebReferenceName, StringComparison.OrdinalIgnoreCase);
+
+        public static bool IsRemovableAsset(ProjectItemElement item) =>
+            item.ElementName.Equals("Content", StringComparison.OrdinalIgnoreCase)
+                && item.Include.StartsWith("Assets", StringComparison.OrdinalIgnoreCase);
+
     }
 }

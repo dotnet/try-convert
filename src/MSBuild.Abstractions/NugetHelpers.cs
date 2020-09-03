@@ -23,11 +23,11 @@ namespace MSBuild.Abstractions
 
             var response = await s_httpClient.GetAsync(string.Format(SearchUrl, packageName));
             var result = await response.Content.ReadAsStreamAsync();
-            version = GetVersionFromQueryResponse(result);
+            version = GetVersionFromQueryResponse(result, packageName);
             s_packageToVersionCache[packageName] = version;
             return version;
 
-            static string? GetVersionFromQueryResponse(Stream result)
+            static string? GetVersionFromQueryResponse(Stream result, string packageName)
             {
                 using var doc = JsonDocument.Parse(result);
                 var root = doc.RootElement;
@@ -36,17 +36,20 @@ namespace MSBuild.Abstractions
                 {
                     foreach (var element in array.EnumerateArray())
                     {
-                        return element.GetProperty("version").ToString();
+                        // add check that matched package is actually the correct package, otherwise do not return a version
+                        if (element.GetProperty("title").Equals(packageName) || element.GetProperty("id").Equals(packageName))
+                        {
+                            return element.GetProperty("version").ToString();
+                        }
                     }
                 }
-
                 return null;
             }
         }
 
         public static string FindPackageNameFromReferenceName(string referenceName)
         {
-            if (StringComparer.OrdinalIgnoreCase.Compare(referenceName, "System.ComponentModel.DataAnnotations")==0)
+            if (StringComparer.OrdinalIgnoreCase.Compare(referenceName, "System.ComponentModel.DataAnnotations") == 0)
             {
                 return "System.ComponentModel.Annotations";
             }

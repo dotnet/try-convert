@@ -34,6 +34,37 @@ namespace MSBuild.Abstractions
                 }
 
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
+
+                // MSBuild cannot resolve the following path and crashes.
+                // Remove incompatible winui imports if they exist
+                foreach (ProjectImportElement pie in root.Imports)
+                {
+                    if (pie.Project.EndsWith(WinUIFacts.MSBuildIncompatibleImport))
+                    {
+                        root.RemoveChild(pie);
+                        root.AddImport(WinUIFacts.MSBuildIncompatibleReplace);
+                        var g = root.AddPropertyGroup();
+                        g.AddProperty(MSBuildFacts.WindowsAppContainerPropertyNode, "true");
+                        Console.WriteLine("Removed incompatible targets from MSBuild Project");
+                        break;
+                    }
+                }
+
+                // MSBuild crashes when evaluating VS Version. Remove if it exists
+                foreach (ProjectPropertyGroupElement pGroup in root.PropertyGroups)
+                {
+                    foreach (var p in pGroup.AllChildren)
+                    {
+                        if (p.ElementName.Equals(MSBuildFacts.VSVersionGroup))
+                        {
+                            root.RemoveChild(pGroup);
+                            break;
+
+                        }
+                    }
+                }
+
+
                 if (IsSupportedProjectType(root))
                 {
                     if (!noBackup)
@@ -47,9 +78,10 @@ namespace MSBuild.Abstractions
                     var configurations = DetermineConfigurations(root);
 
                     var unconfiguredProject = new UnconfiguredProject(configurations);
+
                     unconfiguredProject.LoadProjects(collection, globalProperties, path);
 
-                    var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations);
+                    var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations);// breaks here. Need to add sdk extras and global before this hits.
                     root.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
 
                     var item = new MSBuildConversionWorkspaceItem(root, unconfiguredProject, baseline);
@@ -106,6 +138,9 @@ namespace MSBuild.Abstractions
                     break;
                 case ProjectStyle.WindowsDesktop:
                     rootElement.Sdk = DesktopFacts.WinSDKAttribute;
+                    break;
+                case ProjectStyle.WinUI:
+                    rootElement.Sdk = MSBuildFacts.SDKExtrasAttribute;
                     break;
                 default:
                     throw new NotSupportedException($"This project has custom imports in a manner that's not supported. '{projectFilePath}'");
@@ -167,6 +202,7 @@ namespace MSBuild.Abstractions
                 ProjectOutputType.Exe => true,
                 ProjectOutputType.Library => true,
                 ProjectOutputType.WinExe => true,
+                ProjectOutputType.AppContainer => true,
                 _ => false
             };
 
@@ -189,6 +225,10 @@ namespace MSBuild.Abstractions
             else if (ProjectPropertyHelpers.IsWinExeOutputType(outputTypeNode))
             {
                 return ProjectOutputType.WinExe;
+            }
+            else if (ProjectPropertyHelpers.IsAppContainerOutputType(outputTypeNode))
+            {
+                return ProjectOutputType.AppContainer;
             }
             else
             {
@@ -246,6 +286,10 @@ namespace MSBuild.Abstractions
                         else if (MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement))
                         {
                             return ProjectStyle.WindowsDesktop;
+                        }
+                        else if (MSBuildHelpers.IsWinUI(projectRootElement))
+                        {
+                            return ProjectStyle.WinUI;
                         }
                         else
                         {
@@ -319,7 +363,7 @@ namespace MSBuild.Abstractions
                     {
                         return true;
                     }
-                }
+            }
 
             static void PrintGuidMessage(IEnumerable<string> allSupportedProjectTypeGuids, IEnumerable<string> allReadProjectTypeGuids)
             {

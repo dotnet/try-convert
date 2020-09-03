@@ -12,6 +12,12 @@ namespace MSBuild.Conversion.Project
 {
     public static class ProjectRootElementExtensionsForConversion
     {
+        /// <summary>
+        /// Removes any leftover old style imports and updates sdk attribute
+        /// </summary>
+        /// <param name="projectRootElement"></param>
+        /// <param name="baselineProject"></param>
+        /// <returns></returns>
         public static IProjectRootElement ChangeImportsAndAddSdkAttribute(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {
             switch (baselineProject.ProjectStyle)
@@ -20,27 +26,67 @@ namespace MSBuild.Conversion.Project
                 case ProjectStyle.DefaultSubset:
                 case ProjectStyle.WindowsDesktop:
                 case ProjectStyle.MSTest:
+                case ProjectStyle.WinUI:
                     foreach (var import in projectRootElement.Imports)
                     {
                         projectRootElement.RemoveChild(import);
                     }
-
-                    projectRootElement.Sdk = MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement)
-                        ? DesktopFacts.WinSDKAttribute
-                        : MSBuildFacts.DefaultSDKAttribute;
+                    if (baselineProject.ProjectStyle == ProjectStyle.WinUI && baselineProject.OutputType == ProjectOutputType.Library)
+                    {
+                        projectRootElement.Sdk = MSBuildFacts.SDKExtrasAttribute;
+                    }
+                    else
+                    {
+                        projectRootElement.Sdk = (MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsWPF(projectRootElement)
+                            || MSBuildHelpers.IsDesktop(projectRootElement))
+                            ? DesktopFacts.WinSDKAttribute
+                            : MSBuildFacts.DefaultSDKAttribute;
+                    }
                     break;
             }
 
             return projectRootElement;
         }
+        /// <summary>
+        /// Changes Output to winExe if converting Desktop style winui app
+        /// </summary>
+        /// <param name="projectRootElement"></param>
+        /// <param name="projectStyle"></param>
+        /// <param name="projectOutputType"></param>
+        /// <returns></returns>
+        public static IProjectRootElement ModifyOutputType(this IProjectRootElement projectRootElement, ProjectStyle projectStyle, ProjectOutputType projectOutputType)
+        {
+            // If winUI style and Desktop then should be WinExe
+            if (projectStyle == ProjectStyle.WinUI && projectOutputType == ProjectOutputType.AppContainer)
+            {
+                var outputNode = projectRootElement.GetOutputTypeNode();
+                if (outputNode != null)
+                {
+                    outputNode.Value = MSBuildFacts.WinExeOutputType;
+                }
+            }
+            return projectRootElement;
+        }
 
+        /// <summary>
+        /// Removes Default SDK properties
+        /// </summary>
+        /// <param name="projectRootElement"></param>
+        /// <param name="baselineProject"></param>
+        /// <param name="differs"></param>
+        /// <returns></returns>
         public static IProjectRootElement RemoveDefaultedProperties(this IProjectRootElement projectRootElement, BaselineProject baselineProject, ImmutableDictionary<string, Differ> differs)
         {
             foreach (var propGroup in projectRootElement.PropertyGroups)
             {
                 var configurationName = MSBuildHelpers.GetConfigurationName(propGroup.Condition);
+                if (!differs.ContainsKey(configurationName))
+                {
+                    // skip if this is a property we removed to get around the MSBuild targets error
+                    continue;
+                }
                 var propDiff = differs[configurationName].GetPropertiesDiff();
-
+                var def = propDiff.DefaultedProperties;
                 foreach (var prop in propGroup.Properties)
                 {
                     // These properties were added to the baseline - so don't treat them as defaulted properties.
@@ -68,6 +114,14 @@ namespace MSBuild.Conversion.Project
         {
             foreach (var propGroup in projectRootElement.PropertyGroups)
             {
+                if (projectStyle == ProjectStyle.WinUI
+                        && propGroup.Condition.StartsWith(@"'$(Configuration)|$(Platform)'", StringComparison.OrdinalIgnoreCase))
+                {
+                    // remove winui property groups with condition|platform condition style
+                    projectRootElement.RemoveChild(propGroup);
+                    continue;
+                }
+
                 foreach (var prop in propGroup.Properties)
                 {
                     if (MSBuildFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
@@ -111,6 +165,14 @@ namespace MSBuild.Conversion.Project
                         // Old MSTest projects specify library, but this is not valid since tests on .NET Core are netcoreapp projects.
                         propGroup.RemoveChild(prop);
                     }
+                    else if (projectStyle == ProjectStyle.WinUI
+                        && (WinUIFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase)
+                            || ProjectPropertyHelpers.IsWinUIDefault(prop)
+                            || ProjectPropertyHelpers.IsDotNetNative(prop)))
+                    {
+                        // Este remove winui specific unecessary properties
+                        propGroup.RemoveChild(prop);
+                    }
                 }
 
                 if (propGroup.Properties.Count == 0)
@@ -126,6 +188,114 @@ namespace MSBuild.Conversion.Project
                 var projName = projectPath.Split('\\').Last();
                 return projName.Substring(0, projName.LastIndexOf('.'));
             }
+        }
+
+        /// <summary>
+        /// Tries to Convert WinUI2 NuGet packages to WinUI3 versions if possible, removes any that are incompatible with WinUI3
+        /// </summary>
+        /// <param name="projectRootElement"></param>
+        /// <param name="differs"></param>
+        /// <param name="baselineProject"></param>
+        /// <param name="tfm"></param>
+        /// <returns></returns>
+        public static IProjectRootElement ConvertWinUIItems(this IProjectRootElement projectRootElement, BaselineProject baselineProject, bool keepUWP)
+        {
+            bool hasWinUIRef = false;
+            foreach (var itemGroup in projectRootElement.ItemGroups)
+            {
+                var configurationName = MSBuildHelpers.GetConfigurationName(itemGroup.Condition);
+
+                foreach (var item in itemGroup.Items.Where(item => ProjectItemHelpers.IsPackageReference(item)))
+                {
+                    if (ProjectItemHelpers.IsWinUIRef(item))
+                    {
+                        hasWinUIRef = true;
+                    }
+
+                    if (keepUWP)
+                    {
+                        // for sdk style
+                        if (ProjectItemHelpers.IsReferenceConvertibleToWinUIUWPReference(item))
+                        {
+                            // convert it...
+                            var packageName = NugetHelpers.FindPackageNameFromReferenceName(WinUIFacts.UWPConvertiblePackages[item.Include]);
+                            string version = TryGetPackageVersion(packageName);
+                            projectRootElement.AddPackage(packageName, version);
+                            itemGroup.RemoveChild(item);
+                        }
+                        // if keeping uwp then compatible package list is different
+                        if (ProjectItemHelpers.IsReferenceIncompatibleWithWinUIUWP(item))
+                        {
+                            itemGroup.RemoveChild(item);
+                        }
+                    }
+                    else
+                    {
+                        // for sdky stype
+                        if (ProjectItemHelpers.IsReferenceConvertibleToWinUIReference(item))
+                        {
+                            // convert it...
+                            var packageName = NugetHelpers.FindPackageNameFromReferenceName(WinUIFacts.ConvertiblePackages[item.Include]);
+                            string version = TryGetPackageVersion(packageName);
+                            projectRootElement.AddPackage(packageName, version);
+                            itemGroup.RemoveChild(item);
+                        }
+                        else if (ProjectItemHelpers.IsReferenceIncompatibleWithWinUI(item))
+                        {
+                            itemGroup.RemoveChild(item);
+                        }
+                        else if (item.Include.Equals(WinUIFacts.UWPNuGetReference, StringComparison.OrdinalIgnoreCase))
+                        {
+                            // UPDating SDK, remove ref to <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
+                            itemGroup.RemoveChild(item);
+                        }
+                    }
+                }
+            }
+
+            if (!hasWinUIRef)
+            {
+                // Always Add Win UI
+                string winUIPkg = "Microsoft.WinUI";
+                string version = TryGetPackageVersion(winUIPkg);
+                projectRootElement.AddPackage(winUIPkg, version);
+            }
+
+            if (baselineProject.OutputType == ProjectOutputType.Library)
+            {
+                // if Its a library always add this pkg for msbuildextras
+                // TODO: convert these strings to facts and check if exists before adding this package ref
+                projectRootElement.AddPackage("MSBuild.Sdk.Extras", "2.1.2");
+                //multi-targeting for net5.0-windows10.0.ver.0 and uap10.0.ver, where ver is the value of the MSBuild property TargetPlatformVersion.
+                //-Example: `< TargetFrameworks > net5.0 - windows10.0.17134.0; uap10.0.17134 </ TargetFrameworks >`
+            }
+
+            return projectRootElement;
+        }
+
+        /// <summary>
+        /// Try get package version from nuget search, fallback to WinUI otherwise
+        /// </summary>
+        /// <param name="packageName"></param>
+        /// <returns></returns>
+        private static string TryGetPackageVersion(string packageName)
+        {
+            string? version = null;
+            try
+            {
+                version = NugetHelpers.GetLatestVersionForPackageNameAsync(packageName).GetAwaiter().GetResult();
+            }
+            catch (Exception)
+            {
+                // Network failure of some kind
+            }
+
+            if (version is null || string.Compare(version, WinUIFacts.PackageVersions[packageName], StringComparison.OrdinalIgnoreCase) < 0)
+            {
+                // fall back to hard-coded version in the event of a network failure
+                version = WinUIFacts.PackageVersions[packageName];
+            }
+            return version;
         }
 
         public static IProjectRootElement RemoveOrUpdateItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs, BaselineProject baselineProject, string tfm)
@@ -162,7 +332,7 @@ namespace MSBuild.Conversion.Project
                         }
                         catch (Exception)
                         {
-                            // Network failure of come kind
+                            // Network failure of some kind
                         }
 
                         if (version is null)
@@ -189,13 +359,16 @@ namespace MSBuild.Conversion.Project
                     {
                         itemGroup.RemoveChild(item);
                     }
+                    else if (IsWinUIRemovableItem(baselineProject, itemGroup, item))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
                     else
                     {
                         var itemsDiff = differs[configurationName].GetItemsDiff();
                         UpdateBasedOnDiff(itemsDiff, itemGroup, item);
                     }
                 }
-
                 if (itemGroup.Items.Count == 0)
                 {
                     projectRootElement.RemoveChild(itemGroup);
@@ -239,6 +412,15 @@ namespace MSBuild.Conversion.Project
                            || ProjectItemHelpers.DesktopReferencesNeedsRemoval(item)
                            || ProjectItemHelpers.IsDesktopRemovableGlobbedItem(sdkBaselineProject.ProjectStyle, item));
             }
+        }
+
+        private static bool IsWinUIRemovableItem(BaselineProject sdkBaselineProject, ProjectItemGroupElement itemGroup, ProjectItemElement item)
+        {
+            return sdkBaselineProject.ProjectStyle == ProjectStyle.WinUI
+                && (ProjectItemHelpers.IsLegacyXamlDesignerItem(item)
+                    || ProjectItemHelpers.IsDependentUponXamlDesignerItem(item)
+                    || ProjectItemHelpers.IsRemovableAsset(item)
+                    || ProjectItemHelpers.IsLegacyReflectionItem(item));
         }
 
         public static IProjectRootElement AddItemRemovesForIntroducedItems(this IProjectRootElement projectRootElement, ImmutableDictionary<string, Differ> differs)
@@ -296,6 +478,7 @@ namespace MSBuild.Conversion.Project
 
         public static IProjectRootElement ConvertAndAddPackages(this IProjectRootElement projectRootElement, ProjectStyle projectStyle, string tfm)
         {
+            // Target packages Item group
             var packagesConfigItemGroup = MSBuildHelpers.GetPackagesConfigItemGroup(projectRootElement);
             if (packagesConfigItemGroup is null)
             {
@@ -456,9 +639,56 @@ namespace MSBuild.Conversion.Project
         public static IProjectRootElement AddTargetFrameworkProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string tfm)
         {
             var propGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroup(baselineProject, projectRootElement);
-            var targetFrameworkElement = projectRootElement.CreatePropertyElement(MSBuildFacts.TargetFrameworkNodeName);
-            targetFrameworkElement.Value = tfm;
-            propGroup.PrependChild(targetFrameworkElement);
+            // todo: does not seem to be targetging the top property for WinUIApps
+
+            if (baselineProject.OutputType == ProjectOutputType.Library && baselineProject.ProjectStyle == ProjectStyle.WinUI)
+            {
+                //multi-targeting for net5.0-windows10.0.ver.0 and uap10.0.ver, where ver is the value of the MSBuild property TargetPlatformVersion.
+                //-Example: `< TargetFrameworks > net5.0 - windows10.0.17134.0; uap10.0.17134 </ TargetFrameworks >`
+                var targetFrameworksElement = projectRootElement.CreatePropertyElement(MSBuildFacts.TargetFrameworksNodeName);
+                targetFrameworksElement.Value = tfm;
+                propGroup.PrependChild(targetFrameworksElement);
+            }
+            else
+            {
+                var targetFrameworkElement = projectRootElement.CreatePropertyElement(MSBuildFacts.TargetFrameworkNodeName);
+                targetFrameworkElement.Value = tfm;
+                propGroup.PrependChild(targetFrameworkElement);
+            }
+
+            return projectRootElement;
+        }
+
+        /// <summary>
+        /// Removes lines which cause ms build to fail
+        /// </summary>
+        /// <param name="projectRootElement"></param>
+        /// <param name="baselineProject"></param>
+        /// <param name="tfm"></param>
+        /// <returns></returns>
+        public static IProjectRootElement RemoveUWPLines(this IProjectRootElement projectRootElement, BaselineProject baselineProject, string tfm)
+        {
+            foreach (var propGroup in projectRootElement.PropertyGroups)
+            {
+                foreach (var child in propGroup.AllChildren)
+                {
+                    if (child.ElementName.Equals(MSBuildFacts.VSVersionGroup, StringComparison.OrdinalIgnoreCase))
+                    {
+                        projectRootElement.RemoveChild(propGroup);
+                        break;
+                    }
+                }
+            }
+            foreach (var import in projectRootElement.Imports)
+            {
+                if (import.Project.EndsWith(WinUIFacts.MSBuildIncompatibleImport, StringComparison.OrdinalIgnoreCase))
+                {
+                    projectRootElement.RemoveChild(import);
+                    projectRootElement.AddImport(WinUIFacts.MSBuildIncompatibleReplace);
+                    break;
+                }
+            }
+
             return projectRootElement;
         }
     }

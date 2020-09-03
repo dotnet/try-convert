@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <AnalyzerBuild>true</AnalyzerBuild>
+    <BinplaceOutputAssemblies>false</BinplaceOutputAssemblies>
+  </PropertyGroup>
+
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+</Project>

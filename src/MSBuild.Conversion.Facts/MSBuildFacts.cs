@@ -204,6 +204,8 @@ namespace MSBuild.Conversion.Facts
         public const string DesignerSubType = "Designer";
         public const string CodeSubTypeValue = "Code";
         public const string TargetFrameworkNodeName = "TargetFramework";
+        public const string TargetPlatformVersionNodeName = "TargetPlatformVersion";
+        public const string TargetFrameworksNodeName = "TargetFrameworks";
         public const string OutputTypeNodeName = "OutputType";
         public const string GenerateAssemblyInfoNodeName = "GenerateAssemblyInfo";
         public const string RequiredTargetFrameworkNodeName = "RequiredTargetFramework";
@@ -229,6 +231,12 @@ namespace MSBuild.Conversion.Facts
         public const string PackagesSubstring = @"\packages";
         public const string Netstandard20 = "netstandard2.0";
         public const string Netcoreapp31 = "netcoreapp3.1";
+        public const string Net50 = "net5.0";
+        public const string VSVersionGroup = "VisualStudioVersion";
         public const string AppConfig = "App.config";
+        public const string AppContainerOutputType = "AppContainerExe";
+        public const string SDKExtrasAttribute = "MSBuild.Sdk.Extras/2.1.2";
+        public const string WindowsAppContainerPropertyNode = "WindowsAppContainer";
+        public const string TargetPlatformIdentifierPropertyNode = "TargetPlatformIdentifier";
     }
 }

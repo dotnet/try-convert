@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en" target-language="zh-Hant" original="../Resources.resx">
+    <body>
+      <trans-unit id="EventArgs_Description">
+        <source>UWP Apps must explicitly target Microsoft.UI.Xaml.LaunchActivatedEventArgs in the OnLaunched Method parameter type.</source>
+        <target state="new">UWP Apps must explicitly target Microsoft.UI.Xaml.LaunchActivatedEventArgs in the OnLaunched Method parameter type.</target>
+        <note>An optional longer localizable description of the diagnostic.</note>
+      </trans-unit>
+      <trans-unit id="EventArgs_MessageFormat">
+        <source>OnLaunched must use Microsoft.UI.Xaml.LaunchActivatedEventArgs</source>
+        <target state="new">OnLaunched must use Microsoft.UI.Xaml.LaunchActivatedEventArgs</target>
+        <note>The format-able message the diagnostic displays.</note>
+      </trans-unit>
+      <trans-unit id="EventArgs_Title">
+        <source>LaunchActivatedEventArgs Ambiguous Namespace</source>
+        <target state="new">LaunchActivatedEventArgs Ambiguous Namespace</target>
+        <note>The title of the diagnostic.</note>
+      </trans-unit>
+      <trans-unit id="Incompatible_Description">
+        <source>This API is not supported in WinUI3. This code may not compile or behave as expected.</source>
+        <target state="new">This API is not supported in WinUI3. This code may not compile or behave as expected.</target>
+        <note>Optional Longer Description</note>
+      </trans-unit>
+      <trans-unit id="Incompatible_MessageFormat">
+        <source>Incompatible With WinUI3</source>
+        <target state="new">Incompatible With WinUI3</target>
+        <note>Formatable message</note>
+      </trans-unit>
+      <trans-unit id="Incompatible_Title">
+        <source>Incompatible API</source>
+        <target state="new">Incompatible API</target>
+        <note>Incompatible API Diagnostic Description</note>
+      </trans-unit>
+      <trans-unit id="Namespace_Description">
+        <source>Windows Namespace should be updated to Microsoft</source>
+        <target state="new">Windows Namespace should be updated to Microsoft</target>
+        <note>An optional longer localizable description of the diagnostic.</note>
+      </trans-unit>
+      <trans-unit id="Namespace_MessageFormat">
+        <source>Using Windows Namespace instead of Microsoft</source>
+        <target state="new">Using Windows Namespace instead of Microsoft</target>
+        <note>The format-able message the diagnostic displays.</note>
+      </trans-unit>
+      <trans-unit id="Namespace_Title">
+        <source>Windows Namespace should be Microsoft</source>
+        <target state="new">Windows Namespace should be Microsoft</target>
+        <note>The title of the diagnostic.</note>
+      </trans-unit>
+      <trans-unit id="UWPObservable_Description">
+        <source>ObservableCollection&lt;T&gt; illegal use.</source>
+        <target state="new">ObservableCollection&lt;T&gt; illegal use.</target>
+        <note>`</note>
+      </trans-unit>
+      <trans-unit id="UWPObservable_MessageFormat">
+        <source>illegal type, Impement with Interops.</source>
+        <target state="new">illegal type, Impement with Interops.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="UWPObservable_Title">
+        <source>ObservableCollection&lt;T&gt; should use new projection.</source>
+        <target state="new">ObservableCollection&lt;T&gt; should use new projection.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="UWPProjection_Description">
+        <source>UWP Projections have moved.</source>
+        <target state="new">UWP Projections have moved.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="UWPProjection_MessageFormat">
+        <source>must use Microsoft namespace.</source>
+        <target state="new">must use Microsoft namespace.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="UWPProjection_Title">
+        <source>UWP Projections moved to Microsoft.*</source>
+        <target state="new">UWP Projections moved to Microsoft.*</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="UWPStruct_Description">
+        <source>Using Struct Constructor instead of Helper Method.</source>
+        <target state="new">Using Struct Constructor instead of Helper Method.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="UWPStruct_MessageFormat">
+        <source>should use Helper Method instead of Constructor.</source>
+        <target state="new">should use Helper Method instead of Constructor.</target>
+        <note />
+      </trans-unit>
+      <trans-unit id="UWPStruct_Title">
+        <source>UWP Struct illegal Constructor use.</source>
+        <target state="new">UWP Struct illegal Constructor use.</target>
+        <note />
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

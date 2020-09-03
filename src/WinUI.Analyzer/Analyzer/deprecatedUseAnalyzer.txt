@@ -1,0 +1,6 @@
+Windows.ApplicationModel.Preview.InkWorkspace
+Windows.UI.Input.Inking
+Windows.UI.Input.Inking.Analysis
+Windows.UI.Input.Inking.Core
+Windows.UI.Input.Inking.Preview
+Windows.UI.Xaml.Media.AcrylicBackgroundSource

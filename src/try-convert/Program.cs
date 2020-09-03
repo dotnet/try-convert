@@ -39,12 +39,14 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "--keep-uwp" }, "Converts C# source code and project NuGet references but keeps existing project format. (Does not convert .csproj to SDK style.)") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "--keep-source-code", "-ksc" }, "Converts WinUI project files but does not modify C# source code.") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup, bool keepCurrentTfms)
+        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool keepUWP, bool keepSourceCode)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
@@ -95,14 +97,25 @@ namespace MSBuild.Conversion
                 var workspaceLoader = new MSBuildConversionWorkspaceLoader(workspacePath, workspaceType);
                 // do not create backup if --diff-only specified
                 noBackup = noBackup || diffOnly;
+                //todo must use backup if winui used
+
                 var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup);
 
                 foreach (var item in msbuildWorkspace.WorkspaceItems)
                 {
+                    Console.WriteLine($"Converting {item}...");
+                    bool winUI3 = MSBuildHelpers.IsWinUI(item.ProjectRootElement);
+
                     if (diffOnly)
                     {
                         var differ = new Differ(item.UnconfiguredProject.FirstConfiguredProject, item.SdkBaselineProject.Project.FirstConfiguredProject);
                         differ.GenerateReport(Directory.GetParent(workspacePath).FullName);
+                    }
+                    else if (winUI3)
+                    {
+                        // only call convert. add/removenuget imports
+                        var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
+                        converter.ConvertWinUI3(item.ProjectRootElement.FullPath, tfm, keepCurrentTfms, allowPreviews, keepUWP, keepSourceCode);
                     }
                     else
                     {
@@ -116,7 +129,6 @@ namespace MSBuild.Conversion
                 Console.WriteLine(e.ToString());
                 return -1;
             }
-
             Console.WriteLine("Conversion complete!");
             return 0;
         }

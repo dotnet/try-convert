@@ -1,0 +1,12 @@
+Windows.UI.Xaml
+Windows.UI.Colors
+Windows.UI.ColorHelper
+Windows.UI.Composition
+Windows.UI.Text
+Windows.UI.Input
+Windows.System.DispatcherQueue
+Windows.System.DispatcherQueueController
+Windows.System.DispatcherQueueHandler
+Windows.System.DispatcherQueuePriority
+Windows.System.DispatcherQueueShutdownStartingEventArgs
+Windows.System.DispatcherQueueTimer

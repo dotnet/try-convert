@@ -50,6 +50,27 @@ namespace SmokeTests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath);
         }
 
+        [Fact]//(Skip = "WinUI Conversion is still in development")]
+        public void ConvertsWinUI3UWPTemplateToDesktop()
+        {
+            var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WinUI3UWP");
+            var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WinUI3UWPBaseline");
+            //AssertConversionWorks(projectToConvertPath, projectBaselinePath);
+
+            var conversionLoader = new MSBuildConversionWorkspaceLoader(projectToConvertPath, MSBuildConversionWorkspaceType.Project);
+            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true);
+
+            var baselineLoader = new MSBuildConversionWorkspaceLoader(projectBaselinePath, MSBuildConversionWorkspaceType.Project);
+            var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);
+
+            var item = conversionWorkspace.WorkspaceItems.Single();
+            var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
+            var convertedRootElement = converter.ConvertWinUI3ProjectFile(null, null, keepCurrentTfm: false, usePreviewSDK: false, keepUWP: false, isTest: true);
+            
+            AssertPropsEqual(baselineRootElement, convertedRootElement);
+            AssertItemsEqual(baselineRootElement, convertedRootElement);
+        }
+
         private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath)
         {
             var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath);

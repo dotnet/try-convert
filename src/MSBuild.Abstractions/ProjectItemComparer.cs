@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace MSBuild.Abstractions
 {
     public class ProjectItemComparer : IEqualityComparer<IProjectItem>
     {
         private readonly bool _compareMetadata;
-        
+
         public static ProjectItemComparer IncludeComparer = new ProjectItemComparer(compareMetadata: false);
         public static ProjectItemComparer MetadataComparer = new ProjectItemComparer(compareMetadata: true);
 

@@ -123,6 +123,23 @@ namespace MSBuild.Abstractions
             IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').All(guidString => DesktopFacts.KnownSupportedDesktopProjectTypeGuids.Contains(Guid.Parse(guidString)));
 
         /// <summary>
+        /// Checks if a given property is related to DotNetNative
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        public static bool IsDotNetNative(ProjectPropertyElement prop) =>
+            prop.Name.Contains(WinUIFacts.DotNetNativeReference, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checks if a property is set to default sdk value
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        public static bool IsWinUIDefault(ProjectPropertyElement prop) =>
+            WinUIFacts.SDKDefaultProperties.ContainsKey(prop.Name)
+                && WinUIFacts.SDKDefaultProperties[prop.Name].Equals(prop.Value, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
         /// Checks if all projecttypeguids specified are known desktop project type guids.
         /// </summary>
         /// <param name="prop"></param>
@@ -162,5 +179,12 @@ namespace MSBuild.Abstractions
         public static bool IsWinExeOutputType(ProjectPropertyElement prop) =>
             prop.ElementName.Equals(MSBuildFacts.OutputTypeNodeName, StringComparison.OrdinalIgnoreCase)
             && prop.Value.Equals(MSBuildFacts.WinExeOutputType, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Checkis if OutputType node is AppContainer
+        /// </summary>
+        public static bool IsAppContainerOutputType(ProjectPropertyElement prop) => // Este added check for new output type
+            prop.ElementName.Equals(MSBuildFacts.OutputTypeNodeName, StringComparison.OrdinalIgnoreCase)
+            && prop.Value.Equals(MSBuildFacts.AppContainerOutputType, StringComparison.OrdinalIgnoreCase);
     }
 }

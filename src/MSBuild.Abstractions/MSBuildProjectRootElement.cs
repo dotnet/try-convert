@@ -23,10 +23,12 @@ namespace MSBuild.Abstractions
         ProjectPropertyElement CreatePropertyElement(string propertyName);
         ProjectPropertyGroupElement AddPropertyGroup();
         ProjectItemGroupElement AddItemGroup();
+        ProjectImportElement AddImport(string name); //Este Added
 
         void Save(string path);
         void RemoveChild(ProjectElement child);
         void Reload(bool throwIfUnsavedChanges = true, bool? preserveFormatting = null);
+
     }
 
     public class MSBuildProjectRootElement : IProjectRootElement
@@ -51,6 +53,8 @@ namespace MSBuild.Abstractions
         public ICollection<ProjectItemGroupElement> ItemGroups => _rootElement.ItemGroups;
         public ICollection<ProjectTargetElement> Targets => _rootElement.Targets;
 
+        // Este added for winUI
+        public ProjectImportElement AddImport(string name) => _rootElement.AddImport(name);
         public ProjectItemGroupElement AddItemGroup() => _rootElement.AddItemGroup();
 
         public ProjectPropertyGroupElement AddPropertyGroup() => _rootElement.AddPropertyGroup();

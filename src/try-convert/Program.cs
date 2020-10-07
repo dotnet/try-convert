@@ -44,7 +44,7 @@ namespace MSBuild.Conversion
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup, bool keepCurrentTfms)
+        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool preview, bool diffOnly, bool noBackup, bool keepCurrentTfms)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
@@ -76,6 +76,10 @@ namespace MSBuild.Conversion
                         return -1;
                     }
                 }
+                else
+                {
+                    tfm = TargetFrameworkHelper.FindHighestInstalledTargetFramework(preview);
+                }
 
                 var workspacePath = string.Empty;
                 MSBuildConversionWorkspaceType workspaceType;
@@ -95,7 +99,7 @@ namespace MSBuild.Conversion
                 var workspaceLoader = new MSBuildConversionWorkspaceLoader(workspacePath, workspaceType);
                 // do not create backup if --diff-only specified
                 noBackup = noBackup || diffOnly;
-                var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup);
+                var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup, tfm, keepCurrentTfms);
 
                 foreach (var item in msbuildWorkspace.WorkspaceItems)
                 {
@@ -107,7 +111,7 @@ namespace MSBuild.Conversion
                     else
                     {
                         var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-                        converter.Convert(item.ProjectRootElement.FullPath, tfm, keepCurrentTfms, allowPreviews);
+                        converter.Convert(item.ProjectRootElement.FullPath);
                     }
                 }
             }

@@ -60,14 +60,14 @@ namespace SmokeTests
         private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath)
         {
             var conversionLoader = new MSBuildConversionWorkspaceLoader(projectToConvertPath, MSBuildConversionWorkspaceType.Project);
-            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true);
+            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true, "netcoreapp3.1", false);
 
             var baselineLoader = new MSBuildConversionWorkspaceLoader(projectBaselinePath, MSBuildConversionWorkspaceType.Project);
             var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);
 
             var item = conversionWorkspace.WorkspaceItems.Single();
             var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-            var convertedRootElement = converter.ConvertProjectFile("netcoreapp3.1", keepCurrentTfm: false, usePreviewSDK: false);
+            var convertedRootElement = converter.ConvertProjectFile();
 
             return (baselineRootElement, convertedRootElement);
         }

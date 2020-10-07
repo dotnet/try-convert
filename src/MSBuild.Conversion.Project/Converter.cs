@@ -5,8 +5,6 @@ using System.Xml;
 using System.Xml.Linq;
 
 using MSBuild.Abstractions;
-using MSBuild.Conversion.Facts;
-using MSBuild.Conversion.SDK;
 
 namespace MSBuild.Conversion.Project
 {
@@ -25,65 +23,30 @@ namespace MSBuild.Conversion.Project
             _differs = GetDiffers();
         }
 
-        public void Convert(string outputPath, string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
+        public void Convert(string outputPath)
         {
-            ConvertProjectFile(specifiedTFM, keepCurrentTfm, usePreviewSDK);
+            ConvertProjectFile();
             CleanUpProjectFile(outputPath);
         }
 
-        internal IProjectRootElement? ConvertProjectFile(string? specifiedTFM, bool keepCurrentTfm, bool usePreviewSDK)
+        internal IProjectRootElement? ConvertProjectFile()
         {
-            var tfm = GetBestTFM(_sdkBaselineProject, keepCurrentTfm, specifiedTFM, usePreviewSDK);
-
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways
-                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, tfm)
+                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.TargetTFM)
 
                 // Now we can convert the project over
                 .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject)
                 .RemoveDefaultedProperties(_sdkBaselineProject, _differs)
                 .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle)
-                .AddTargetFrameworkProperty(_sdkBaselineProject, tfm)
+                .AddTargetFrameworkProperty(_sdkBaselineProject, _sdkBaselineProject.TargetTFM)
                 .AddGenerateAssemblyInfoAsFalse()
                 .AddDesktopProperties(_sdkBaselineProject)
                 .AddCommonPropertiesToTopLevelPropertyGroup()
-                .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)
+                .RemoveOrUpdateItems(_differs, _sdkBaselineProject, _sdkBaselineProject.TargetTFM)
                 .AddItemRemovesForIntroducedItems(_differs)
                 .RemoveUnnecessaryTargetsIfTheyExist()
                 .ModifyProjectElement();
-
-            static string GetBestTFM(BaselineProject baselineProject, bool keepCurrentTfm, string? specifiedTFM, bool usePreviewSDK)
-            {
-                if (string.IsNullOrWhiteSpace(specifiedTFM))
-                {
-                    // Let's figure this out, friends
-                    var tfmForApps = TargetFrameworkHelper.FindHighestInstalledTargetFramework(usePreviewSDK);
-
-                    if (keepCurrentTfm)
-                    {
-                        specifiedTFM = baselineProject.GetTfm();
-                    }
-                    else if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop || baselineProject.ProjectStyle == ProjectStyle.MSTest)
-                    {
-                        specifiedTFM = tfmForApps;
-                    }
-                    else if (baselineProject.OutputType == ProjectOutputType.Library)
-                    {
-                        specifiedTFM = MSBuildFacts.Netstandard20;
-                    }
-                    else if (baselineProject.OutputType == ProjectOutputType.Exe)
-                    {
-                        specifiedTFM = tfmForApps;
-                    }
-                    else
-                    {
-                        // Default is to just use what exists in the project
-                        specifiedTFM = baselineProject.GetTfm();
-                    }
-                }
-
-                return specifiedTFM;
-            }
         }
 
         internal ImmutableDictionary<string, Differ> GetDiffers() =>

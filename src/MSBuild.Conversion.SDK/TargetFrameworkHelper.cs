@@ -72,7 +72,7 @@ namespace MSBuild.Conversion.SDK
             }
             catch (Exception)
             {
-                return MSBuildFacts.Netcoreapp31;
+                return MSBuildFacts.NetCoreApp31;
             }
 
         }

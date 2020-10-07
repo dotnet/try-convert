@@ -42,8 +42,6 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
-            var result = parser.Parse(args);
-
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 

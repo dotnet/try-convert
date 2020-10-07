@@ -15,7 +15,7 @@ namespace MSBuild.Abstractions
     {
         public ImmutableArray<MSBuildConversionWorkspaceItem> WorkspaceItems { get; }
 
-        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup)
+        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup, bool forceWeb)
         {
             var items = ImmutableArray.CreateBuilder<MSBuildConversionWorkspaceItem>();
 
@@ -34,7 +34,7 @@ namespace MSBuild.Abstractions
                 }
 
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
-                if (IsSupportedProjectType(root))
+                if (IsSupportedProjectType(root, forceWeb))
                 {
                     if (!noBackup)
                     {
@@ -106,6 +106,9 @@ namespace MSBuild.Abstractions
                     break;
                 case ProjectStyle.WindowsDesktop:
                     rootElement.Sdk = DesktopFacts.WinSDKAttribute;
+                    break;
+                case ProjectStyle.Web:
+                    rootElement.Sdk = WebFacts.WebSDKAttribute;
                     break;
                 default:
                     throw new NotSupportedException($"This project has custom imports in a manner that's not supported. '{projectFilePath}'");
@@ -247,6 +250,10 @@ namespace MSBuild.Abstractions
                         {
                             return ProjectStyle.WindowsDesktop;
                         }
+                        else if (MSBuildHelpers.IsWeb(projectRootElement))
+                        {
+                            return ProjectStyle.Web;
+                        }
                         else
                         {
                             return ProjectStyle.Default;
@@ -261,7 +268,7 @@ namespace MSBuild.Abstractions
             }
         }
 
-        private bool IsSupportedProjectType(IProjectRootElement root)
+        private bool IsSupportedProjectType(IProjectRootElement root, bool forceWeb)
         {
             if (root.Sdk.ContainsIgnoreCase(MSBuildFacts.DefaultSDKAttribute))
             {
@@ -292,7 +299,9 @@ namespace MSBuild.Abstractions
             {
                 case ProjectSupportType.LegacyWeb:
                     Console.WriteLine($"'{root.FullPath}' is a legacy web project and/or reference System.Web. Legacy Web projects and System.Web are unsupported on .NET Core. You will need to rewrite your application or find a way to not depend on System.Web to convert this project.");
-                    return false;
+
+                    // Proceed only if migrating web scenarios is explicitly enabled
+                    return forceWeb;
                 case ProjectSupportType.CodedUITest:
                     Console.WriteLine($"'{root.FullPath}' is a coded UI test. Coded UI tests are deprecated and not convertable to .NET Core.");
                     return false;

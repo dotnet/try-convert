@@ -50,6 +50,7 @@ namespace MSBuild.Conversion.Project
                 .RemoveOrUpdateItems(_differs, _sdkBaselineProject, tfm)
                 .AddItemRemovesForIntroducedItems(_differs)
                 .RemoveUnnecessaryTargetsIfTheyExist()
+                .RemoveWebExtensions(_sdkBaselineProject.ProjectStyle)
                 .ModifyProjectElement();
 
             static string GetBestTFM(BaselineProject baselineProject, bool keepCurrentTfm, string? specifiedTFM, bool usePreviewSDK)
@@ -63,7 +64,7 @@ namespace MSBuild.Conversion.Project
                     {
                         specifiedTFM = baselineProject.GetTfm();
                     }
-                    else if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop || baselineProject.ProjectStyle == ProjectStyle.MSTest)
+                    else if (baselineProject.ProjectStyle == ProjectStyle.WindowsDesktop || baselineProject.ProjectStyle == ProjectStyle.MSTest || baselineProject.ProjectStyle == ProjectStyle.Web)
                     {
                         specifiedTFM = tfmForApps;
                     }

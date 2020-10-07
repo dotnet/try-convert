@@ -26,7 +26,8 @@ namespace MSBuild.Conversion.Facts
             "Microsoft.Portable.CSharp.targets",
             "Microsoft.Portable.VisualBasic.targets",
             "Microsoft.FSharp.Targets",
-            "MSTest.TestAdapter.targets"
+            "MSTest.TestAdapter.targets",
+            "Microsoft.WebApplication.targets"
         );
 
         /// <summary>
@@ -57,6 +58,7 @@ namespace MSBuild.Conversion.Facts
 
         public static ImmutableArray<string> UnnecessaryProperties => ImmutableArray.Create(
             // The following are unecessary in CPS and/or are already in the .NET SDK
+            "OldToolsVersion",
             "ProjectGuid",
             "ProjectTypeGuids",
             "TargetFrameworkIdentifier",
@@ -77,7 +79,22 @@ namespace MSBuild.Conversion.Facts
             "VSToolsPath",
 
             // This is dropped in by templates, but is unlikely to be valid given that the .NET SDK specifies a minimum VS version that will work
-            "VisualStudioVersion"
+            "VisualStudioVersion",
+
+            // ASP.NET Core always defaults to building views
+            "MvcBuildViews",
+
+            // ASP.NET Core does not configure IIS settings in the project file
+            "UseIISExpress",
+            "Use64BitIISExpress",
+            "IISExpressSSLPort",
+            "IISExpressAnonymousAuthentication",
+            "IISExpressWindowsAuthentication",
+            "IISExpressUseClassicPipelineMode",
+
+            // No longer used in ASP.NET Core
+            "MvcProjectUpgradeChecked",
+            "UseGlobalApplicationHostFile"
         );
 
         public static ImmutableArray<string> DefaultDefineConstants => ImmutableArray.Create(
@@ -113,8 +130,50 @@ namespace MSBuild.Conversion.Facts
             // packages.config is now deprecated, user needs to move to PackageReference
             "packages.config",
 
+            // Enterprise Services is no longer supported
+            "System.EnterpriseServices",
+
             // System.Net.Http is a part of the .NET SDK now
-            "System.Net.Http"
+            "System.Net.Http",
+
+            // ASP.NET references are no longer used
+            "System.Web",
+            "System.Web.Abstractions",
+            "System.Web.ApplicationServices",
+            "System.Web.DataVisualization",
+            "System.Web.DynamicData",
+            "System.Web.Entity",
+            "System.Web.Extensions",
+            "System.Web.Extensions.Design",
+            "System.Web.Helpers",
+            "System.Web.Mobile",
+            "System.Web.Mvc",
+            "System.Web.Optimization",
+            "System.Web.Razor",
+            "System.Web.Routing",
+            "System.Web.Services",
+            "System.Web.WebPages",
+            "System.Web.WebPages.Deployment",
+            "System.Web.WebPages.Razor",
+            "System.Net.Http.WebRequest",
+            "Microsoft.AspNet.Mvc",
+            "Microsoft.AspNet.Razor",
+            "Microsoft.AspNet.Identity.Core",
+            "Microsoft.AspNet.Identity.EntityFramework",
+            "Microsoft.AspNet.Identity.Owin",
+            "Microsoft.AspNet.Web.Optimization",
+            "Microsoft.AspNet.WebApi.Core",
+            "Microsoft.AspNet.WebApi.WebHost",
+            "Microsoft.AspNet.WebPages",
+            "Microsoft.CodeDom.Providers.DotNetCompilerPlatform",
+            "Microsoft.Owin",
+            "Microsoft.Owin.Host.SystemWeb",
+            "Microsoft.Owin.Security",
+            "Microsoft.Owin.Security.Cookies",
+            "Microsoft.Owin.Security.OAuth",
+            "Microsoft.Owin.Security.OpenIdConnect",
+            "Microsoft.Web.Infrastructure",
+            "Owin"
         );
 
         public static ImmutableDictionary<string, string> DefaultItemsThatHavePackageEquivalents => ImmutableDictionary.CreateRange(new Dictionary<string, string>

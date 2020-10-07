@@ -25,6 +25,13 @@
         /// <summary>
         /// The project is an MSTest project that pulls in a lot of unnecessary imports.
         /// </summary>
-        MSTest
+        MSTest,
+
+        /// <summary>
+        /// The project is an ASP.NET project that will not be possible to completely convert automatically.
+        /// If the user has specified --force-web-conversion, a best-effort will be made using the
+        /// Microsoft.NET.Sdk.Web SDK.
+        /// </summary>
+        Web
     }
 }

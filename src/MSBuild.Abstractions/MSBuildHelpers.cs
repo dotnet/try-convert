@@ -173,7 +173,7 @@ namespace MSBuild.Abstractions
         public static bool IsWPF(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
-            return DesktopFacts.KnownWPFReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            return DesktopFacts.KnownWPFReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace MSBuild.Abstractions
         public static bool IsWinForms(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
-            return DesktopFacts.KnownWinFormsReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            return DesktopFacts.KnownWinFormsReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
         /// <summary>
@@ -191,7 +191,16 @@ namespace MSBuild.Abstractions
         public static bool IsDesktop(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
-            return DesktopFacts.KnownDesktopReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            return DesktopFacts.KnownDesktopReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Determines if a given project references ASP.NET assemblies.
+        /// </summary>
+        public static bool IsWeb(IProjectRootElement projectRoot)
+        {
+            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
+            return WebFacts.KnownWebReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
         }
 
         /// <summary>

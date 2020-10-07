@@ -35,16 +35,19 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.") { Argument = new Argument<string?>(() => null) })
                 .AddOption(new Option(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that") { Argument = new Argument<string?>(() => null) })
                 .AddOption(new Option(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to. If unspecified, the default TFM for apps chosen will be the highest available one found on your machine, and the default TFM for libraries will be .NET Standard 2.0.") { Argument = new Argument<string?>(() => null) })
+                .AddOption(new Option(new[] { "--force-web-conversion" }, "Attempt to convert MVC and WebAPI projects even though significant manual work is necessary after migrating such projects.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--preview" }, "Use preview SDKs as part of conversion") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
+            var result = parser.Parse(args);
+
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool allowPreviews, bool diffOnly, bool noBackup, bool keepCurrentTfms)
+        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool forceWebConversion, bool allowPreviews, bool diffOnly, bool noBackup, bool keepCurrentTfms)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
@@ -95,7 +98,7 @@ namespace MSBuild.Conversion
                 var workspaceLoader = new MSBuildConversionWorkspaceLoader(workspacePath, workspaceType);
                 // do not create backup if --diff-only specified
                 noBackup = noBackup || diffOnly;
-                var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup);
+                var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup, forceWebConversion);
 
                 foreach (var item in msbuildWorkspace.WorkspaceItems)
                 {

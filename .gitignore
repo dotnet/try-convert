@@ -357,3 +357,5 @@ MigrationBackup/
 # Local testing files
 **/*/launchSettings.json
 **/*/FolderProfile.pubxml
+
+.tools/*

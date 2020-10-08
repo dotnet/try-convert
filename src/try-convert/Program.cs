@@ -19,7 +19,7 @@ namespace MSBuild.Conversion
             var rootCommand = new RootCommand
             {
                 Name = "try-convert",
-                Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run)))
+                Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run))!)
             };
 
             var parser =

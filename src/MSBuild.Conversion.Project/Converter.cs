@@ -60,7 +60,13 @@ namespace MSBuild.Conversion.Project
             projectXml.Descendants().Attributes().Where(x => x.IsNamespaceDeclaration).Remove();
             foreach (var element in projectXml.Descendants())
             {
-                element.Name = element.Name.LocalName;
+                if (element is null)
+                {
+                    continue;
+                }
+
+                // Appears to be a nullability bug?
+                element!.Name = element!.Name!.LocalName!;
             }
 
             // remove all use of ProductVersion

@@ -47,7 +47,7 @@ namespace SmokeTests
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WpfFramework");
             var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WpfCoreBaseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "netcoreapp3.1");
         }
 
         [Fact]

@@ -66,7 +66,8 @@ namespace MSBuild.Conversion.Project
                 }
 
                 // Appears to be a nullability bug?
-                element!.Name = element!.Name!.LocalName!;
+                // Also the diagnostic doesn't show in the editor
+                element.Name = element.Name.LocalName!;
             }
 
             // remove all use of ProductVersion

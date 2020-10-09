@@ -1,29 +1,29 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30605.207
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FEF77564-1629-42D5-9183-18EF3C31AFE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "try-convert", "src\try-convert\try-convert.csproj", "{861A048E-B8C9-4079-A1D2-4851DA080648}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "try-convert", "src\try-convert\try-convert.csproj", "{861A048E-B8C9-4079-A1D2-4851DA080648}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuild.Conversion.Project", "src\MSBuild.Conversion.Project\MSBuild.Conversion.Project.csproj", "{E52FB3B5-193A-4B97-BC12-3E5A71F66405}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSBuild.Conversion.Project", "src\MSBuild.Conversion.Project\MSBuild.Conversion.Project.csproj", "{E52FB3B5-193A-4B97-BC12-3E5A71F66405}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuild.Conversion.Facts", "src\MSBuild.Conversion.Facts\MSBuild.Conversion.Facts.csproj", "{43A09B9A-E593-4CD0-8054-C6B26C858FC1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSBuild.Conversion.Facts", "src\MSBuild.Conversion.Facts\MSBuild.Conversion.Facts.csproj", "{43A09B9A-E593-4CD0-8054-C6B26C858FC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuild.Abstractions", "src\MSBuild.Abstractions\MSBuild.Abstractions.csproj", "{BBFD697D-0D71-4C11-87BD-0628439EA160}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSBuild.Abstractions", "src\MSBuild.Abstractions\MSBuild.Abstractions.csproj", "{BBFD697D-0D71-4C11-87BD-0628439EA160}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuild.Conversion.Package", "src\MSBuild.Conversion.Package\MSBuild.Conversion.Package.csproj", "{5580495A-5A6D-444F-9985-16098C78793E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSBuild.Conversion.Package", "src\MSBuild.Conversion.Package\MSBuild.Conversion.Package.csproj", "{5580495A-5A6D-444F-9985-16098C78793E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8F861E7D-283E-46F9-9A6A-DBF1BE8BC978}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectConversion.Tests", "tests\unit\ProjectConversion.Tests\ProjectConversion.Tests.csproj", "{30EE0DE2-7BED-4868-AE20-4BD27553380B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectConversion.Tests", "tests\unit\ProjectConversion.Tests\ProjectConversion.Tests.csproj", "{30EE0DE2-7BED-4868-AE20-4BD27553380B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageConversion.Tests", "tests\unit\PackageConversion.Tests\PackageConversion.Tests.csproj", "{A3DDB4B7-F48E-40FA-A638-B03EECB48255}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageConversion.Tests", "tests\unit\PackageConversion.Tests\PackageConversion.Tests.csproj", "{A3DDB4B7-F48E-40FA-A638-B03EECB48255}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Smoke.Tests", "tests\end-to-end\Smoke.Tests\Smoke.Tests.csproj", "{26176B40-732E-425C-A5F8-70B738C4778A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smoke.Tests", "tests\end-to-end\Smoke.Tests\Smoke.Tests.csproj", "{26176B40-732E-425C-A5F8-70B738C4778A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSBuild.Conversion.SDK", "src\MSBuild.Conversion.SDK\MSBuild.Conversion.SDK.csproj", "{B56755BA-7992-4D2C-98E4-86F1C75A19B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MSBuild.Conversion.SDK", "src\MSBuild.Conversion.SDK\MSBuild.Conversion.SDK.csproj", "{B56755BA-7992-4D2C-98E4-86F1C75A19B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,9 +33,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{861A048E-B8C9-4079-A1D2-4851DA080648}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -147,6 +144,9 @@ Global
 		{B56755BA-7992-4D2C-98E4-86F1C75A19B2}.Release|x86.ActiveCfg = Release|Any CPU
 		{B56755BA-7992-4D2C-98E4-86F1C75A19B2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{861A048E-B8C9-4079-A1D2-4851DA080648} = {FEF77564-1629-42D5-9183-18EF3C31AFE5}
 		{E52FB3B5-193A-4B97-BC12-3E5A71F66405} = {FEF77564-1629-42D5-9183-18EF3C31AFE5}
@@ -157,5 +157,8 @@ Global
 		{A3DDB4B7-F48E-40FA-A638-B03EECB48255} = {8F861E7D-283E-46F9-9A6A-DBF1BE8BC978}
 		{26176B40-732E-425C-A5F8-70B738C4778A} = {8F861E7D-283E-46F9-9A6A-DBF1BE8BC978}
 		{B56755BA-7992-4D2C-98E4-86F1C75A19B2} = {FEF77564-1629-42D5-9183-18EF3C31AFE5}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {68B47EDA-66C8-46F5-A57F-1129A8EF7F4F}
 	EndGlobalSection
 EndGlobal

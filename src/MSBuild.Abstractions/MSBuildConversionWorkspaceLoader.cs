@@ -29,7 +29,7 @@ namespace MSBuild.Abstractions
             _workspaceType = workspaceType;
         }
 
-        public MSBuildConversionWorkspace LoadWorkspace(string path, bool noBackup)
+        public MSBuildConversionWorkspace LoadWorkspace(string path, bool noBackup, string tfm, bool keepCurrentTFMs)
         {
             var projectPaths =
                 _workspaceType switch
@@ -42,7 +42,7 @@ namespace MSBuild.Abstractions
                     _ => throw new InvalidOperationException("Somehow, an enum that isn't possible was passed in here.")
                 };
 
-            return new MSBuildConversionWorkspace(projectPaths, noBackup);
+            return new MSBuildConversionWorkspace(projectPaths, noBackup, tfm, keepCurrentTFMs);
 
             static bool IsSupportedSolutionItemType(ProjectInSolution project)
             {

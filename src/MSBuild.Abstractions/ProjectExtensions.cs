@@ -83,7 +83,13 @@ namespace MSBuild.Abstractions
             var json = JObject.Parse(projectJsonContents);
 
             var frameworks = json["frameworks"];
+            if (frameworks is null)
+            {
+                throw new InvalidOperationException($"No target framework set in this 'project.json' file located at '{projectJsonPath}'.");
+            }
+
             var tf = ((JProperty)frameworks.Single()).Name;
+
             return tf;
         }
     }

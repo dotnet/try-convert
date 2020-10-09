@@ -27,47 +27,71 @@ namespace SmokeTests
         }
 
         [Fact(Skip = "Legacy F# support is not installed on any build machines")]
-        public void ConvertsLegacyFSharpConsole()
+        public void ConvertsLegacyFSharpConsoleToNetCoreApp31()
         {
             var projectToConvertPath = GetFSharpProjectPath("SmokeTests.LegacyFSharpConsole");
             var projectBaselinePath = GetFSharpProjectPath("SmokeTests.FSharpConsoleBaseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath);
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "netcoreapp3.1");
+        }
+
+        [Fact(Skip = "Legacy F# support is not installed on any build machines")]
+        public void ConvertsLegacyFSharpConsoleToNet50()
+        {
+            var projectToConvertPath = GetFSharpProjectPath("SmokeTests.LegacyFSharpConsole");
+            var projectBaselinePath = GetFSharpProjectPath("SmokeTests.FSharpConsoleBaseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "netcoreapp3.1");
         }
 
         [Fact]
-        public void ConvertsWpfFrameworkTemplate()
+        public void ConvertsWpfFrameworkTemplateForNetCoreApp31()
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WpfFramework");
             var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WpfCoreBaseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath);
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "netcoreapp3.1");
         }
 
         [Fact]
-        public void ConvertsWinformsFrameworkTemplate()
+        public void ConvertsWpfFrameworkTemplateForNet50()
+        {
+            var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WpfFramework");
+            var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WpfNet5Baseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows");
+        }
+
+        [Fact]
+        public void ConvertsWinformsFrameworkTemplateForNetCoreApp31()
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WinformsFramework");
             var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WinformsCoreBaseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath);
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "netcoreapp3.1");
         }
 
-        private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath)
+        [Fact]
+        public void ConvertsWinformsFrameworkTemplateForNet50()
         {
-            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath);
+            var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WinformsFramework");
+            var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WinformsNet5Baseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows");
+        }
+
+        private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM)
+        {
+            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath, targetTFM);
             AssertPropsEqual(baselineRootElement, convertedRootElement);
             AssertItemsEqual(baselineRootElement, convertedRootElement);
         }
 
-        private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath)
+        private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath, string targetTFM)
         {
             var conversionLoader = new MSBuildConversionWorkspaceLoader(projectToConvertPath, MSBuildConversionWorkspaceType.Project);
-            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true);
+            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true, targetTFM, false);
 
             var baselineLoader = new MSBuildConversionWorkspaceLoader(projectBaselinePath, MSBuildConversionWorkspaceType.Project);
             var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);
 
             var item = conversionWorkspace.WorkspaceItems.Single();
             var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
-            var convertedRootElement = converter.ConvertProjectFile("netcoreapp3.1", keepCurrentTfm: false, usePreviewSDK: false);
+            var convertedRootElement = converter.ConvertProjectFile();
 
             return (baselineRootElement, convertedRootElement);
         }
@@ -83,7 +107,7 @@ namespace SmokeTests
             if (baselinePropGroups.Count > 0)
             {
                 for (var i = 0; i < baselinePropGroups.Count; i++)
-                {
+                {                    
                     var baselineProps = new List<ProjectPropertyElement>(baselinePropGroups[i].Properties);
                     var convertedProps = new List<ProjectPropertyElement>(convertedPropGroups[i].Properties);
 

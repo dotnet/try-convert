@@ -15,7 +15,7 @@ namespace MSBuild.Abstractions
     {
         public ImmutableArray<MSBuildConversionWorkspaceItem> WorkspaceItems { get; }
 
-        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup)
+        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup, string tfm, bool keepCurrentTFMs)
         {
             var items = ImmutableArray.CreateBuilder<MSBuildConversionWorkspaceItem>();
 
@@ -49,7 +49,7 @@ namespace MSBuild.Abstractions
                     var unconfiguredProject = new UnconfiguredProject(configurations);
                     unconfiguredProject.LoadProjects(collection, globalProperties, path);
 
-                    var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations);
+                    var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations, tfm, keepCurrentTFMs);
                     root.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
 
                     var item = new MSBuildConversionWorkspaceItem(root, unconfiguredProject, baseline);
@@ -90,7 +90,7 @@ namespace MSBuild.Abstractions
         /// We need to use the same name as the original csproj and same path so that all the default that derive
         /// from name\path get the right values (there are a lot of them).
         /// </summary>
-        private BaselineProject CreateSdkBaselineProject(string projectFilePath, IProject project, IProjectRootElement root, ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations)
+        private BaselineProject CreateSdkBaselineProject(string projectFilePath, IProject project, IProjectRootElement root, ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations, string tfm, bool keepCurrentTFMs)
         {
             var projectStyle = GetProjectStyle(root);
             var outputType = GetProjectOutputType(root);
@@ -105,7 +105,10 @@ namespace MSBuild.Abstractions
                     rootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
                     break;
                 case ProjectStyle.WindowsDesktop:
-                    rootElement.Sdk = DesktopFacts.WinSDKAttribute;
+                    rootElement.Sdk =
+                        tfm.ContainsIgnoreCase(MSBuildFacts.Net5)
+                            ? MSBuildFacts.DefaultSDKAttribute
+                            : DesktopFacts.WinSDKAttribute; // pre-.NET 5 apps need a special SDK attribute.
                     break;
                 default:
                     throw new NotSupportedException($"This project has custom imports in a manner that's not supported. '{projectFilePath}'");
@@ -158,7 +161,12 @@ namespace MSBuild.Abstractions
                 propertiesInTheBaseline = propertiesInTheBaseline.Add(DesktopFacts.UseWPFPropertyName);
             }
 
-            return new BaselineProject(newProject, propertiesInTheBaseline, projectStyle, outputType);
+            tfm =
+                projectStyle == ProjectStyle.WindowsDesktop && tfm.ContainsIgnoreCase(MSBuildFacts.Net5)
+                    ? MSBuildFacts.Net5Windows
+                    : tfm;
+
+            return new BaselineProject(newProject, propertiesInTheBaseline, projectStyle, outputType, tfm, keepCurrentTFMs);
         }
 
         private bool IsSupportedOutputType(ProjectOutputType type) =>

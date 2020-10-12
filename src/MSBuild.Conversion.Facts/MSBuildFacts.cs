@@ -26,7 +26,8 @@ namespace MSBuild.Conversion.Facts
             "Microsoft.Portable.CSharp.targets",
             "Microsoft.Portable.VisualBasic.targets",
             "Microsoft.FSharp.Targets",
-            "MSTest.TestAdapter.targets"
+            "MSTest.TestAdapter.targets",
+            "Microsoft.TestTools.targets"
         );
 
         /// <summary>

@@ -74,6 +74,14 @@ namespace SmokeTests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows");
         }
 
+        [Fact]
+        public void ConvertsLegacyMSTest()
+        {
+            var projectToConvertPath = GetCSharpProjectPath("SmokeTests.LegacyMSTest");
+            var projectBaselinePath = GetCSharpProjectPath("SmokeTests.MSTestCoreBaseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "netcoreapp3.1");
+        }
+
         private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM)
         {
             var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath, targetTFM);

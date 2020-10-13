@@ -27,12 +27,12 @@ namespace MSBuild.Abstractions
 
         private static string AdjustTargetTFM(ProjectStyle projectStyle, ProjectOutputType outputType, string candidateTargetTFM)
         {
-            if (candidateTargetTFM.ContainsIgnoreCase(MSBuildFacts.Net5) && projectStyle == ProjectStyle.WindowsDesktop)
+            if (candidateTargetTFM.ContainsIgnoreCase(MSBuildFacts.Net5) && projectStyle is ProjectStyle.WindowsDesktop)
             {
                 return MSBuildFacts.Net5Windows;
             }
 
-            if (outputType == ProjectOutputType.Library)
+            if (projectStyle is not ProjectStyle.MSTest && outputType is ProjectOutputType.Library)
             {
                 return MSBuildFacts.NetStandard20;
             }

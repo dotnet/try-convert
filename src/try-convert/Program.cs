@@ -101,6 +101,12 @@ namespace MSBuild.Conversion
                 noBackup = noBackup || diffOnly;
                 var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup, tfm, keepCurrentTfms);
 
+                if (msbuildWorkspace.WorkspaceItems.Length is 0)
+                {
+                    Console.WriteLine("No projects converted.");
+                    return 0;
+                }
+
                 foreach (var item in msbuildWorkspace.WorkspaceItems)
                 {
                     if (diffOnly)

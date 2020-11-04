@@ -240,7 +240,7 @@ namespace MSBuild.Abstractions
                     }
 
                     if (MSBuildFacts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
-                        MSBuildFacts.TargetsConvertibleToSDK.Contains(lastImportFileName, StringComparer.OrdinalIgnoreCase))
+                        imports.Any(import => MSBuildFacts.TargetsConvertibleToSDK.Contains(Path.GetFileName(import.Project), StringComparer.OrdinalIgnoreCase)))
                     {
                         if (MSBuildHelpers.IsNETFrameworkMSTestProject(projectRootElement))
                         {

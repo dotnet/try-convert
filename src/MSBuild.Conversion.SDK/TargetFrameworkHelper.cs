@@ -89,6 +89,6 @@ namespace MSBuild.Conversion.SDK
         /// Reject obviously wrong TFM specifiers 
         /// </summary>
         public static bool IsValidTargetFramework(string tfm)
-            => !tfm.Contains("-") && !tfm.Contains(" ") && tfm.Contains("net") && Regex.Match(tfm, "[0-9]").Success;
+            => !tfm.Contains(" ") && tfm.Contains("net") && Regex.Match(tfm, "[0-9]").Success;
     }
 }

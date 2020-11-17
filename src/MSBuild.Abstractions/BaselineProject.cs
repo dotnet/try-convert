@@ -8,7 +8,6 @@ namespace MSBuild.Abstractions
     public struct BaselineProject
     {
         public readonly ImmutableArray<string> GlobalProperties;
-        public readonly ImmutableDictionary<string, string> TargetProjectProperties;
         public readonly UnconfiguredProject Project;
         public readonly ProjectStyle ProjectStyle;
         public readonly ProjectOutputType OutputType;

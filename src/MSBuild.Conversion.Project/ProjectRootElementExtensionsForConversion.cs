@@ -39,6 +39,22 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
+        public static IProjectRootElement UpdateOutputTypeProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
+        {
+            var outputTypeNode = projectRootElement.GetOutputTypeNode();
+            if (outputTypeNode != null)
+            {
+                outputTypeNode.Value = baselineProject.OutputType switch
+                {
+                    ProjectOutputType.Exe => MSBuildFacts.ExeOutputType,
+                    ProjectOutputType.Library => MSBuildFacts.LibraryOutputType,
+                    ProjectOutputType.WinExe => MSBuildFacts.WinExeOutputType,
+                    _ => throw new InvalidOperationException("Unsupported output type: " + baselineProject.OutputType)
+                };
+            }
+            return projectRootElement;
+        }
+
         public static IProjectRootElement RemoveDefaultedProperties(this IProjectRootElement projectRootElement, BaselineProject baselineProject, ImmutableDictionary<string, Differ> differs)
         {
             foreach (var propGroup in projectRootElement.PropertyGroups)

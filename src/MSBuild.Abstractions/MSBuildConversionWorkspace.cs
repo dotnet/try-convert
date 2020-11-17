@@ -116,8 +116,15 @@ namespace MSBuild.Abstractions
 
             var propGroup = rootElement.AddPropertyGroup();
             propGroup.AddProperty(MSBuildFacts.TargetFrameworkNodeName, project.GetTargetFramework());
-            propGroup.AddProperty(MSBuildFacts.OutputTypeNodeName,
-                project.GetPropertyValue(MSBuildFacts.OutputTypeNodeName) ?? throw new InvalidOperationException($"OutputType is not set! '{projectFilePath}'"));
+
+            var outputTypeValue = outputType switch
+            {
+                ProjectOutputType.Exe => MSBuildFacts.ExeOutputType,
+                ProjectOutputType.Library => MSBuildFacts.LibraryOutputType,
+                ProjectOutputType.WinExe => MSBuildFacts.WinExeOutputType,
+                _ => project.GetPropertyValue(MSBuildFacts.OutputTypeNodeName)
+            };
+            propGroup.AddProperty(MSBuildFacts.OutputTypeNodeName, outputTypeValue ?? throw new InvalidOperationException($"OutputType is not set! '{projectFilePath}'"));
 
             if (projectStyle == ProjectStyle.WindowsDesktop)
             {
@@ -175,6 +182,15 @@ namespace MSBuild.Abstractions
 
         private ProjectOutputType GetProjectOutputType(IProjectRootElement root)
         {
+            if (root.Imports.Any(i => i.Project.Contains(WebFacts.WebApplicationTargets, StringComparison.OrdinalIgnoreCase)))
+            {
+                // ASP.NET Core apps use an EXE output type even though ASP.NET apps use Library
+                // Note that this specifically looks for WebApplicationTargets (rather than a System.Web reference) since
+                // ASP.NET libraries may reference System.Web and should still use a Library output types. Only ASP.NET
+                // apps should convert with Exe output type.
+                return ProjectOutputType.Exe;
+            }
+
             var outputTypeNode = root.GetOutputTypeNode();
             if (outputTypeNode is null)
             {

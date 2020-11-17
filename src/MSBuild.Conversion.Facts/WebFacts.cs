@@ -7,6 +7,7 @@ namespace MSBuild.Conversion.Facts
         public const string WebSDKAttribute = "Microsoft.NET.Sdk.Web";
         public const string MvcBuildViewsName = "MvcBuildViews";
         public const string WebProjectPropertiesName = "WebProjectProperties";
+        public const string WebApplicationTargets = "Microsoft.WebApplication.targets";
 
         /// <summary>
         /// The core set of references all ASP.NET projects use.

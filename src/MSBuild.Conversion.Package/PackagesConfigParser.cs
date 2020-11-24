@@ -79,7 +79,7 @@ namespace MSBuild.Conversion.Package
 
                     AllowedVersions = element.Attribute(PackageFacts.PackagesConfigAllowedVersionsFrameworkname)?.Value,
 
-                    DevelopmentDependency = bool.TryParse(element.Attribute(PackageFacts.PackagesConfigDevelopmentDependencyName)?.Value, out var _),
+                    DevelopmentDependency = bool.TryParse(element.Attribute(PackageFacts.PackagesConfigDevelopmentDependencyName)?.Value, out var value) ? value : false,
                 };
 
             static string VersionWithoutSuffix(string nugetVersion) => nugetVersion.Split('-').First();

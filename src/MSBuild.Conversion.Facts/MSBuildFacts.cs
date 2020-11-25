@@ -27,6 +27,7 @@ namespace MSBuild.Conversion.Facts
             "Microsoft.Portable.VisualBasic.targets",
             "Microsoft.FSharp.Targets",
             "MSTest.TestAdapter.targets",
+            "Microsoft.TestTools.targets",
             "Microsoft.WebApplication.targets"
         );
 
@@ -286,8 +287,10 @@ namespace MSBuild.Conversion.Facts
         public const string TargetsSuffix = ".targets";
         public const string PropsSuffix = ".props";
         public const string PackagesSubstring = @"\packages";
-        public const string Netstandard20 = "netstandard2.0";
-        public const string Netcoreapp31 = "netcoreapp3.1";
+        public const string NetStandard20 = "netstandard2.0";
+        public const string NetCoreApp31 = "netcoreapp3.1";
+        public const string Net5 = "net5.0";
+        public const string Net5Windows = "net5.0-windows";
         public const string AppConfig = "App.config";
     }
 }

@@ -69,32 +69,26 @@ namespace MSBuild.Conversion.Package
                 new PackagesConfigPackage
                 {
                     // Required
-                    ID = element.Attribute(PackageFacts.PackagesConfigIDName).Value,
+                    ID = element.Attribute(PackageFacts.PackagesConfigIDName)?.Value,
 
                     // Required
-                    Version = element.Attribute(PackageFacts.PackagesConfigVersionName).Value,
+                    Version = element.Attribute(PackageFacts.PackagesConfigVersionName)?.Value,
 
                     // The rest are optional
-                    TargetFramework = element.Attribute(PackageFacts.PackagesConfigTargetFrameworkName) is null
-                                      ? string.Empty
-                                      : element.Attribute(PackageFacts.PackagesConfigTargetFrameworkName).Value,
+                    TargetFramework = element.Attribute(PackageFacts.PackagesConfigTargetFrameworkName)?.Value,
 
-                    AllowedVersions = element.Attribute(PackageFacts.PackagesConfigAllowedVersionsFrameworkname) is null
-                                      ? string.Empty
-                                      : element.Attribute(PackageFacts.PackagesConfigAllowedVersionsFrameworkname).Value,
+                    AllowedVersions = element.Attribute(PackageFacts.PackagesConfigAllowedVersionsFrameworkname)?.Value,
 
-                    DevelopmentDependency = element.Attribute(PackageFacts.PackagesConfigDevelopmentDependencyName) is null
-                                            ? false :
-                                            bool.Parse(element.Attribute(PackageFacts.PackagesConfigDevelopmentDependencyName).Value),
+                    DevelopmentDependency = bool.TryParse(element.Attribute(PackageFacts.PackagesConfigDevelopmentDependencyName)?.Value, out var value) ? value : false,
                 };
 
             static string VersionWithoutSuffix(string nugetVersion) => nugetVersion.Split('-').First();
 
             static bool ValidPackageNode(XElement pkgNode) =>
                 pkgNode.Attribute(PackageFacts.PackagesConfigIDName) is { }
-                && !string.IsNullOrWhiteSpace(pkgNode.Attribute(PackageFacts.PackagesConfigIDName).Value)
+                && !string.IsNullOrWhiteSpace(pkgNode.Attribute(PackageFacts.PackagesConfigIDName)?.Value)
                 && pkgNode.Attribute(PackageFacts.PackagesConfigVersionName) is { }
-                && Version.TryParse(VersionWithoutSuffix(pkgNode.Attribute(PackageFacts.PackagesConfigVersionName).Value), out var version);
+                && Version.TryParse(VersionWithoutSuffix(pkgNode.Attribute(PackageFacts.PackagesConfigVersionName)?.Value ?? string.Empty), out var _);
         }
     }
 }

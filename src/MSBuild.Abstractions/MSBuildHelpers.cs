@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 
 using Microsoft.Build.Construction;
@@ -173,7 +172,14 @@ namespace MSBuild.Abstractions
         public static bool IsWPF(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
-            return DesktopFacts.KnownWPFReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            if (references is null)
+            {
+                return false;
+            }
+            else
+            {
+                return DesktopFacts.KnownWPFReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            }
         }
 
         /// <summary>
@@ -182,7 +188,14 @@ namespace MSBuild.Abstractions
         public static bool IsWinForms(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
-            return DesktopFacts.KnownWinFormsReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            if (references is null)
+            {
+                return false;
+            }
+            else
+            {
+                return DesktopFacts.KnownWinFormsReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            }
         }
 
         /// <summary>
@@ -191,7 +204,14 @@ namespace MSBuild.Abstractions
         public static bool IsDesktop(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
-            return DesktopFacts.KnownDesktopReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            if (references is null)
+            {
+                return false;
+            }
+            else
+            {
+                return DesktopFacts.KnownDesktopReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            }
         }
 
         /// <summary>
@@ -200,7 +220,14 @@ namespace MSBuild.Abstractions
         public static bool IsWeb(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
-            return WebFacts.KnownWebReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            if (references is null)
+            {
+                return false;
+            }
+            else
+            {
+                return WebFacts.KnownWebReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            }
         }
 
         /// <summary>
@@ -211,7 +238,14 @@ namespace MSBuild.Abstractions
         public static bool IsNETFrameworkMSTestProject(IProjectRootElement projectRoot)
         {
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
-            return MSTestFacts.MSTestReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            if (references is null)
+            {
+                return false;
+            }
+            else
+            {
+                return MSTestFacts.MSTestReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            }
         }
 
         public static bool HasWPFOrWinForms(ProjectPropertyGroupElement propGroup)
@@ -230,7 +264,7 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Finds the item group where a packages.config is included. Assumes only one.
         /// </summary>
-        public static ProjectItemGroupElement GetPackagesConfigItemGroup(IProjectRootElement root) =>
+        public static ProjectItemGroupElement? GetPackagesConfigItemGroup(IProjectRootElement root) =>
             root.ItemGroups.FirstOrDefault(pige => pige.Items.Any(pe => pe.Include.Equals(PackageFacts.PackagesConfigIncludeName, StringComparison.OrdinalIgnoreCase)));
 
         /// <summary>

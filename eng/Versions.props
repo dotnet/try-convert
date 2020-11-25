@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MajorVersion>0</MajorVersion>
-    <MinorVersion>6</MinorVersion>
+    <MinorVersion>7</MinorVersion>
     <!-- Build release-only package. -->
     <PreReleaseVersionLabel />
   </PropertyGroup>
@@ -11,21 +11,21 @@
   -->
   <PropertyGroup>
     <MicrosoftBuildLocatorVersion>1.2.6</MicrosoftBuildLocatorVersion>
-    <MicrosoftBuildVersion>16.0.461</MicrosoftBuildVersion>
-    <MicrosoftWin32RegistryVersion>4.7.0</MicrosoftWin32RegistryVersion>
-    <NewtonsoftJsonVersion>12.0.2</NewtonsoftJsonVersion>
-    <NuGetVersioningVersion>5.5.0</NuGetVersioningVersion>
-    <SystemCollectionsImmutableVersion>1.5.0</SystemCollectionsImmutableVersion>
-    <SystemCommandLineVersion> 2.0.0-beta1.20214.1</SystemCommandLineVersion>
-    <SystemConfigurationConfigurationManagerVersion>4.7.0</SystemConfigurationConfigurationManagerVersion>
-    <SystemSecurityPrincipalWindowsVersion>4.7.0</SystemSecurityPrincipalWindowsVersion>
+    <MicrosoftBuildVersion>16.7</MicrosoftBuildVersion>
+    <MicrosoftWin32RegistryVersion>5.0.0-rc.1.20451.14</MicrosoftWin32RegistryVersion>
+    <NewtonsoftJsonVersion>12.0.3</NewtonsoftJsonVersion>
+    <NuGetVersioningVersion>5.8.0-preview.3.6823</NuGetVersioningVersion>
+    <SystemCollectionsImmutableVersion>5.0.0-rc.1.20451.14</SystemCollectionsImmutableVersion>
+    <SystemCommandLineVersion>2.0.0-beta1.20371.2</SystemCommandLineVersion>
+    <SystemConfigurationConfigurationManagerVersion>5.0.0-rc.1.20451.14</SystemConfigurationConfigurationManagerVersion>
+    <SystemSecurityPrincipalWindowsVersion>5.0.0-rc.1.20451.14</SystemSecurityPrincipalWindowsVersion>
   </PropertyGroup>
   <!--
     Nuget package versions for tests
   -->
   <PropertyGroup>
-    <CoverletCollectorVersion>1.0.1</CoverletCollectorVersion>
-    <MoqVersion>4.13.0</MoqVersion>
+    <CoverletCollectorVersion>1.3.0 </CoverletCollectorVersion>
+    <MoqVersion>4.14.6 </MoqVersion>
   </PropertyGroup>
   <PropertyGroup>
     <DiscoverEditorConfigFiles>true</DiscoverEditorConfigFiles>

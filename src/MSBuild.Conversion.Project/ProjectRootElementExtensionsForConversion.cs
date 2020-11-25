@@ -14,26 +14,22 @@ namespace MSBuild.Conversion.Project
     {
         public static IProjectRootElement ChangeImportsAndAddSdkAttribute(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {
-            switch (baselineProject.ProjectStyle)
+            foreach (var import in projectRootElement.Imports)
             {
-                case ProjectStyle.Default:
-                case ProjectStyle.DefaultSubset:
-                case ProjectStyle.WindowsDesktop:
-                case ProjectStyle.MSTest:
-                case ProjectStyle.Web:
-                    foreach (var import in projectRootElement.Imports)
-                    {
-                        projectRootElement.RemoveChild(import);
-                    }
+                projectRootElement.RemoveChild(import);
+            }
 
-                    projectRootElement.Sdk = projectRootElement switch
-                    {
-                        IProjectRootElement r when MSBuildHelpers.IsWinForms(r) || MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement) 
-                            => DesktopFacts.WinSDKAttribute,
-                        IProjectRootElement r when MSBuildHelpers.IsWeb(r) => WebFacts.WebSDKAttribute,
-                        _ => MSBuildFacts.DefaultSDKAttribute
-                    };
-                    break;
+            if (baselineProject.ProjectStyle is ProjectStyle.WindowsDesktop && baselineProject.TargetTFM is MSBuildFacts.NetCoreApp31)
+            {
+                projectRootElement.Sdk = DesktopFacts.WinSDKAttribute;
+            }
+            else if (MSBuildHelpers.IsWeb(projectRootElement))
+            {
+                projectRootElement.Sdk = WebFacts.WebSDKAttribute;
+            }
+            else
+            {
+                projectRootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
             }
 
             return projectRootElement;

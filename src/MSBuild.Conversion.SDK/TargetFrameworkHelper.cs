@@ -68,11 +68,19 @@ namespace MSBuild.Conversion.SDK
                 // read the template.json file to see what the tfm is called
                 var doc = JsonDocument.ParseAsync(templatesJson).GetAwaiter().GetResult();
 
-                return doc.RootElement.GetProperty("baselines").GetProperty("app").GetProperty("defaultOverrides").GetProperty("Framework").GetString();
+                var tfm = doc.RootElement.GetProperty("baselines").GetProperty("app").GetProperty("defaultOverrides").GetProperty("Framework").GetString();
+                if (string.IsNullOrEmpty(tfm))
+                {
+                    return MSBuildFacts.Net5;
+                }
+                else
+                {
+                    return tfm;
+                }
             }
             catch (Exception)
             {
-                return MSBuildFacts.Netcoreapp31;
+                return MSBuildFacts.NetCoreApp31;
             }
 
         }
@@ -81,6 +89,6 @@ namespace MSBuild.Conversion.SDK
         /// Reject obviously wrong TFM specifiers 
         /// </summary>
         public static bool IsValidTargetFramework(string tfm)
-            => !tfm.Contains("-") && !tfm.Contains(" ") && tfm.Contains("net") && Regex.Match(tfm, "[0-9]").Success;
+            => !tfm.Contains(" ") && tfm.Contains("net") && Regex.Match(tfm, "[0-9]").Success;
     }
 }

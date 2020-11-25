@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
@@ -15,7 +16,7 @@ namespace MSBuild.Abstractions
     {
         public ImmutableArray<MSBuildConversionWorkspaceItem> WorkspaceItems { get; }
 
-        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup, bool forceWeb)
+        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup, string tfm, bool keepCurrentTFMs, bool forceWeb)
         {
             var items = ImmutableArray.CreateBuilder<MSBuildConversionWorkspaceItem>();
 
@@ -36,24 +37,27 @@ namespace MSBuild.Abstractions
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
                 if (IsSupportedProjectType(root, forceWeb))
                 {
-                    if (!noBackup)
-                    {
-                        // Since git doesn't track the new '.old' addition in your changeset,
-                        // failing to overwrite will crash the tool if you have one in your directory.
-                        // This can be common if you're using the tool a few times and forget to delete the backup.
-                        File.Copy(path, path + ".old", overwrite: true);
-                    }
 
                     var configurations = DetermineConfigurations(root);
 
                     var unconfiguredProject = new UnconfiguredProject(configurations);
                     unconfiguredProject.LoadProjects(collection, globalProperties, path);
 
-                    var baseline = CreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations);
-                    root.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
 
-                    var item = new MSBuildConversionWorkspaceItem(root, unconfiguredProject, baseline);
-                    items.Add(item);
+                    if (TryCreateSdkBaselineProject(path, unconfiguredProject.FirstConfiguredProject, root, configurations, tfm, keepCurrentTFMs, out var baseline))
+                    {
+                        if (!noBackup)
+                        {
+                            // Since git doesn't track the new '.old' addition in your changeset,
+                            // failing to overwrite will crash the tool if you have one in your directory.
+                            // This can be common if you're using the tool a few times and forget to delete the backup.
+                            File.Copy(path, path + ".old", overwrite: true);
+                        }
+
+                        root.Reload(throwIfUnsavedChanges: false, preserveFormatting: true);
+                        var item = new MSBuildConversionWorkspaceItem(root, unconfiguredProject, baseline.Value);
+                        items.Add(item);
+                    }
                 }
             }
 
@@ -79,7 +83,7 @@ namespace MSBuild.Abstractions
                                 builder.Add(dimensionValuePair.Value, dimensionValueDictionary.ToImmutableDictionary());
                             }
                         }
-                    }                   
+                    }
                 }
             }
             return builder.ToImmutable();
@@ -90,7 +94,7 @@ namespace MSBuild.Abstractions
         /// We need to use the same name as the original csproj and same path so that all the default that derive
         /// from name\path get the right values (there are a lot of them).
         /// </summary>
-        private BaselineProject CreateSdkBaselineProject(string projectFilePath, IProject project, IProjectRootElement root, ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations)
+        private bool TryCreateSdkBaselineProject(string projectFilePath, IProject project, IProjectRootElement root, ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations, string tfm, bool keepCurrentTFMs, [NotNullWhen(true)] out BaselineProject? baselineProject)
         {
             var projectStyle = GetProjectStyle(root);
             var outputType = GetProjectOutputType(root);
@@ -105,13 +109,17 @@ namespace MSBuild.Abstractions
                     rootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
                     break;
                 case ProjectStyle.WindowsDesktop:
-                    rootElement.Sdk = DesktopFacts.WinSDKAttribute;
+                    rootElement.Sdk =
+                        tfm.ContainsIgnoreCase(MSBuildFacts.Net5)
+                            ? MSBuildFacts.DefaultSDKAttribute
+                            : DesktopFacts.WinSDKAttribute; // pre-.NET 5 apps need a special SDK attribute.
                     break;
                 case ProjectStyle.Web:
                     rootElement.Sdk = WebFacts.WebSDKAttribute;
                     break;
                 default:
-                    throw new NotSupportedException($"This project has custom imports in a manner that's not supported. '{projectFilePath}'");
+                    baselineProject = null;
+                    return false;
             }
 
             var propGroup = rootElement.AddPropertyGroup();
@@ -168,7 +176,13 @@ namespace MSBuild.Abstractions
                 propertiesInTheBaseline = propertiesInTheBaseline.Add(DesktopFacts.UseWPFPropertyName);
             }
 
-            return new BaselineProject(newProject, propertiesInTheBaseline, projectStyle, outputType);
+            tfm =
+                projectStyle == ProjectStyle.WindowsDesktop && tfm.ContainsIgnoreCase(MSBuildFacts.Net5)
+                    ? MSBuildFacts.Net5Windows
+                    : tfm;
+
+            baselineProject = new BaselineProject(newProject, propertiesInTheBaseline, projectStyle, outputType, tfm, keepCurrentTFMs);
+            return true;
         }
 
         private bool IsSupportedOutputType(ProjectOutputType type) =>
@@ -242,21 +256,13 @@ namespace MSBuild.Abstractions
                 }
                 else
                 {
-                    var lastImport = imports.Last();
-                    var lastImportFileName = Path.GetFileName(lastImport.Project);
+                    var cleansedImports = imports.Select(import => Path.GetFileName(import.Project));
+                    var allImportsConvertibleToSdk =
+                        cleansedImports.All(import =>
+                            MSBuildFacts.PropsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase) ||
+                            MSBuildFacts.TargetsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase));
 
-                    if (firstImportFileName == FSharpFacts.FSharpTargetsPathVariableName)
-                    {
-                        firstImportFileName = Path.GetFileName(FSharpFacts.FSharpTargetsPath);
-                    }
-
-                    if (lastImportFileName == FSharpFacts.FSharpTargetsPathVariableName)
-                    {
-                        lastImportFileName = Path.GetFileName(FSharpFacts.FSharpTargetsPath);
-                    }
-
-                    if (MSBuildFacts.PropsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase) &&
-                        imports.Any(import => MSBuildFacts.TargetsConvertibleToSDK.Contains(Path.GetFileName(import.Project), StringComparer.OrdinalIgnoreCase)))
+                    if (allImportsConvertibleToSdk)
                     {
                         if (MSBuildHelpers.IsNETFrameworkMSTestProject(projectRootElement))
                         {
@@ -277,6 +283,26 @@ namespace MSBuild.Abstractions
                     }
                     else
                     {
+                        Console.WriteLine("This project has custom imports that are not accepted by try-convert.");
+                        Console.WriteLine("Unexpected custom imports were found:");
+
+                        var customImports =
+                            cleansedImports.Where(import =>
+                                !(MSBuildFacts.PropsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase) ||
+                                  MSBuildFacts.TargetsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase)));
+
+                        foreach (var import in customImports)
+                        {
+                            Console.WriteLine($"\t{import}");
+                        }
+
+                        Console.WriteLine("The following imports are considered valid for conversion:");
+
+                        foreach (var import in MSBuildFacts.TargetsConvertibleToSDK.Union(MSBuildFacts.PropsConvertibleToSDK))
+                        {
+                            Console.WriteLine($"\t{import}");
+                        }
+
                         // It's something else, no idea what though
                         return ProjectStyle.Custom;
                     }
@@ -344,7 +370,7 @@ namespace MSBuild.Abstractions
                     {
                         return true;
                     }
-                }
+            }
 
             static void PrintGuidMessage(IEnumerable<string> allSupportedProjectTypeGuids, IEnumerable<string> allReadProjectTypeGuids)
             {

@@ -16,7 +16,7 @@ namespace MSBuild.Abstractions
     {
         public ImmutableArray<MSBuildConversionWorkspaceItem> WorkspaceItems { get; }
 
-        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup, string tfm, bool keepCurrentTFMs)
+        public MSBuildConversionWorkspace(ImmutableArray<string> paths, bool noBackup, string tfm, bool keepCurrentTFMs, bool forceWeb)
         {
             var items = ImmutableArray.CreateBuilder<MSBuildConversionWorkspaceItem>();
 
@@ -35,7 +35,7 @@ namespace MSBuild.Abstractions
                 }
 
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
-                if (IsSupportedProjectType(root))
+                if (IsSupportedProjectType(root, forceWeb))
                 {
 
                     var configurations = DetermineConfigurations(root);
@@ -114,6 +114,9 @@ namespace MSBuild.Abstractions
                             ? MSBuildFacts.DefaultSDKAttribute
                             : DesktopFacts.WinSDKAttribute; // pre-.NET 5 apps need a special SDK attribute.
                     break;
+                case ProjectStyle.Web:
+                    rootElement.Sdk = WebFacts.WebSDKAttribute;
+                    break;
                 default:
                     baselineProject = null;
                     return false;
@@ -121,8 +124,15 @@ namespace MSBuild.Abstractions
 
             var propGroup = rootElement.AddPropertyGroup();
             propGroup.AddProperty(MSBuildFacts.TargetFrameworkNodeName, project.GetTargetFramework());
-            propGroup.AddProperty(MSBuildFacts.OutputTypeNodeName,
-                project.GetPropertyValue(MSBuildFacts.OutputTypeNodeName) ?? throw new InvalidOperationException($"OutputType is not set! '{projectFilePath}'"));
+
+            var outputTypeValue = outputType switch
+            {
+                ProjectOutputType.Exe => MSBuildFacts.ExeOutputType,
+                ProjectOutputType.Library => MSBuildFacts.LibraryOutputType,
+                ProjectOutputType.WinExe => MSBuildFacts.WinExeOutputType,
+                _ => project.GetPropertyValue(MSBuildFacts.OutputTypeNodeName)
+            };
+            propGroup.AddProperty(MSBuildFacts.OutputTypeNodeName, outputTypeValue ?? throw new InvalidOperationException($"OutputType is not set! '{projectFilePath}'"));
 
             if (projectStyle == ProjectStyle.WindowsDesktop)
             {
@@ -186,6 +196,15 @@ namespace MSBuild.Abstractions
 
         private ProjectOutputType GetProjectOutputType(IProjectRootElement root)
         {
+            if (root.Imports.Any(i => i.Project.Contains(WebFacts.WebApplicationTargets, StringComparison.OrdinalIgnoreCase)))
+            {
+                // ASP.NET Core apps use an EXE output type even though ASP.NET apps use Library
+                // Note that this specifically looks for WebApplicationTargets (rather than a System.Web reference) since
+                // ASP.NET libraries may reference System.Web and should still use a Library output types. Only ASP.NET
+                // apps should convert with Exe output type.
+                return ProjectOutputType.Exe;
+            }
+
             var outputTypeNode = root.GetOutputTypeNode();
             if (outputTypeNode is null)
             {
@@ -253,6 +272,10 @@ namespace MSBuild.Abstractions
                         {
                             return ProjectStyle.WindowsDesktop;
                         }
+                        else if (MSBuildHelpers.IsWeb(projectRootElement))
+                        {
+                            return ProjectStyle.Web;
+                        }
                         else
                         {
                             return ProjectStyle.Default;
@@ -287,7 +310,7 @@ namespace MSBuild.Abstractions
             }
         }
 
-        private bool IsSupportedProjectType(IProjectRootElement root)
+        private bool IsSupportedProjectType(IProjectRootElement root, bool forceWeb)
         {
             if (root.Sdk.ContainsIgnoreCase(MSBuildFacts.DefaultSDKAttribute))
             {
@@ -318,7 +341,9 @@ namespace MSBuild.Abstractions
             {
                 case ProjectSupportType.LegacyWeb:
                     Console.WriteLine($"'{root.FullPath}' is a legacy web project and/or reference System.Web. Legacy Web projects and System.Web are unsupported on .NET Core. You will need to rewrite your application or find a way to not depend on System.Web to convert this project.");
-                    return false;
+
+                    // Proceed only if migrating web scenarios is explicitly enabled
+                    return forceWeb;
                 case ProjectSupportType.CodedUITest:
                     Console.WriteLine($"'{root.FullPath}' is a coded UI test. Coded UI tests are deprecated and not convertable to .NET Core.");
                     return false;

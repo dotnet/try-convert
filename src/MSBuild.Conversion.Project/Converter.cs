@@ -37,6 +37,7 @@ namespace MSBuild.Conversion.Project
 
                 // Now we can convert the project over
                 .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject)
+                .UpdateOutputTypeProperty(_sdkBaselineProject)
                 .RemoveDefaultedProperties(_sdkBaselineProject, _differs)
                 .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle)
                 .AddTargetFrameworkProperty(_sdkBaselineProject, _sdkBaselineProject.TargetTFM)
@@ -46,6 +47,7 @@ namespace MSBuild.Conversion.Project
                 .RemoveOrUpdateItems(_differs, _sdkBaselineProject, _sdkBaselineProject.TargetTFM)
                 .AddItemRemovesForIntroducedItems(_differs)
                 .RemoveUnnecessaryTargetsIfTheyExist()
+                .RemoveWebExtensions(_sdkBaselineProject.ProjectStyle)
                 .ModifyProjectElement();
         }
 

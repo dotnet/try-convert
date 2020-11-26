@@ -215,6 +215,22 @@ namespace MSBuild.Abstractions
         }
 
         /// <summary>
+        /// Determines if a given project references ASP.NET assemblies.
+        /// </summary>
+        public static bool IsWeb(IProjectRootElement projectRoot)
+        {
+            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
+            if (references is null)
+            {
+                return false;
+            }
+            else
+            {
+                return WebFacts.KnownWebReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            }
+        }
+
+        /// <summary>
         /// Determines if a project is a .NET Framework MSTest project by looking at its references.
         /// </summary>
         /// <param name="root"></param>

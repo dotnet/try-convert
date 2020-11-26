@@ -39,8 +39,7 @@ namespace MSBuild.Conversion.Facts
         /// </remarks>
         public static ImmutableArray<string> KnownWinFormsReferences => ImmutableArray.Create(
             "System.Windows.Forms",
-            "System.Deployment",
-            "System.Drawing"
+            "System.Deployment"
         );
 
         public static ImmutableArray<string> KnownDesktopReferences => ImmutableArray.Create(

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 
 using Microsoft.Build.Construction;
@@ -19,6 +21,7 @@ namespace MSBuild.Abstractions
         ICollection<ProjectPropertyGroupElement> PropertyGroups { get; }
         ICollection<ProjectItemGroupElement> ItemGroups { get; }
         ICollection<ProjectTargetElement> Targets { get; }
+        ProjectExtensionsElement? ProjectExtensions { get; }
 
         ProjectPropertyElement CreatePropertyElement(string propertyName);
         ProjectPropertyGroupElement AddPropertyGroup();
@@ -31,6 +34,8 @@ namespace MSBuild.Abstractions
 
     public class MSBuildProjectRootElement : IProjectRootElement
     {
+        private const string ProjectExtensionsElementName = "ProjectExtensions";
+
         private readonly ProjectRootElement _rootElement;
 
         public MSBuildProjectRootElement(ProjectRootElement rootElement)
@@ -50,6 +55,7 @@ namespace MSBuild.Abstractions
         public ICollection<ProjectPropertyGroupElement> PropertyGroups => _rootElement.PropertyGroups;
         public ICollection<ProjectItemGroupElement> ItemGroups => _rootElement.ItemGroups;
         public ICollection<ProjectTargetElement> Targets => _rootElement.Targets;
+        public ProjectExtensionsElement? ProjectExtensions => _rootElement.Children.FirstOrDefault(e => e.ElementName.Equals(ProjectExtensionsElementName, StringComparison.OrdinalIgnoreCase)) as ProjectExtensionsElement;
 
         public ProjectItemGroupElement AddItemGroup() => _rootElement.AddItemGroup();
 

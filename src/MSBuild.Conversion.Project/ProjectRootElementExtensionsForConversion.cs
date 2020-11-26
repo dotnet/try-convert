@@ -23,11 +23,31 @@ namespace MSBuild.Conversion.Project
             {
                 projectRootElement.Sdk = DesktopFacts.WinSDKAttribute;
             }
+            else if (MSBuildHelpers.IsWeb(projectRootElement))
+            {
+                projectRootElement.Sdk = WebFacts.WebSDKAttribute;
+            }
             else
             {
                 projectRootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
             }
 
+            return projectRootElement;
+        }
+
+        public static IProjectRootElement UpdateOutputTypeProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
+        {
+            var outputTypeNode = projectRootElement.GetOutputTypeNode();
+            if (outputTypeNode != null)
+            {
+                outputTypeNode.Value = baselineProject.OutputType switch
+                {
+                    ProjectOutputType.Exe => MSBuildFacts.ExeOutputType,
+                    ProjectOutputType.Library => MSBuildFacts.LibraryOutputType,
+                    ProjectOutputType.WinExe => MSBuildFacts.WinExeOutputType,
+                    _ => throw new InvalidOperationException("Unsupported output type: " + baselineProject.OutputType)
+                };
+            }
             return projectRootElement;
         }
 
@@ -279,6 +299,12 @@ namespace MSBuild.Conversion.Project
                 {
                     projectRootElement.RemoveChild(target);
                 }
+
+                // ASP.NET target for building views which is no longer needed in ASP.NET Core.
+                if (target.Name.Equals(WebFacts.MvcBuildViewsName, StringComparison.OrdinalIgnoreCase))
+                {
+                    projectRootElement.RemoveChild(target);
+                }
             }
 
             return projectRootElement;
@@ -456,6 +482,21 @@ namespace MSBuild.Conversion.Project
             var targetFrameworkElement = projectRootElement.CreatePropertyElement(MSBuildFacts.TargetFrameworkNodeName);
             targetFrameworkElement.Value = tfm;
             propGroup.PrependChild(targetFrameworkElement);
+            return projectRootElement;
+        }
+
+        public static IProjectRootElement RemoveWebExtensions(this IProjectRootElement projectRootElement, ProjectStyle projectStyle)
+        {
+            // ASP.NET apps often contain project extensions that aren't used in ASP.NET Core
+            if (projectStyle == ProjectStyle.Web)
+            {
+                var extensions = projectRootElement.ProjectExtensions;
+                if (extensions != null)
+                {
+                    projectRootElement.RemoveChild(extensions);
+                }
+            }
+
             return projectRootElement;
         }
     }

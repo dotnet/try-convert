@@ -13,13 +13,16 @@ namespace MSBuild.Conversion.Project
         private readonly UnconfiguredProject _project;
         private readonly BaselineProject _sdkBaselineProject;
         private readonly IProjectRootElement _projectRootElement;
+        private readonly bool _noBackup;
         private readonly ImmutableDictionary<string, Differ> _differs;
 
-        public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject, IProjectRootElement projectRootElement)
+        public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject,
+            IProjectRootElement projectRootElement, bool noBackup)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _sdkBaselineProject = sdkBaselineProject;
             _projectRootElement = projectRootElement ?? throw new ArgumentNullException(nameof(projectRootElement));
+            _noBackup = noBackup;
             _differs = GetDiffers();
         }
 
@@ -33,7 +36,7 @@ namespace MSBuild.Conversion.Project
         {
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways
-                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.TargetTFM)
+                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.TargetTFM, _noBackup)
 
                 // Now we can convert the project over
                 .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject)

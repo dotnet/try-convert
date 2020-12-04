@@ -38,7 +38,7 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "--force-web-conversion" }, "Attempt to convert MVC and WebAPI projects even though significant manual work is necessary after migrating such projects.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--preview" }, "Use preview SDKs as part of conversion") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done") { Argument = new Argument<bool>(() => false) })
-                .AddOption(new Option(new[] { "--no-backup" }, "Converts projects and does not create a backup of the originals.") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "--no-backup" }, "Converts projects, does not create a backup of the originals and removes packages.config file.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
@@ -125,7 +125,7 @@ namespace MSBuild.Conversion
                     }
                     else
                     {
-                        var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement);
+                        var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement, noBackup);
                         converter.Convert(item.ProjectRootElement.FullPath);
                     }
                 }

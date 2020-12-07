@@ -26,20 +26,20 @@ namespace SmokeTests
             solutionPathFixture.SetCurrentDirectory();
         }
 
-        [Fact(Skip = "Legacy F# support is not installed on any build machines")]
+        [Fact]
         public void ConvertsLegacyFSharpConsoleToNetCoreApp31()
         {
             var projectToConvertPath = GetFSharpProjectPath("SmokeTests.LegacyFSharpConsole");
-            var projectBaselinePath = GetFSharpProjectPath("SmokeTests.FSharpConsoleBaseline");
+            var projectBaselinePath = GetFSharpProjectPath("SmokeTests.FSharpConsoleCoreBaseline");
             AssertConversionWorks(projectToConvertPath, projectBaselinePath, "netcoreapp3.1");
         }
 
-        [Fact(Skip = "Legacy F# support is not installed on any build machines")]
+        [Fact]
         public void ConvertsLegacyFSharpConsoleToNet50()
         {
             var projectToConvertPath = GetFSharpProjectPath("SmokeTests.LegacyFSharpConsole");
-            var projectBaselinePath = GetFSharpProjectPath("SmokeTests.FSharpConsoleBaseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "netcoreapp3.1");
+            var projectBaselinePath = GetFSharpProjectPath("SmokeTests.FSharpConsoleNet5Baseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0");
         }
 
         [Fact]

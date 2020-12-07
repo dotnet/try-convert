@@ -31,7 +31,7 @@ namespace MSBuild.Abstractions
                 return MSBuildFacts.Net5Windows;
             }
 
-            if (projectStyle is not ProjectStyle.MSTest && outputType is ProjectOutputType.Library)
+            if (projectStyle is not ProjectStyle.MSTest && projectStyle is not ProjectStyle.Web && outputType is ProjectOutputType.Library)
             {
                 return MSBuildFacts.NetStandard20;
             }

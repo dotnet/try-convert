@@ -139,13 +139,11 @@ namespace MSBuild.Abstractions
         /// <summary>
         /// Given a TFM string, determines if that TFM has an explicit System.ValueTuple reference.
         /// </summary>
-        public static bool FrameworkHasAValueTuple(string tfm)
-        {
-            return !tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude)
-                && !tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
-                && (tfm.StartsWith("net", StringComparison.OrdinalIgnoreCase)
-                    && tfm.StartsWith(MSBuildFacts.LowestFrameworkVersionWithSystemValueTuple));
-        }
+        public static bool FrameworkHasAValueTuple(string tfm) =>
+            tfm.StartsWith(MSBuildFacts.NetstandardPrelude, StringComparison.OrdinalIgnoreCase)
+            || tfm.StartsWith(MSBuildFacts.NetcoreappPrelude, StringComparison.OrdinalIgnoreCase)
+            || tfm.StartsWith(MSBuildFacts.Net5, StringComparison.OrdinalIgnoreCase)
+            || tfm.StartsWith(MSBuildFacts.LowestFrameworkVersionWithSystemValueTuple, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Gets all Reference items from a given item group.

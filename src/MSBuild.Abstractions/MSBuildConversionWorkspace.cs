@@ -34,6 +34,14 @@ namespace MSBuild.Abstractions
                     continue;
                 }
 
+                // This is a hack, but the only way to handle this is to re-architect try-convert along these lines:
+                // 1. Launch a .NET Framework process using the VS-deployed MSBuild to evaluate a project
+                // 2. Serialize the evaluation model
+                // 3. Use the .NET Core process to load MSBuild, but this time from .NET SDK
+                // 4. Deserialize the evaluation model
+                // 5. Do conversions
+                RemoveTargetsNotLoadableByNETSDKMSBuild(path);
+
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
                 if (IsSupportedProjectType(root, forceWeb))
                 {
@@ -89,6 +97,25 @@ namespace MSBuild.Abstractions
             return builder.ToImmutable();
         }
 
+        private void RemoveTargetsNotLoadableByNETSDKMSBuild(string path)
+        {
+            var projectFile = File.ReadAllText(path);
+            if (projectFile is { Length:>0 })
+            {
+                var replacement =
+                    projectFile
+                        // Legacy web project specify these two targets paths. They aren't loadable by the .NET SDK msbuild process, so we just remove them.
+                        // They aren't actually useful as an end result when converting web projects. When people conver to .NET Core they will just use the Web SDK attribute.
+                        .Replace("<Import Project=\"$(VSToolsPath)\\WebApplications\\Microsoft.WebApplication.targets\" Condition=\"'$(VSToolsPath)' != ''\" />", "")
+                        .Replace("<Import Project=\"$(MSBuildExtensionsPath32)\\Microsoft\\VisualStudio\\v10.0\\WebApplications\\Microsoft.WebApplication.targets\" Condition=\"false\" />", "")
+
+                        // Legacy F# projects specify this import. It's not loadable by the .NET SDK MSBuild, and .NET Core-based F# projects don't use it. So we just remove it.
+                        .Replace("<Import Project=\"$(FSharpTargetsPath)\" />", "");
+
+                File.WriteAllText(path, replacement);
+            }
+        }
+
         /// <summary>
         /// Clear out the project's construction model and add a simple SDK-based project to get a baseline.
         /// We need to use the same name as the original csproj and same path so that all the default that derive
@@ -97,7 +124,7 @@ namespace MSBuild.Abstractions
         private bool TryCreateSdkBaselineProject(string projectFilePath, IProject project, IProjectRootElement root, ImmutableDictionary<string, ImmutableDictionary<string, string>> configurations, string tfm, bool keepCurrentTFMs, [NotNullWhen(true)] out BaselineProject? baselineProject)
         {
             var projectStyle = GetProjectStyle(root);
-            var outputType = GetProjectOutputType(root);
+            var outputType = GetProjectOutputType(root, projectStyle);
             var rootElement = ProjectRootElement.Open(projectFilePath);
 
             rootElement.RemoveAllChildren();
@@ -194,12 +221,15 @@ namespace MSBuild.Abstractions
                 _ => false
             };
 
-        private ProjectOutputType GetProjectOutputType(IProjectRootElement root)
+        private ProjectOutputType GetProjectOutputType(IProjectRootElement root) =>
+            GetProjectOutputType(root, GetProjectStyle(root));
+
+        private ProjectOutputType GetProjectOutputType(IProjectRootElement root, ProjectStyle projectStyle)
         {
-            if (root.Imports.Any(i => i.Project.Contains(WebFacts.WebApplicationTargets, StringComparison.OrdinalIgnoreCase)))
+            if (projectStyle == ProjectStyle.Web)
             {
-                // ASP.NET Core apps use an EXE output type even though ASP.NET apps use Library
-                // Note that this specifically looks for WebApplicationTargets (rather than a System.Web reference) since
+                // ASP.NET Core apps use an EXE output type even though legacy ASP.NET apps use Library
+                // Note that this specifically checks the project style only (rather than a System.Web reference) since
                 // ASP.NET libraries may reference System.Web and should still use a Library output types. Only ASP.NET
                 // apps should convert with Exe output type.
                 return ProjectOutputType.Exe;

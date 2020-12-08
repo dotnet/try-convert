@@ -34,9 +34,7 @@ namespace MSBuild.Abstractions.Tests
         }
 
         [Theory]
-        [InlineData(null, null, "v4.6")]
         [InlineData(null, ".NETCoreApp", null)]
-        [InlineData(null, "Unknown", null)]
         public void GetTargetFramework_Throws(string targetFramework, string targetFrameworkIdentifier, string targetFrameworkVersion)
         {
             var properties = new Dictionary<string, string>();

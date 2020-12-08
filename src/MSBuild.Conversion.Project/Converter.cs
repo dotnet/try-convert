@@ -36,7 +36,7 @@ namespace MSBuild.Conversion.Project
         {
             return _projectRootElement
                 // Let's convert packages first, since that's what you should do manually anyways
-                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.TargetTFM, _noBackup)
+                .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.TargetTFM, removePackagesConfig: _noBackup)
 
                 // Now we can convert the project over
                 .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject)

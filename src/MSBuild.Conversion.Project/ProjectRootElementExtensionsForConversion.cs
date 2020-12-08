@@ -318,7 +318,7 @@ namespace MSBuild.Conversion.Project
         }
 
         public static IProjectRootElement ConvertAndAddPackages(this IProjectRootElement projectRootElement,
-            ProjectStyle projectStyle, string tfm, bool noBackup)
+            ProjectStyle projectStyle, string tfm, bool removePackagesConfig)
         {
             var packagesConfigItemGroup = MSBuildHelpers.GetPackagesConfigItemGroup(projectRootElement);
             if (packagesConfigItemGroup is null)
@@ -373,7 +373,7 @@ namespace MSBuild.Conversion.Project
             }
 
             packagesConfigItemGroup.RemoveChild(packagesConfigItem);
-            if (noBackup)
+            if (removePackagesConfig)
             {
                 File.Delete(path);
             }

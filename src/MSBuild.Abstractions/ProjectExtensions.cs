@@ -32,7 +32,9 @@ namespace MSBuild.Abstractions
             var tfi = project.GetPropertyValue(MSBuildFacts.LegacyTargetFrameworkPropertyNodeName);
             if (string.IsNullOrWhiteSpace(tfi))
             {
-                throw new InvalidOperationException($"{MSBuildFacts.LegacyTargetFrameworkPropertyNodeName} is not set!");
+                // For some befuddling reason, legacy F# projects don't actually have a TFI.
+                // We just assume it's .NET Framework though, because like, that's just what it's gonna be anyways.
+                tfi = ".NETFramework";
             }
 
             var tfv = project.GetPropertyValue(MSBuildFacts.LegacyTargetFrameworkVersionNodeName);

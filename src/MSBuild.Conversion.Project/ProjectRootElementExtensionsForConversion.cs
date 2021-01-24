@@ -155,7 +155,7 @@ namespace MSBuild.Conversion.Project
                 {
                     if (item.HasMetadata && ProjectItemHelpers.CanItemMetadataBeRemoved(item))
                     {
-                        foreach (var metadataElement in item.Metadata)
+                        foreach (var metadataElement in item.Metadata.Where(x => x.ElementName != "Aliases"))
                         {
                             item.RemoveChild(metadataElement);
                         }

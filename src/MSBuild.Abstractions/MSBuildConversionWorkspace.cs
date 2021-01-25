@@ -361,7 +361,7 @@ namespace MSBuild.Abstractions
 
             if (root.ItemGroups.Any(ig => ig.Items.Any(i => string.Equals(i.Include, MSBuildFacts.AppConfig))))
             {
-                Console.Write($"{root.FullPath} contains an App.config file. App.config is replaced by appsettings.json in .NET Core. You will need to delete App.config and migrate to appsettings.json if it's applicable to your project.");
+                Console.WriteLine($"{root.FullPath} contains an App.config file. App.config is replaced by appsettings.json in .NET Core. You will need to delete App.config and migrate to appsettings.json if it's applicable to your project.");
             }
 
             // Lots of wild old project types have project type guids that the old project system uses to light things up!

@@ -10,6 +10,19 @@ Install it as a global tool here:
 dotnet tool install -g try-convert
 ```
 
+To convert everything in your solution run this:
+
+```
+try-convert -w .\<your-project-name>.sln
+```
+
+If you want more help run:
+
+```
+try-convert --help
+```
+
+
 Because this is for converting older .NET Framework (Windows) projects, the tool only works on Windows.
 
 If you're using the tool again, make sure you've got the latest release: https://github.com/dotnet/try-convert/releases

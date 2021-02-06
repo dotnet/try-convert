@@ -10,9 +10,41 @@ Install it as a global tool here:
 dotnet tool install -g try-convert
 ```
 
-Because this is for converting older .NET Framework (Windows) projects, the tool only works on Windows.
+If you already have it installed, make sure to update:
+
+```
+dotnet tool update -h try-convert
+```
 
 If you're using the tool again, make sure you've got the latest release: https://github.com/dotnet/try-convert/releases
+
+## How to use the tool
+
+Nagivate to the root of your solution and simply execute:
+
+```console
+try-convert
+```
+
+Alternatively, you can do
+
+```console
+try-convert -w .
+```
+
+If you only want to convert a specific subfolder, solution, or project, type:
+
+```console
+try-convert -w path-to-folder-or-solution-or-project
+```
+
+If you want more help from the tool, run:
+
+```console
+try-convert -h
+```
+
+Because this is for converting older .NET Framework (Windows) projects, the tool only works on Windows.
 
 **NOTE:** Do not use this tool from the Visual Studio developer command prompt. There is special MSBuild resolution that happens there and it ends up being incompatible with the tool. Please use a normal terminal application.
 

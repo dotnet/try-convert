@@ -275,68 +275,56 @@ namespace MSBuild.Abstractions
             {
                 return ProjectStyle.Custom;
             }
-            else
-            {
-                var firstImport = imports.First();
-                var firstImportFileName = Path.GetFileName(firstImport.Project);
 
-                if (importsCount == 1 && MSBuildFacts.TargetsConvertibleToSDK.Contains(firstImportFileName, StringComparer.OrdinalIgnoreCase))
+            var cleansedImports = imports.Select(import => Path.GetFileName(import.Project));
+            var allImportsConvertibleToSdk =
+                cleansedImports.All(import =>
+                    MSBuildFacts.PropsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase) ||
+                    MSBuildFacts.TargetsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase));
+
+            if (allImportsConvertibleToSdk)
+            {
+                if (MSBuildHelpers.IsNETFrameworkMSTestProject(projectRootElement))
                 {
-                    return ProjectStyle.DefaultSubset;
+                    return ProjectStyle.MSTest;
+                }
+                else if (MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement))
+                {
+                    return ProjectStyle.WindowsDesktop;
+                }
+                else if (MSBuildHelpers.IsWeb(projectRootElement))
+                {
+                    return ProjectStyle.Web;
                 }
                 else
                 {
-                    var cleansedImports = imports.Select(import => Path.GetFileName(import.Project));
-                    var allImportsConvertibleToSdk =
-                        cleansedImports.All(import =>
-                            MSBuildFacts.PropsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase) ||
-                            MSBuildFacts.TargetsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase));
-
-                    if (allImportsConvertibleToSdk)
-                    {
-                        if (MSBuildHelpers.IsNETFrameworkMSTestProject(projectRootElement))
-                        {
-                            return ProjectStyle.MSTest;
-                        }
-                        else if (MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement))
-                        {
-                            return ProjectStyle.WindowsDesktop;
-                        }
-                        else if (MSBuildHelpers.IsWeb(projectRootElement))
-                        {
-                            return ProjectStyle.Web;
-                        }
-                        else
-                        {
-                            return ProjectStyle.Default;
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("This project has custom imports that are not accepted by try-convert.");
-                        Console.WriteLine("Unexpected custom imports were found:");
-
-                        var customImports =
-                            cleansedImports.Where(import =>
-                                !(MSBuildFacts.PropsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase) ||
-                                  MSBuildFacts.TargetsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase)));
-
-                        foreach (var import in customImports)
-                        {
-                            Console.WriteLine($"\t{import}");
-                        }
-
-                        Console.WriteLine("The following imports are considered valid for conversion:");
-
-                        foreach (var import in MSBuildFacts.TargetsConvertibleToSDK.Union(MSBuildFacts.PropsConvertibleToSDK))
-                        {
-                            Console.WriteLine($"\t{import}");
-                        }
-
-                        // It's something else, no idea what though
-                        return ProjectStyle.Custom;
-                    }
+                    return ProjectStyle.Default;
                 }
+            }
+            else
+            {
+                Console.WriteLine("This project has custom imports that are not accepted by try-convert.");
+                Console.WriteLine("Unexpected custom imports were found:");
+
+                var customImports =
+                    cleansedImports.Where(import =>
+                        !(MSBuildFacts.PropsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase) ||
+                            MSBuildFacts.TargetsConvertibleToSDK.Contains(import, StringComparer.OrdinalIgnoreCase)));
+
+                foreach (var import in customImports)
+                {
+                    Console.WriteLine($"\t{import}");
+                }
+
+                Console.WriteLine("The following imports are considered valid for conversion:");
+
+                foreach (var import in MSBuildFacts.TargetsConvertibleToSDK.Union(MSBuildFacts.PropsConvertibleToSDK))
+                {
+                    Console.WriteLine($"\t{import}");
+                }
+
+                // It's something else, no idea what though
+                return ProjectStyle.Custom;
             }
         }
 

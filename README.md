@@ -13,7 +13,7 @@ dotnet tool install -g try-convert
 If you already have it installed, make sure to update:
 
 ```
-dotnet tool update -h try-convert
+dotnet tool update -g try-convert
 ```
 
 If you're using the tool again, make sure you've got the latest release: https://github.com/dotnet/try-convert/releases

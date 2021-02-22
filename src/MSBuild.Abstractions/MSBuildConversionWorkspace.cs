@@ -100,7 +100,7 @@ namespace MSBuild.Abstractions
         private void RemoveTargetsNotLoadableByNETSDKMSBuild(string path)
         {
             var projectFile = File.ReadAllText(path);
-            if (projectFile is { Length:>0 })
+            if (projectFile is { Length: > 0 })
             {
                 var replacement =
                     projectFile
@@ -177,6 +177,11 @@ namespace MSBuild.Abstractions
                 if (MSBuildHelpers.IsDesktop(root) && !MSBuildHelpers.HasWPFOrWinForms(propGroup))
                 {
                     MSBuildHelpers.AddUseWinForms(propGroup);
+                }
+
+                if (MSBuildHelpers.HasWPFOrWinForms(propGroup) && tfm.ContainsIgnoreCase(MSBuildFacts.Net5))
+                {
+                    MSBuildHelpers.AddImportWindowsDesktopTargets(propGroup);
                 }
             }
 

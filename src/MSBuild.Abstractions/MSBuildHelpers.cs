@@ -282,6 +282,12 @@ namespace MSBuild.Abstractions
         public static void AddUseWPF(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.UseWPFPropertyName, "true");
 
         /// <summary>
+        /// Adds the ImportWindowsDesktopTargets=true property to ensure builds targeting .NET Framework will succeed.
+        /// </summary>
+        /// <param name="propGroup"></param>
+        public static void AddImportWindowsDesktopTargets(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.ImportWindowsDesktopTargetsName, "true");
+
+        /// <summary>
         /// Finds the property group with the TFM specified, which is normally the top-level property group.
         /// </summary>
         public static ProjectPropertyGroupElement GetOrCreateTopLevelPropertyGroupWithTFM(IProjectRootElement rootElement) =>

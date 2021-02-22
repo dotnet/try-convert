@@ -418,6 +418,13 @@ namespace MSBuild.Conversion.Project
                 MSBuildHelpers.AddUseWPF(propGroup);
             }
 
+            if (!baselineProject.GlobalProperties.Contains(DesktopFacts.ImportWindowsDesktopTargetsName, StringComparer.OrdinalIgnoreCase)
+             && !projectRootElement.Sdk.Equals(DesktopFacts.WinSDKAttribute)
+             && (MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsWinForms(projectRootElement)))
+            {
+                MSBuildHelpers.AddImportWindowsDesktopTargets(propGroup);
+            }
+
             return projectRootElement;
         }
 

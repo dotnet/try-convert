@@ -10,15 +10,16 @@ namespace MSBuild.Conversion.Facts
     public static class MSBuildFacts
     {
         /// <summary>
-        /// Props files which are known to be imported in standard projects created from templates that can be converted to use the SDK
+        /// Props files which are known to be imported in standard projects created from templates that can be omitted from SDK projects.
         /// </summary>
         public static ImmutableArray<string> PropsConvertibleToSDK => ImmutableArray.Create(
             "Microsoft.Common.props",
-            "MSTest.TestAdapter.props"
+            "MSTest.TestAdapter.props",
+            "Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props"
         );
 
         /// <summary>
-        /// Targets files which are known to be imported in standard projects created from templates that can be converted to use the SDK.
+        /// Targets files which are known to be imported in standard projects created from templates that can be omitted from SDK projects.
         /// </summary>
         public static ImmutableArray<string> TargetsConvertibleToSDK => ImmutableArray.Create(
             "Microsoft.CSharp.targets",

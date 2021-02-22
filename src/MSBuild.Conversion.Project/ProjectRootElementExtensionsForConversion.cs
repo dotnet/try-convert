@@ -17,12 +17,12 @@ namespace MSBuild.Conversion.Project
             foreach (var import in projectRootElement.Imports)
             {
                 var fileName = Path.GetFileName(import.Project);
-                if (MSBuildFacts.PropsConvertibleToSDK.Contains(fileName, StringComparer.OrdinalIgnoreCase) ||
-                    MSBuildFacts.TargetsConvertibleToSDK.Contains(fileName, StringComparer.OrdinalIgnoreCase))
+                if (MSBuildFacts.PropsToRemove.Contains(fileName, StringComparer.OrdinalIgnoreCase) ||
+                    MSBuildFacts.TargetsToRemove.Contains(fileName, StringComparer.OrdinalIgnoreCase))
                 {
                     projectRootElement.RemoveChild(import);
                 }
-                else
+                else if (!MSBuildFacts.ImportsToKeep.Contains(fileName, StringComparer.OrdinalIgnoreCase))
                 {
                     Console.WriteLine($"This project has an unrecognized custom import which may need reviewed after conversion: {fileName}");
                 }

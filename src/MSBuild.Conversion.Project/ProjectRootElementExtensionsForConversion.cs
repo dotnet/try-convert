@@ -16,7 +16,16 @@ namespace MSBuild.Conversion.Project
         {
             foreach (var import in projectRootElement.Imports)
             {
-                projectRootElement.RemoveChild(import);
+                var fileName = Path.GetFileName(import.Project);
+                if (MSBuildFacts.PropsConvertibleToSDK.Contains(fileName, StringComparer.OrdinalIgnoreCase) ||
+                    MSBuildFacts.TargetsConvertibleToSDK.Contains(fileName, StringComparer.OrdinalIgnoreCase))
+                {
+                    projectRootElement.RemoveChild(import);
+                }
+                else
+                {
+                    Console.WriteLine($"This project has an unrecognized custom import which may need reviewed after conversion: {fileName}");
+                }
             }
 
             if (baselineProject.ProjectStyle is ProjectStyle.WindowsDesktop && baselineProject.TargetTFM is MSBuildFacts.NetCoreApp31)

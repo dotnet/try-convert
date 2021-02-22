@@ -10,17 +10,19 @@ namespace MSBuild.Conversion.Facts
     public static class MSBuildFacts
     {
         /// <summary>
-        /// Props files which are known to be imported in standard projects created from templates that can be converted to use the SDK
+        /// Props files which are known to be imported in standard projects created from templates that can be omitted from SDK projects.
         /// </summary>
-        public static ImmutableArray<string> PropsConvertibleToSDK => ImmutableArray.Create(
+        public static ImmutableArray<string> PropsToRemove => ImmutableArray.Create(
             "Microsoft.Common.props",
-            "MSTest.TestAdapter.props"
+            "MSTest.TestAdapter.props",
+            "Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props",
+            "Microsoft.Net.Compilers.props" // https://stackoverflow.com/a/60623906
         );
 
         /// <summary>
-        /// Targets files which are known to be imported in standard projects created from templates that can be converted to use the SDK.
+        /// Targets files which are known to be imported in standard projects created from templates that can be omitted from SDK projects.
         /// </summary>
-        public static ImmutableArray<string> TargetsConvertibleToSDK => ImmutableArray.Create(
+        public static ImmutableArray<string> TargetsToRemove => ImmutableArray.Create(
             "Microsoft.CSharp.targets",
             "Microsoft.VisualBasic.targets",
             "Microsoft.Portable.CSharp.targets",
@@ -29,6 +31,14 @@ namespace MSBuild.Conversion.Facts
             "MSTest.TestAdapter.targets",
             "Microsoft.TestTools.targets",
             "Microsoft.WebApplication.targets"
+        );
+
+        /// <summary>
+        /// Props and targets files which are recognized and can be left unchanged during conversion.
+        /// </summary>
+        public static ImmutableArray<string> ImportsToKeep => ImmutableArray.Create(
+            "Microsoft.TypeScript.Default.props",
+            "Microsoft.TypeScript.targets"
         );
 
         /// <summary>

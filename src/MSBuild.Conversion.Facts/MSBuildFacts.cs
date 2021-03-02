@@ -46,6 +46,7 @@ namespace MSBuild.Conversion.Facts
         /// </summary>
         public static ImmutableDictionary<string, string> PCLToNetStandardVersionMapping => ImmutableDictionary.CreateRange(new Dictionary<string, string>
         {
+            // https://github.com/dotnet/standard/blob/master/docs/versions.md#mapping-pcl-profiles-to-net-standard
             { "Profile7",        "1.1"  },
             { "Profile31",       "1.0"  },
             { "Profile32",       "1.2"  },
@@ -53,8 +54,8 @@ namespace MSBuild.Conversion.Facts
             { "Profile49",       "1.0"  },
             { "Profile78",       "1.0"  },
             { "Profile84",       "1.0"  },
-            { "Profile111",      "1.0"  },
-            { "Profile151",      "1.0"  },
+            { "Profile111",      "1.1"  },
+            { "Profile151",      "1.2"  },
             { "Profile157",      "1.0"  },
             { "Profile259",      "1.0"  },
         });

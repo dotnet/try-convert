@@ -142,7 +142,13 @@ namespace MSBuild.Abstractions
                             : DesktopFacts.WinSDKAttribute; // pre-.NET 5 apps need a special SDK attribute.
                     break;
                 case ProjectStyle.Web:
-                    rootElement.Sdk = WebFacts.WebSDKAttribute;
+                    rootElement.Sdk =
+                        // Web apps should use the web SDK (there's no good way to build a classic web apps with SDK-style projects)
+                        // but libraries with web dependencies should only use the web SDK if the TFM is updating. Otherwise, they
+                        // can work as classic ASP.NET libraries.
+                        MSBuildHelpers.IsWebApp(root) || !keepCurrentTFMs
+                            ? WebFacts.WebSDKAttribute
+                            : MSBuildFacts.DefaultSDKAttribute;
                     break;
                 default:
                     baselineProject = null;
@@ -231,10 +237,10 @@ namespace MSBuild.Abstractions
 
         private ProjectOutputType GetProjectOutputType(IProjectRootElement root, ProjectStyle projectStyle)
         {
-            if (projectStyle == ProjectStyle.Web)
+            if (MSBuildHelpers.IsWebApp(root))
             {
                 // ASP.NET Core apps use an EXE output type even though legacy ASP.NET apps use Library
-                // Note that this specifically checks the project style only (rather than a System.Web reference) since
+                // Note that this specifically checks the project guid type only (rather than a System.Web reference) since
                 // ASP.NET libraries may reference System.Web and should still use a Library output types. Only ASP.NET
                 // apps should convert with Exe output type.
                 return ProjectOutputType.Exe;
@@ -329,7 +335,7 @@ namespace MSBuild.Abstractions
             switch (projectType)
             {
                 case ProjectSupportType.LegacyWeb:
-                    Console.WriteLine($"'{root.FullPath}' is a legacy web project and/or reference System.Web. Legacy Web projects and System.Web are unsupported on .NET Core. You will need to rewrite your application or find a way to not depend on System.Web to convert this project.");
+                    Console.WriteLine($"'{root.FullPath}' is a legacy web project and/or references System.Web. Legacy Web projects and System.Web are unsupported on .NET Core. You will need to rewrite your application or find a way to not depend on System.Web to convert this project.");
 
                     // Proceed only if migrating web scenarios is explicitly enabled
                     return forceWeb;

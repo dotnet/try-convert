@@ -32,8 +32,10 @@ namespace MSBuild.Conversion.Project
             {
                 projectRootElement.Sdk = DesktopFacts.WinSDKAttribute;
             }
-            else if (MSBuildHelpers.IsWeb(projectRootElement))
+            else if (MSBuildHelpers.IsAspNetCore(projectRootElement, baselineProject.TargetTFM))
             {
+                // Libraries targeting .NET Framework can use the default SDK and still be used by NetFx callers.
+                // However, web apps (as opposed to libraries) or libraries that are targeting .NET Core/.NET should use the web SDK.
                 projectRootElement.Sdk = WebFacts.WebSDKAttribute;
             }
             else
@@ -171,6 +173,10 @@ namespace MSBuild.Conversion.Project
                     }
 
                     if (MSBuildFacts.UnnecessaryItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                    {
+                        itemGroup.RemoveChild(item);
+                    }
+                    else if (MSBuildFacts.UnnecessaryWebIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase) && MSBuildHelpers.IsAspNetCore(projectRootElement, tfm))
                     {
                         itemGroup.RemoveChild(item);
                     }
@@ -361,6 +367,12 @@ namespace MSBuild.Conversion.Project
                     }
 
                     if (MSBuildFacts.UnnecessaryItemIncludes.Contains(pkgref.ID, StringComparer.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    if (MSBuildFacts.UnnecessaryWebIncludes.Contains(pkgref.ID, StringComparer.OrdinalIgnoreCase)
+                        && MSBuildHelpers.IsAspNetCore(projectRootElement, tfm))
                     {
                         continue;
                     }

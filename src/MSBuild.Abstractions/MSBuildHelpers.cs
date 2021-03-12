@@ -229,6 +229,21 @@ namespace MSBuild.Abstractions
         }
 
         /// <summary>
+        /// Determines if a given project uses ASP.NET web app project type guid
+        /// </summary>
+        public static bool IsWebApp(IProjectRootElement projectRoot) =>
+            projectRoot.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsLegacyWebProjectTypeGuidsProperty));
+
+        /// <summary>
+        /// Determines if a project should be treated as an ASP.NET Core project (as opposed to classic ASP.NET). Returns
+        /// true if the project is a web app (since there's no good way to build an ASP.NET app with an SDK-style project
+        /// except to upgrade to ASP.NET Core) or the project has web dependencies and will target .NET/.NET Core.
+        /// </summary>
+        public static bool IsAspNetCore(IProjectRootElement projectRoot, string tfm) =>
+            IsWebApp(projectRoot) || projectRoot.Sdk.Equals(WebFacts.WebSDKAttribute)
+            || (IsWeb(projectRoot) && new[] { MSBuildFacts.Net5, MSBuildFacts.NetcoreappPrelude }.Any(s => tfm.StartsWith(s, StringComparison.OrdinalIgnoreCase)));
+
+        /// <summary>
         /// Determines if a project is a .NET Framework MSTest project by looking at its references.
         /// </summary>
         /// <param name="root"></param>

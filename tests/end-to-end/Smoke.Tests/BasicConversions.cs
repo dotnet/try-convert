@@ -82,17 +82,33 @@ namespace SmokeTests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath, "netcoreapp3.1");
         }
 
-        private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM)
+        [Fact]
+        public void ConvertsLegacyWebLibraryToNetFx()
         {
-            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath, targetTFM);
+            var projectToConvertPath = GetCSharpProjectPath("SmokeTests.LegacyWebLibrary");
+            var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WebLibraryNetFxBaseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net472", true);
+        }
+
+        [Fact]
+        public void ConvertsLegacyWebLibraryToNet5()
+        {
+            var projectToConvertPath = GetCSharpProjectPath("SmokeTests.LegacyWebLibrary");
+            var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WebLibraryNet5Baseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0", true);
+        }
+
+        private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb = false)
+        {
+            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath, targetTFM, forceWeb);
             AssertPropsEqual(baselineRootElement, convertedRootElement);
             AssertItemsEqual(baselineRootElement, convertedRootElement);
         }
 
-        private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath, string targetTFM)
+        private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb)
         {
             var conversionLoader = new MSBuildConversionWorkspaceLoader(projectToConvertPath, MSBuildConversionWorkspaceType.Project);
-            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true, targetTFM, false, forceWeb: false);
+            var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true, targetTFM, false, forceWeb);
 
             var baselineLoader = new MSBuildConversionWorkspaceLoader(projectBaselinePath, MSBuildConversionWorkspaceType.Project);
             var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);

@@ -97,7 +97,7 @@ namespace MSBuild.Abstractions
         /// Determines if a property lists the default project type GUIds for legacy web projects.
         /// </summary>
         public static bool IsLegacyWebProjectTypeGuidsProperty(ProjectPropertyElement prop) =>
-            IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').Any(guidString => MSBuildFacts.LegacyWebProjectTypeGuids.Contains(Guid.Parse(guidString)));
+            IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').Any(guidString => WebFacts.LegacyWebProjectTypeGuids.Contains(Guid.Parse(guidString)));
 
         /// <summary>
         /// Checks if a given OutputType node is wither a library, exe, or WinExe.

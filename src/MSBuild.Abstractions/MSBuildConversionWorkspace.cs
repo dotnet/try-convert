@@ -146,7 +146,7 @@ namespace MSBuild.Abstractions
                         // Web apps should use the web SDK (there's no good way to build a classic web apps with SDK-style projects)
                         // but libraries with web dependencies should only use the web SDK if the TFM is updating. Otherwise, they
                         // can work as classic ASP.NET libraries.
-                        MSBuildHelpers.IsWebApp(root) || !keepCurrentTFMs
+                        MSBuildHelpers.IsAspNetCore(root, keepCurrentTFMs ? project.GetTargetFramework() : tfm)
                             ? WebFacts.WebSDKAttribute
                             : MSBuildFacts.DefaultSDKAttribute;
                     break;

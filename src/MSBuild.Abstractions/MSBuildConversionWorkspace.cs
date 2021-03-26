@@ -331,7 +331,7 @@ namespace MSBuild.Abstractions
 
             if (!keepCurrentTFMs
                 && root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsVisualBasicProject))
-                && root.ItemGroups.Any(ig => ig.Items.Any(ProjectItemHelpers.IsUsingMyCustomToolNamespace)))
+                && root.ItemGroups.Any(ig => ig.Items.Any(ProjectItemHelpers.IsReferencingSettingsSingleFileGenerator)))
             {
                 Console.WriteLine($"{root.FullPath} uses code generators which will not be handled by try-convert. You can edit your vbproj to add support or remove these dependencies.");
             }

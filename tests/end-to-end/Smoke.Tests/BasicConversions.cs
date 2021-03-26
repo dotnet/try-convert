@@ -61,6 +61,14 @@ namespace SmokeTests
         }
 
         [Fact]
+        public void ConvertsWpfVbFrameworkTemplateForNet50()
+        {
+            var projectToConvertPath = GetVisualBasicProjectPath("SmokeTests.WpfVbFramework");
+            var projectBaselinePath = GetVisualBasicProjectPath("SmokeTests.WpfVbNet5Baseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows");
+        }
+
+        [Fact]
         public void ConvertsWinformsFrameworkTemplateForNetCoreApp31()
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WinformsFramework");

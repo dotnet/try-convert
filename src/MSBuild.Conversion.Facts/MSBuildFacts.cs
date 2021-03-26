@@ -298,5 +298,7 @@ namespace MSBuild.Conversion.Facts
         public const string Net5 = "net5.0";
         public const string Net5Windows = "net5.0-windows";
         public const string AppConfig = "App.config";
+        public const string EmbeddedResourceGeneratorProperty = "Generator";
+        public const string SettingsSingleFileGenerator = "SettingsSingleFileGenerator";
     }
 }

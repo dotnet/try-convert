@@ -127,8 +127,8 @@ namespace MSBuild.Abstractions
 
         public static bool IsReferencingSettingsSingleFileGenerator(ProjectItemElement item)
         {
-            var metadata = item.Children.FirstOrDefault(child => "Generator".Equals(child.ElementName, StringComparison.Ordinal) ) as ProjectMetadataElement;
-            return metadata is null ? false : metadata.Value.Equals("SettingsSingleFileGenerator", StringComparison.Ordinal);
+            var metadata = item.Children.FirstOrDefault(child => MSBuildFacts.EmbeddedResourceGeneratorProperty.Equals(child.ElementName, StringComparison.Ordinal) ) as ProjectMetadataElement;
+            return metadata is null ? false : metadata.Value.Equals(MSBuildFacts.SettingsSingleFileGenerator, StringComparison.Ordinal);
         }
 
     }

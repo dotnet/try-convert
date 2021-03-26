@@ -124,5 +124,12 @@ namespace MSBuild.Abstractions
         public static bool IsReferencingSystemWeb(ProjectItemElement item) =>
             item.ElementName.Equals(MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase)
             && item.Include.Equals(MSBuildFacts.SystemWebReferenceName, StringComparison.OrdinalIgnoreCase);
+
+        public static bool IsUsingMyCustomToolNamespace(ProjectItemElement item)
+        {
+            var metadata = item.Children.FirstOrDefault(child => "Generator".Equals(child.ElementName, StringComparison.Ordinal) ) as ProjectMetadataElement;
+            return metadata is null ? false : metadata.Value.Equals("SettingsSingleFileGenerator", StringComparison.Ordinal);
+        }
+
     }
 }

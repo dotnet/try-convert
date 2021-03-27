@@ -47,6 +47,7 @@ namespace MSBuild.Conversion.Facts
         );
 
         public static ImmutableArray<Guid> KnownSupportedDesktopProjectTypeGuids => ImmutableArray.Create(
+            MSBuildFacts.LanguageProjectTypeVisualBasic, // VB.NET
             Guid.Parse("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"), // C#
             Guid.Parse("{60DC8134-EBA5-43B8-BCC9-BB4BC16C2548}") // WPF
         );

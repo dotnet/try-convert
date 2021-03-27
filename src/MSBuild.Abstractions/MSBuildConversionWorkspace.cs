@@ -43,7 +43,7 @@ namespace MSBuild.Abstractions
                 RemoveTargetsNotLoadableByNETSDKMSBuild(path);
 
                 var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
-                if (IsSupportedProjectType(root, forceWeb))
+                if (IsSupportedProjectType(root, forceWeb, keepCurrentTFMs))
                 {
 
                     var configurations = DetermineConfigurations(root);
@@ -305,7 +305,7 @@ namespace MSBuild.Abstractions
             }
         }
 
-        private bool IsSupportedProjectType(IProjectRootElement root, bool forceWeb)
+        private bool IsSupportedProjectType(IProjectRootElement root, bool forceWeb, bool keepCurrentTFMs)
         {
             if (root.Sdk.ContainsIgnoreCase(MSBuildFacts.DefaultSDKAttribute))
             {
@@ -327,6 +327,13 @@ namespace MSBuild.Abstractions
             if (root.ItemGroups.Any(ig => ig.Items.Any(i => string.Equals(i.Include, MSBuildFacts.AppConfig))))
             {
                 Console.WriteLine($"{root.FullPath} contains an App.config file. App.config is replaced by appsettings.json in .NET Core. You will need to delete App.config and migrate to appsettings.json if it's applicable to your project.");
+            }
+
+            if (!keepCurrentTFMs
+                && root.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsVisualBasicProject))
+                && root.ItemGroups.Any(ig => ig.Items.Any(ProjectItemHelpers.IsReferencingSettingsSingleFileGenerator)))
+            {
+                Console.WriteLine($"{root.FullPath} uses code generators which will not be handled by try-convert. You can edit your vbproj to add support or remove these dependencies.");
             }
 
             // Lots of wild old project types have project type guids that the old project system uses to light things up!

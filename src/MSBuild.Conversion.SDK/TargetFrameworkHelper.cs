@@ -56,8 +56,17 @@ namespace MSBuild.Conversion.SDK
                     }
                 }
 
+                var templateFiles = Directory.EnumerateFiles(templatePath, "microsoft.dotnet.common.projecttemplates.*.nupkg", SearchOption.TopDirectoryOnly);
+                // get the highest version of the files found, based on NuGetVersion
+                var templateNugetPackagePath = templateFiles.OrderByDescending(p =>
+                {
+                    var versionStr = Path.GetFileNameWithoutExtension(p).Substring("microsoft.dotnet.common.projecttemplates.".Length);
+                    //first two numbers in the version are part of the name of the package, not its nuget version.
+                    versionStr = string.Join(".", versionStr.Split(".").Skip(2));
+                    var version = NuGetVersion.Parse(versionStr);
+                    return (!usePreviewSDK && version.IsPrerelease) ? new NuGetVersion(0, 0, 0) : version;
+                }).First();
                 // upzip the common project templates into memory
-                var templateNugetPackagePath = Directory.EnumerateFiles(templatePath, "microsoft.dotnet.common.projecttemplates.*.nupkg", SearchOption.TopDirectoryOnly).Single();
                 using var templateNugetPackageFile = File.OpenRead(templateNugetPackagePath);
                 using var templateNugetPackage = new ZipArchive(templateNugetPackageFile, ZipArchiveMode.Read);
                 var templatesJsonFile = templateNugetPackage.Entries

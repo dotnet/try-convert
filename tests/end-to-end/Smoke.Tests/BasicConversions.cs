@@ -20,6 +20,8 @@ namespace SmokeTests
         private string TestDataPath => Path.Combine(SolutionPath, "tests", "TestData");
         private string GetFSharpProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.fsproj");
         private string GetCSharpProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.csproj");
+        private string GetVisualBasicProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.vbproj");
+
         public BasicSmokeTests(SolutionPathFixture solutionPathFixture, MSBuildFixture msBuildFixture)
         {
             msBuildFixture.RegisterInstance();
@@ -59,6 +61,14 @@ namespace SmokeTests
         }
 
         [Fact]
+        public void ConvertsWpfVbFrameworkTemplateForNet50()
+        {
+            var projectToConvertPath = GetVisualBasicProjectPath("SmokeTests.WpfVbFramework");
+            var projectBaselinePath = GetVisualBasicProjectPath("SmokeTests.WpfVbNet5Baseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows");
+        }
+
+        [Fact]
         public void ConvertsWinformsFrameworkTemplateForNetCoreApp31()
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WinformsFramework");
@@ -80,6 +90,14 @@ namespace SmokeTests
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.LegacyMSTest");
             var projectBaselinePath = GetCSharpProjectPath("SmokeTests.MSTestCoreBaseline");
             AssertConversionWorks(projectToConvertPath, projectBaselinePath, "netcoreapp3.1");
+        }
+
+        [Fact]
+        public void ConvertsLegacyMSTestVB()
+        {
+            var projectToConvertPath = GetVisualBasicProjectPath("SmokeTests.LegacyMSTestVB");
+            var projectBaselinePath = GetVisualBasicProjectPath("SmokeTests.MSTestVbNet5Baseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows");
         }
 
         [Fact]

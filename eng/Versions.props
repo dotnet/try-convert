@@ -10,7 +10,7 @@
     Nuget package versions
   -->
   <PropertyGroup>
-    <MicrosoftBuildLocatorVersion>1.2.6</MicrosoftBuildLocatorVersion>
+    <MicrosoftBuildLocatorVersion>1.4.1</MicrosoftBuildLocatorVersion>
     <MicrosoftBuildVersion>16.7</MicrosoftBuildVersion>
     <MicrosoftWin32RegistryVersion>5.0.0-rc.1.20451.14</MicrosoftWin32RegistryVersion>
     <NewtonsoftJsonVersion>12.0.3</NewtonsoftJsonVersion>

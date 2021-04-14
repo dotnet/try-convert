@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 
 using Microsoft.Build.Construction;
 using Microsoft.Build.Locator;
-using Microsoft.CodeAnalysis.Tools.MSBuild;
 using MSBuild.Conversion.Facts;
 
 namespace MSBuild.Abstractions
@@ -390,11 +389,7 @@ namespace MSBuild.Abstractions
                 return null;
             }
 
-            // Since we do not inherit msbuild.deps.json when referencing the SDK copy
-            // of MSBuild and because the SDK no longer ships with version matched assemblies, we
-            // register an assembly loader that will load assemblies from the msbuild path with
-            // equal or higher version numbers than requested.
-            LooseVersionAssemblyLoader.Register(msbuildPath);
+            MSBuildLocator.RegisterMSBuildPath(msbuildPath);
 
             return msbuildPath;
         }

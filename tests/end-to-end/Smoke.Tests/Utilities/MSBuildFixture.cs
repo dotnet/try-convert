@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
-
+using Microsoft.Build.Locator;
 using MSBuild.Abstractions;
 
 namespace Smoke.Tests.Utilities
@@ -16,7 +17,9 @@ namespace Smoke.Tests.Utilities
         {
             if (Interlocked.Exchange(ref _registered, 1) == 0)
             {
-                MSBuildHelpers.HookAssemblyResolveForMSBuild();
+                // During testing we just need a default MSBuild instance to be registered.
+                var defaultInstance = MSBuildLocator.QueryVisualStudioInstances().First();
+                MSBuildHelpers.HookAssemblyResolveForMSBuild(defaultInstance.MSBuildPath);
             }
         }
 

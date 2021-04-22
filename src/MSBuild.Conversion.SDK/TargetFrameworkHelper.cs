@@ -22,7 +22,9 @@ namespace MSBuild.Conversion.SDK
             string? sdkPath = null;
             try
             {
-                sdkPath = Path.GetFullPath(Path.Combine(MSBuildLocator.QueryVisualStudioInstances().Single().VisualStudioRootPath, "..", ".."));
+                var instances = MSBuildLocator.QueryVisualStudioInstances()
+                    .OrderBy(vs => vs.Version);
+                sdkPath = Path.GetFullPath(Path.Combine(instances.Last().VisualStudioRootPath, "..", ".."));
             }
             catch (Exception)
             {

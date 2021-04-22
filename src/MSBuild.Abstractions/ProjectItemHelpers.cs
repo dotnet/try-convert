@@ -31,10 +31,7 @@ namespace MSBuild.Abstractions
         public static bool DesktopReferencesNeedsRemoval(ProjectItemElement item) =>
             DesktopFacts.ReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
             || DesktopFacts.KnownWPFReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
-            || (DesktopFacts.KnownWinFormsReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
-                // does not remove DesktopFacts.KnownWinFormsReferences from Visual Basic projects
-                // note that VB Win Forms projects do not include a project type GUID
-                && !item.ContainingProject.FullPath.EndsWith(".VBPROJ", StringComparison.OrdinalIgnoreCase))
+            || DesktopFacts.KnownWinFormsReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
             || DesktopFacts.KnownDesktopReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
 
         /// <summary>

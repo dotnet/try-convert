@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-using Microsoft.Build.Locator;
 using MSBuild.Conversion.Facts;
 using NuGet.Versioning;
 
@@ -16,15 +15,18 @@ namespace MSBuild.Conversion.SDK
         /// <summary>
         /// Determine the TFM to use based on what is installed on the users machine
         /// </summary>
-        public static string FindHighestInstalledTargetFramework(bool usePreviewSDK)
+        public static string FindHighestInstalledTargetFramework(bool usePreviewSDK, string msbuildPath)
         {
             // Finds SDK path
             string? sdkPath = null;
             try
             {
-                var instances = MSBuildLocator.QueryVisualStudioInstances()
-                    .OrderBy(vs => vs.Version);
-                sdkPath = Path.GetFullPath(Path.Combine(instances.Last().VisualStudioRootPath, "..", ".."));
+                if (string.IsNullOrWhiteSpace(msbuildPath))
+                {
+                    throw new InvalidOperationException("msbuildPath is rquired");
+                }
+
+                sdkPath = Path.GetFullPath(Path.Combine(msbuildPath, "..", ".."));
             }
             catch (Exception)
             {

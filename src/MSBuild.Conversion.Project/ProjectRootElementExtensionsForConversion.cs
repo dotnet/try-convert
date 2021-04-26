@@ -204,12 +204,7 @@ namespace MSBuild.Conversion.Project
                         }
 
                         projectRootElement.AddPackage(packageName, version);
-                        
-                        // remove if this item is not an import element
-                        if (!item.ElementName.Equals("import", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(item.Include))
-                        {
-                            itemGroup.RemoveChild(item);
-                        }
+                        itemGroup.RemoveChild(item);
                     }
                     else if (ProjectItemHelpers.IsReferenceComingFromOldNuGet(item))
                     {
@@ -270,7 +265,6 @@ namespace MSBuild.Conversion.Project
             static bool IsDesktopRemovableItem(BaselineProject sdkBaselineProject, ProjectItemGroupElement itemGroup, ProjectItemElement item)
             {
                 return sdkBaselineProject.ProjectStyle == ProjectStyle.WindowsDesktop
-                       && !IsVbProjImportItem(item)
                        && (ProjectItemHelpers.IsLegacyXamlDesignerItem(item)
                            || ProjectItemHelpers.IsDependentUponXamlDesignerItem(item)
                            || ProjectItemHelpers.IsDesignerFile(item)
@@ -278,13 +272,6 @@ namespace MSBuild.Conversion.Project
                            || ProjectItemHelpers.IsResxFile(item)
                            || ProjectItemHelpers.DesktopReferencesNeedsRemoval(item)
                            || ProjectItemHelpers.IsDesktopRemovableGlobbedItem(sdkBaselineProject.ProjectStyle, item));
-            }
-
-            static bool IsVbProjImportItem(ProjectItemElement item)
-            {
-                return item.ContainingProject.FullPath.EndsWith(".VBPROJ", StringComparison.OrdinalIgnoreCase)
-                    && item.ElementName.Equals("import", StringComparison.OrdinalIgnoreCase)
-                    && !string.IsNullOrWhiteSpace(item.Include);
             }
         }
 

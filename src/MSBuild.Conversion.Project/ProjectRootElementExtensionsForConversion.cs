@@ -242,9 +242,7 @@ namespace MSBuild.Conversion.Project
                 if (!itemTypeDiff.DefaultedItems.IsDefault)
                 {
                     var defaultedItems = itemTypeDiff.DefaultedItems.Select(i => i.EvaluatedInclude);
-                    if (defaultedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
-                        // and this item is not an import element
-                        && !item.ElementName.Equals("import", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(item.Include))
+                    if (defaultedItems.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
                     {
                         itemGroup.RemoveChild(item);
                     }

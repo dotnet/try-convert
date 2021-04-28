@@ -79,7 +79,7 @@ namespace MSBuild.Conversion
                 }
                 else
                 {
-                    tfm = TargetFrameworkHelper.FindHighestInstalledTargetFramework(preview);
+                    tfm = TargetFrameworkHelper.FindHighestInstalledTargetFramework(preview, msbuildPath);
                 }
 
                 var workspacePath = string.Empty;

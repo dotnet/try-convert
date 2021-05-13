@@ -410,11 +410,6 @@ namespace MSBuild.Conversion.Project
 
         public static IProjectRootElement AddDesktopProperties(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {
-            if (baselineProject.ProjectStyle != ProjectStyle.WindowsDesktop)
-            {
-                return projectRootElement;
-            }
-
             // Don't create a new prop group; put the desktop properties in the same group as where TFM is located
             var propGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroupWithTFM(projectRootElement);
 

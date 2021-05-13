@@ -167,28 +167,25 @@ namespace MSBuild.Abstractions
             };
             propGroup.AddProperty(MSBuildFacts.OutputTypeNodeName, outputTypeValue ?? throw new InvalidOperationException($"OutputType is not set! '{projectFilePath}'"));
 
-            if (projectStyle == ProjectStyle.WindowsDesktop)
+            if (MSBuildHelpers.IsWinForms(root))
             {
-                if (MSBuildHelpers.IsWinForms(root))
-                {
-                    MSBuildHelpers.AddUseWinForms(propGroup);
-                }
+                MSBuildHelpers.AddUseWinForms(propGroup);
+            }
 
-                if (MSBuildHelpers.IsWPF(root))
-                {
-                    MSBuildHelpers.AddUseWPF(propGroup);
-                }
+            if (MSBuildHelpers.IsWPF(root))
+            {
+                MSBuildHelpers.AddUseWPF(propGroup);
+            }
 
-                // User is referencing WindowsBase only
-                if (MSBuildHelpers.IsDesktop(root) && !MSBuildHelpers.HasWPFOrWinForms(propGroup))
-                {
-                    MSBuildHelpers.AddUseWinForms(propGroup);
-                }
+            // User is referencing WindowsBase only
+            if (MSBuildHelpers.IsDesktop(root) && !MSBuildHelpers.HasWPFOrWinForms(propGroup))
+            {
+                MSBuildHelpers.AddUseWinForms(propGroup);
+            }
 
-                if (MSBuildHelpers.HasWPFOrWinForms(propGroup) && tfm.ContainsIgnoreCase(MSBuildFacts.Net5))
-                {
-                    MSBuildHelpers.AddImportWindowsDesktopTargets(propGroup);
-                }
+            if (MSBuildHelpers.HasWPFOrWinForms(propGroup) && tfm.ContainsIgnoreCase(MSBuildFacts.Net5))
+            {
+                MSBuildHelpers.AddImportWindowsDesktopTargets(propGroup);
             }
 
             // Create a new collection because a project with this name has already been loaded into the global collection.

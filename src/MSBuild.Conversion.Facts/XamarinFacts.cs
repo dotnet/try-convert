@@ -12,10 +12,94 @@ namespace MSBuild.Conversion.Facts
         public const string Net6XamarinAndroid = "net6.0-android";
         public const string Net6XamariniOS = "net6.0-ios";
 
-        public static ImmutableArray<string> KnownXamarinReferences => ImmutableArray.Create(
+        public static ImmutableArray<string> UnnecessaryXamProperties => ImmutableArray.Create(
+            // The following are unecessary in .NET MAUI
+
+            //Droid
+            "Configuration",
+            "Platform",
+            "ProductVersion",
+            "SchemaVersion",
+            "ProjectGuid",
+            "ProjectTypeGuids",
+            "TemplateGuid",
+            "AppDesignerFolder",
+            "RootNamespace",
+            "AssemblyName",
+            "FileAlignment",
+            "Deterministic",
+            "AndroidApplication",
+            "AndroidResgenFile",
+            "AndroidResgenClass",
+            "GenerateSerializationAssemblies",
+            "AndroidUseLatestPlatformSdk",
+            "TargetFrameworkVersion",
+            "AndroidManifest",
+            "MonoAndroidResourcePrefix",
+            "MonoAndroidAssetsPrefix",
+            "AndroidEnableSGenConcurrent",
+            "AndroidUseAapt2",
+            "AndroidHttpClientHandlerType",
+            "DebugSymbols",
+            "DebugType",
+            "Optimize",
+            "OutputPath",
+            "DefineConstants",
+            "ErrorReport",
+            "WarningLevel",
+            "AndroidUseSharedRuntime",
+            "AndroidLinkMode",
+            "EmbedAssembliesIntoApk",
+            "AndroidManagedSymbols",
+            "AndroidTlsProvider",
+            "AndroidSupportedAbis",
+            "GenerateAssemblyInfo",
+
+            //iOS
+            "MtouchEnableSGenConc",
+            "MtouchHttpClientHandler",
+            "AutoGenerateBindingRedirects",
+            "MtouchArch",
+            "MtouchLink",
+            "MtouchDebug",
+            "MtouchExtraArgs",
+            "CodesignEntitlements",
+            "CodesignKey",
+            "IOSDebuggerPort",
+            "IPhoneResourcePrefix"
+        );
+
+        public static ImmutableArray<string> UnnecessaryXamItemIncludes => ImmutableArray.Create(
+          
+          "System",
+          "System.Xml",
+          "System.Xml.Linq",
+          "System.Core",
+          "System.Numerics",
+          "System.Numerics.Vectors",
+
+
           "Mono.Android",
           "Xamarin.iOS"
-      );
+        );
+
+        public static ImmutableArray<string> UnnecessaryXamItemTypes => ImmutableArray.Create(
+            "Compile",
+            "None",
+
+            //might need to keep these for UA
+            "AndroidResource",
+            "Folder",
+            "AndroidAsset",
+            "ImageAsset",
+            "BundleResource",
+            "InterfaceDefinition"
+        );
+
+        public static ImmutableArray<string> UnnecessaryXamarinImport => ImmutableArray.Create(
+           "$(MSBuildExtensionsPath)\\Xamarin\\Android\\Xamarin.Android.CSharp.targets",
+           "$(MSBuildExtensionsPath)\\Xamarin\\iOS\\Xamarin.iOS.CSharp.targets"
+       );
 
         public static ImmutableArray<Guid> XamarinDroidProjectTypeGuids => ImmutableArray.Create(
             Guid.Parse("{EFBA0AD7-5A72-4C68-AF49-83D382785DCF}") // Xamarin.Android
@@ -23,6 +107,6 @@ namespace MSBuild.Conversion.Facts
 
         public static ImmutableArray<Guid> XamariniOSProjectTypeGuids => ImmutableArray.Create(
           Guid.Parse("{FEACFBD2-3405-455C-9665-78FE426C6842}") // Xamarin.iOS
-      );
+        );
     }
 }

@@ -218,11 +218,6 @@ namespace MSBuild.Abstractions
                     ? MSBuildFacts.Net5Windows
                     : tfm;
 
-            //conditional checks for Xamarin Project Styles
-            if (projectStyle == ProjectStyle.XamarinDroid)
-                tfm = XamarinFacts.Net6XamarinAndroid;
-            if (projectStyle == ProjectStyle.XamariniOS)
-                tfm = XamarinFacts.Net6XamariniOS;
 
             baselineProject = new BaselineProject(newProject, propertiesInTheBaseline, projectStyle, outputType, tfm, keepCurrentTFMs);
             return true;
@@ -248,6 +243,13 @@ namespace MSBuild.Abstractions
                 // Note that this specifically checks the project guid type only (rather than a System.Web reference) since
                 // ASP.NET libraries may reference System.Web and should still use a Library output types. Only ASP.NET
                 // apps should convert with Exe output type.
+                return ProjectOutputType.Exe;
+            }
+
+            if (MSBuildHelpers.IsXamarinDroid(root) || MSBuildHelpers.IsXamariniOS(root))
+            {
+                // Xamarin.iOS and Xamarin.Android projects use Library but migrating to .NET MAUI output changes to Exe
+                //so force conversion here to Exe as part of Migration journey
                 return ProjectOutputType.Exe;
             }
 

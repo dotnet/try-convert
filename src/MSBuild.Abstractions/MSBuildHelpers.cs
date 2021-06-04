@@ -378,20 +378,17 @@ namespace MSBuild.Abstractions
         }
 
         /// <summary>
-        /// Determines if a given project is of type Xamarin.iOS or Xamarin.Android.
+        /// Determines if a given project is of type Xamarin.Android.
         /// </summary>
-        public static bool IsXamarin(IProjectRootElement projectRoot)
-        {
-            var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
-            if (references is null)
-            {
-                return false;
-            }
-            else
-            {
-                return XamarinFacts.KnownWebReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
-            }
-        }
+        public static bool IsXamarinDroid(IProjectRootElement projectRoot) =>
+           projectRoot.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsXamarinDroidProjectTypeGuidsProperty));
+
+        /// <summary>
+        /// Determines if a given project is of type Xamarin.iOS.
+        /// </summary>
+        public static bool IsXamariniOS(IProjectRootElement projectRoot) =>
+           projectRoot.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsXamariniOSProjectTypeGuidsProperty));
+
 
         /// <summary>
         /// Given an optional path to MSBuild, registers an MSBuild.exe to be used for assembly resolution with this tool.

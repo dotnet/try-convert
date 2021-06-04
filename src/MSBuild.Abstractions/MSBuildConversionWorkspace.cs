@@ -133,6 +133,8 @@ namespace MSBuild.Abstractions
                 case ProjectStyle.Default:
                 case ProjectStyle.DefaultSubset:
                 case ProjectStyle.MSTest:
+                case ProjectStyle.XamarinDroid:
+                case ProjectStyle.XamariniOS:
                     rootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
                     break;
                 case ProjectStyle.WindowsDesktop:
@@ -216,6 +218,12 @@ namespace MSBuild.Abstractions
                     ? MSBuildFacts.Net5Windows
                     : tfm;
 
+            //conditional checks for Xamarin Project Styles
+            if (projectStyle == ProjectStyle.XamarinDroid)
+                tfm = XamarinFacts.Net6XamarinAndroid;
+            if (projectStyle == ProjectStyle.XamariniOS)
+                tfm = XamarinFacts.Net6XamariniOS;
+
             baselineProject = new BaselineProject(newProject, propertiesInTheBaseline, projectStyle, outputType, tfm, keepCurrentTFMs);
             return true;
         }
@@ -295,6 +303,14 @@ namespace MSBuild.Abstractions
             else if (MSBuildHelpers.IsWeb(projectRootElement))
             {
                 return ProjectStyle.Web;
+            }
+            else if(MSBuildHelpers.IsXamarinDroid(projectRootElement))
+            {
+                return ProjectStyle.XamarinDroid;
+            }
+            else if (MSBuildHelpers.IsXamariniOS(projectRootElement))
+            {
+                return ProjectStyle.XamariniOS;
             }
             else
             {

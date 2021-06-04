@@ -32,6 +32,16 @@
         /// If the user has specified --force-web-conversion, a best-effort will be made using the
         /// Microsoft.NET.Sdk.Web SDK.
         /// </summary>
-        Web
+        Web,
+
+        /// <summary>
+        /// The project is of type Xamarin.Android 
+        /// </summary>
+        XamarinDroid,
+
+        /// <summary>
+        /// The project is of type Xamarin.iOS
+        /// </summary>
+        XamariniOS
     }
 }

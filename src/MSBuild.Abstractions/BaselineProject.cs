@@ -36,6 +36,13 @@ namespace MSBuild.Abstractions
                 return MSBuildFacts.NetStandard20;
             }
 
+            //conditional checks for Xamarin Project Styles
+            if (projectStyle == ProjectStyle.XamarinDroid)
+                return XamarinFacts.Net6XamarinAndroid;
+
+            if (projectStyle == ProjectStyle.XamariniOS)
+                return XamarinFacts.Net6XamariniOS;
+
             return candidateTargetTFM;
         }
 

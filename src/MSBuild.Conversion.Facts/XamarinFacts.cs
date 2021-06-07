@@ -66,7 +66,9 @@ namespace MSBuild.Conversion.Facts
             "CodesignEntitlements",
             "CodesignKey",
             "IOSDebuggerPort",
-            "IPhoneResourcePrefix"
+            "IPhoneResourcePrefix",
+            "ProvisioningType",
+            "MtouchInterpreter"
         );
 
         public static ImmutableArray<string> UnnecessaryXamItemIncludes => ImmutableArray.Create(

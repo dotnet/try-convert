@@ -59,6 +59,16 @@ namespace MSBuild.Conversion
                 return -1;
             }
 
+            ////Xamarin Project MSBUILD check
+            //if (msbuildWorkspace.WorkspaceItems[0].ProjectRootElement.RawXml.Contains("MtouchEnableSGenConc") || msbuildWorkspace.WorkspaceItems[0].ProjectRootElement.RawXml.Contains("AndroidResgenFile"))
+            //{
+            //    if (!msbuildPath.Contains("Microsoft Visual Studio"))
+            //    {
+            //        Console.WriteLine("For Xamarin Workloads, please set environment variable VSINSTALLDIR to Visual Studio folder for MSBuild location.");
+            //        return -1;
+            //    }
+            //}
+
             try
             {
                 msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(msbuildPath);
@@ -102,6 +112,7 @@ namespace MSBuild.Conversion
                 noBackup = noBackup || diffOnly;
                 var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup, tfm, keepCurrentTfms, forceWebConversion);
 
+          
                 if (msbuildWorkspace.WorkspaceItems.Length is 0)
                 {
                     Console.WriteLine("No projects converted.");

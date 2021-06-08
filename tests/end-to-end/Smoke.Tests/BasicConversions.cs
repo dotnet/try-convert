@@ -21,7 +21,8 @@ namespace SmokeTests
         private string GetFSharpProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.fsproj");
         private string GetCSharpProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.csproj");
         private string GetVisualBasicProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.vbproj");
-
+        private string GetXamarinAndroidProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.csproj");
+        private string GetXamariniOSProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.csproj");
         public BasicSmokeTests(SolutionPathFixture solutionPathFixture, MSBuildFixture msBuildFixture)
         {
             msBuildFixture.RegisterInstance();
@@ -123,6 +124,23 @@ namespace SmokeTests
             var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WebLibraryNet5Baseline");
             AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0", true);
         }
+
+        [Fact]
+        public void ConvertsXamarinFormsAndroidToMaui()
+        {
+            var projectToConvertPath = GetCSharpProjectPath("SmokeTests.XamarinForms.Android");
+            var projectBaselinePath = GetCSharpProjectPath("SmokeTests.XamarinForms.AndroidBaseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-android");
+        }
+
+        [Fact]
+        public void ConvertsXamarinFormsiOSToMaui()
+        {
+            var projectToConvertPath = GetCSharpProjectPath("SmokeTests.XamarinForms.iOS");
+            var projectBaselinePath = GetCSharpProjectPath("SmokeTests.XamarinForms.iOSBaseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-ios");
+        }
+
 
         private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb = false, bool keepTargetFramework = false)
         {

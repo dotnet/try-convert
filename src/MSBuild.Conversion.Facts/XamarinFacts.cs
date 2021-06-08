@@ -15,7 +15,6 @@ namespace MSBuild.Conversion.Facts
         public static ImmutableArray<string> UnnecessaryXamProperties => ImmutableArray.Create(
             // The following are unecessary in .NET MAUI
 
-            //Droid
             "Configuration",
             "Platform",
             "ProductVersion",
@@ -28,18 +27,7 @@ namespace MSBuild.Conversion.Facts
             "AssemblyName",
             "FileAlignment",
             "Deterministic",
-            "AndroidApplication",
-            "AndroidResgenFile",
-            "AndroidResgenClass",
-            "GenerateSerializationAssemblies",
-            "AndroidUseLatestPlatformSdk",
             "TargetFrameworkVersion",
-            "AndroidManifest",
-            "MonoAndroidResourcePrefix",
-            "MonoAndroidAssetsPrefix",
-            "AndroidEnableSGenConcurrent",
-            "AndroidUseAapt2",
-            "AndroidHttpClientHandlerType",
             "DebugSymbols",
             "DebugType",
             "Optimize",
@@ -47,15 +35,32 @@ namespace MSBuild.Conversion.Facts
             "DefineConstants",
             "ErrorReport",
             "WarningLevel",
-            "AndroidUseSharedRuntime",
-            "AndroidLinkMode",
-            "EmbedAssembliesIntoApk",
-            "AndroidManagedSymbols",
-            "AndroidTlsProvider",
-            "AndroidSupportedAbis",
             "GenerateAssemblyInfo",
+            "GenerateSerializationAssemblies"
+
+            //Droid
+            /***
+           "AndroidApplication",
+           "AndroidResgenFile",
+           "AndroidResgenClass",
+
+           "AndroidUseLatestPlatformSdk",
+           "AndroidManifest",
+           "MonoAndroidResourcePrefix",
+           "MonoAndroidAssetsPrefix",
+           "AndroidEnableSGenConcurrent",
+           "AndroidUseAapt2",
+           "AndroidHttpClientHandlerType",
+           "AndroidUseSharedRuntime",
+           "AndroidLinkMode",
+           "EmbedAssembliesIntoApk",
+           "AndroidManagedSymbols",
+           "AndroidTlsProvider",
+           "AndroidSupportedAbis",
+            ***/
 
             //iOS
+            /***
             "MtouchEnableSGenConc",
             "MtouchHttpClientHandler",
             "AutoGenerateBindingRedirects",
@@ -69,6 +74,7 @@ namespace MSBuild.Conversion.Facts
             "IPhoneResourcePrefix",
             "ProvisioningType",
             "MtouchInterpreter"
+            ***/
         );
 
         public static ImmutableArray<string> UnnecessaryXamItemIncludes => ImmutableArray.Create(
@@ -80,7 +86,6 @@ namespace MSBuild.Conversion.Facts
           "System.Numerics",
           "System.Numerics.Vectors",
 
-
           "Mono.Android",
           "Xamarin.iOS"
         );
@@ -88,8 +93,6 @@ namespace MSBuild.Conversion.Facts
         public static ImmutableArray<string> UnnecessaryXamItemTypes => ImmutableArray.Create(
             "Compile",
             "None",
-
-            //might need to keep these for UA
             "AndroidResource",
             "Folder",
             "AndroidAsset",

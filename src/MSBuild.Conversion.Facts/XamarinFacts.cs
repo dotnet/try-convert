@@ -37,44 +37,6 @@ namespace MSBuild.Conversion.Facts
             "WarningLevel",
             "GenerateAssemblyInfo",
             "GenerateSerializationAssemblies"
-
-            //Droid
-            /***
-           "AndroidApplication",
-           "AndroidResgenFile",
-           "AndroidResgenClass",
-
-           "AndroidUseLatestPlatformSdk",
-           "AndroidManifest",
-           "MonoAndroidResourcePrefix",
-           "MonoAndroidAssetsPrefix",
-           "AndroidEnableSGenConcurrent",
-           "AndroidUseAapt2",
-           "AndroidHttpClientHandlerType",
-           "AndroidUseSharedRuntime",
-           "AndroidLinkMode",
-           "EmbedAssembliesIntoApk",
-           "AndroidManagedSymbols",
-           "AndroidTlsProvider",
-           "AndroidSupportedAbis",
-            ***/
-
-            //iOS
-            /***
-            "MtouchEnableSGenConc",
-            "MtouchHttpClientHandler",
-            "AutoGenerateBindingRedirects",
-            "MtouchArch",
-            "MtouchLink",
-            "MtouchDebug",
-            "MtouchExtraArgs",
-            "CodesignEntitlements",
-            "CodesignKey",
-            "IOSDebuggerPort",
-            "IPhoneResourcePrefix",
-            "ProvisioningType",
-            "MtouchInterpreter"
-            ***/
         );
 
         public static ImmutableArray<string> UnnecessaryXamItemIncludes => ImmutableArray.Create(

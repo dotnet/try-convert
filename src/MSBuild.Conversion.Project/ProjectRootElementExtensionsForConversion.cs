@@ -38,6 +38,17 @@ namespace MSBuild.Conversion.Project
                 // However, web apps (as opposed to libraries) or libraries that are targeting .NET Core/.NET should use the web SDK.
                 projectRootElement.Sdk = WebFacts.WebSDKAttribute;
             }
+            else if ((baselineProject.ProjectStyle is ProjectStyle.XamarinDroid) || (baselineProject.ProjectStyle is ProjectStyle.XamariniOS))
+            {
+                // Xamarin projects contain the Import line, not needed for .NET MAUI
+                foreach (var import in projectRootElement.Imports)
+                {
+                    if (XamarinFacts.UnnecessaryXamarinImports.Contains(import.Project, StringComparer.OrdinalIgnoreCase))
+                    {
+                        projectRootElement.RemoveChild(import);
+                    }
+                }
+            }
             else
             {
                 projectRootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
@@ -546,23 +557,6 @@ namespace MSBuild.Conversion.Project
                 }
             }
 
-            return projectRootElement;
-        }
-
-        public static IProjectRootElement RemoveXamarinImports(this IProjectRootElement projectRootElement, ProjectStyle projectStyle)
-        {
-            // Xamarin projects contain the Import line, not needed for .NET MAUI
-            if ((projectStyle is ProjectStyle.XamarinDroid) || (projectStyle is ProjectStyle.XamariniOS))
-            {
-                foreach (var import in projectRootElement.Imports)
-                {
-                    if(XamarinFacts.UnnecessaryXamarinImport.Contains(import.Project, StringComparer.OrdinalIgnoreCase))
-                    {
-                        projectRootElement.RemoveChild(import);
-                    }
-                }
-                return projectRootElement;
-            }
             return projectRootElement;
         }
     }

@@ -51,7 +51,6 @@ namespace MSBuild.Conversion.Project
                 .AddItemRemovesForIntroducedItems(_differs)
                 .RemoveUnnecessaryTargetsIfTheyExist()
                 .RemoveWebExtensions(_sdkBaselineProject.ProjectStyle)
-                .RemoveXamarinImport(_sdkBaselineProject.ProjectStyle)
                 .ModifyProjectElement();
         }
 

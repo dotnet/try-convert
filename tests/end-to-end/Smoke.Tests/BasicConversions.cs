@@ -23,9 +23,16 @@ namespace SmokeTests
         private string GetVisualBasicProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.vbproj");
         private string GetXamarinAndroidProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.csproj");
         private string GetXamariniOSProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.csproj");
+        //set to true if running Xamarin Project Tests
+        private bool isXamarinTest => true;
+
         public BasicSmokeTests(SolutionPathFixture solutionPathFixture, MSBuildFixture msBuildFixture)
         {
-            msBuildFixture.RegisterInstance();
+            if(isXamarinTest)
+                msBuildFixture.MSBuildPathForXamarinProject();
+            else
+                msBuildFixture.RegisterInstance();
+
             solutionPathFixture.SetCurrentDirectory();
         }
 

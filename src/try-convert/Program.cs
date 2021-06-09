@@ -40,12 +40,13 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects, does not create a backup of the originals and removes packages.config file.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "--maui-conversion" }, "Attempt to convert Xamarin.Forms Projects to .NET MAUI projects. There may be additional manual work necessary after migrating such projects.") { Argument = new Argument<bool>(() => true) })
                 .Build();
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool forceWebConversion, bool preview, bool diffOnly, bool noBackup, bool keepCurrentTfms)
+        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool forceWebConversion, bool preview, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool mauiConversion)
         {
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
@@ -59,19 +60,31 @@ namespace MSBuild.Conversion
                 return -1;
             }
 
-            ////Xamarin Project MSBUILD check
-            //if (msbuildWorkspace.WorkspaceItems[0].ProjectRootElement.RawXml.Contains("MtouchEnableSGenConc") || msbuildWorkspace.WorkspaceItems[0].ProjectRootElement.RawXml.Contains("AndroidResgenFile"))
-            //{
-            //    if (!msbuildPath.Contains("Microsoft Visual Studio"))
-            //    {
-            //        Console.WriteLine("For Xamarin Workloads, please set environment variable VSINSTALLDIR to Visual Studio folder for MSBuild location.");
-            //        return -1;
-            //    }
-            //}
-
             try
             {
-                msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(msbuildPath);
+                //For Xamarin Projects, set MSBuild path to VSInstallation Dir via Environment Variable
+                if (mauiConversion)
+                {
+                    var vsinstalldir = Environment.GetEnvironmentVariable("VSINSTALLDIR");
+                    if (!string.IsNullOrEmpty(vsinstalldir))
+                    {
+                        msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(Path.Combine(vsinstalldir, "MSBuild", "Current", "Bin"));
+                    }
+                    else
+                    {
+                        string vsPath = new VisualStudioLocator().GetLatestVisualStudioPath();
+                        if(string.IsNullOrWhiteSpace(vsPath))
+                        {
+                            Console.WriteLine("Error locating VS Install Directory. Try setting Environment Variable VSINSTALLDIR.");
+                            return -1;
+                        }
+                        else
+                            msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(Path.Combine(vsPath, "MSBuild", "Current", "Bin"));
+                    }
+                }
+                else
+                    msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(msbuildPath);
+
                 if (string.IsNullOrWhiteSpace(msbuildPath))
                 {
                     Console.WriteLine("Could not find an MSBuild.");
@@ -112,7 +125,6 @@ namespace MSBuild.Conversion
                 noBackup = noBackup || diffOnly;
                 var msbuildWorkspace = workspaceLoader.LoadWorkspace(workspacePath, noBackup, tfm, keepCurrentTfms, forceWebConversion);
 
-          
                 if (msbuildWorkspace.WorkspaceItems.Length is 0)
                 {
                     Console.WriteLine("No projects converted.");

@@ -552,7 +552,7 @@ namespace MSBuild.Conversion.Project
         public static IProjectRootElement RemoveXamarinImport(this IProjectRootElement projectRootElement, ProjectStyle projectStyle)
         {
             // Xamarin projects contain the Import line, not needed for .NET MAUI
-            if ((projectStyle == ProjectStyle.XamarinDroid) || (projectStyle == ProjectStyle.XamariniOS))
+            if ((projectStyle is ProjectStyle.XamarinDroid) || (projectStyle is ProjectStyle.XamariniOS))
             {
                 foreach (var import in projectRootElement.Imports)
                 {

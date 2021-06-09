@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
@@ -41,13 +41,20 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects, does not create a backup of the originals and removes packages.config file.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--maui-conversion" }, "Attempt to convert Xamarin.Forms Projects to .NET MAUI projects. There may be additional manual work necessary after migrating such projects.") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "-u", "--update" }, "Updates the try-convert tool to the latest available version") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
-
-        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool forceWebConversion, bool preview, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool mauiConversion)
+      
+        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool forceWebConversion, bool preview, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool update, bool mauiConversion)
         {
+            if (update)
+            {
+                UpdateTryConvert.Update();
+                return 0;
+            }
+
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
                 Console.WriteLine("Cannot specify both a project and a workspace.");

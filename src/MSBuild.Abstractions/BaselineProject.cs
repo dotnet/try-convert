@@ -37,7 +37,7 @@ namespace MSBuild.Abstractions
             }
 
             //conditional checks for Xamarin Project Styles
-            if (projectStyle == ProjectStyle.XamarinDroid)
+            if (projectStyle is ProjectStyle.XamarinDroid)
                 return XamarinFacts.Net6XamarinAndroid;
 
             if (projectStyle == ProjectStyle.XamariniOS)

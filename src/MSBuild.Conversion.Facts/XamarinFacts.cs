@@ -101,7 +101,7 @@ namespace MSBuild.Conversion.Facts
             "InterfaceDefinition"
         );
 
-        public static ImmutableArray<string> UnnecessaryXamarinImport => ImmutableArray.Create(
+        public static ImmutableArray<string> UnnecessaryXamarinImports => ImmutableArray.Create(
            "$(MSBuildExtensionsPath)\\Xamarin\\Android\\Xamarin.Android.CSharp.targets",
            "$(MSBuildExtensionsPath)\\Xamarin\\iOS\\Xamarin.iOS.CSharp.targets"
        );

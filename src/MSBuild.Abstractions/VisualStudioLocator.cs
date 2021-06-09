@@ -87,7 +87,6 @@ namespace MSBuild.Abstractions
                     {
                         var instanceHasMSBuild = false;
 
-                        var test = instance.GetPackages();
                         foreach (var package in instance.GetPackages())
                         {
                             if (string.Equals(package.GetId(), "Microsoft.Component.MSBuild", StringComparison.OrdinalIgnoreCase))

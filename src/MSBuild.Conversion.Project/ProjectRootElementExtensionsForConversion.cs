@@ -561,7 +561,6 @@ namespace MSBuild.Conversion.Project
                         projectRootElement.RemoveChild(import);
                     }
                 }
-
                 return projectRootElement;
             }
             return projectRootElement;

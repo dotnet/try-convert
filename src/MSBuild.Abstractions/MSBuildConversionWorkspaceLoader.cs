@@ -69,17 +69,5 @@ namespace MSBuild.Abstractions
 
             return new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
         }
-
-        public bool XamarinProjectCheck(string path)
-        {
-            using var collection = new ProjectCollection();
-            var root = new MSBuildProjectRootElement(ProjectRootElement.Open(path, collection, preserveFormatting: true));
-            if (root.RawXml.Contains("MtouchEnableSGenConc") || root.RawXml.Contains("AndroidResgenFile"))
-            {
-                return true;
-            }
-
-            return false;
-        }
     }
 }

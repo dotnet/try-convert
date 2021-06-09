@@ -426,7 +426,7 @@ namespace MSBuild.Abstractions
             }
 
             //Attempt to set the version of MSBuild.
-           var visualStudioInstances = MSBuildLocator.QueryVisualStudioInstances().ToArray();
+            var visualStudioInstances = MSBuildLocator.QueryVisualStudioInstances().ToArray();
             var instance = visualStudioInstances.Length == 1
                 // If there is only one instance of MSBuild on this machine, set that as the one to use.
                 ? visualStudioInstances[0]

@@ -13,7 +13,6 @@ namespace Smoke.Tests.Utilities
     public class MSBuildFixture : IDisposable
     {
         private static int _registered = 0;
-
         public void RegisterInstance()
         {
             if (Interlocked.Exchange(ref _registered, 1) == 0)
@@ -23,29 +22,6 @@ namespace Smoke.Tests.Utilities
                 MSBuildHelpers.HookAssemblyResolveForMSBuild(defaultInstance.MSBuildPath);
             }
         }
-
-        public void MSBuildPathForXamarinProject()
-        {
-            if (Interlocked.Exchange(ref _registered, 1) == 0)
-            {
-                //For Xamarin Project tests, default MSBuild instance resolved from VSINSTALLDIR Environment Variable
-                var vsinstalldir = Environment.GetEnvironmentVariable("VSINSTALLDIR");
-                if (!string.IsNullOrEmpty(vsinstalldir))
-                {
-                    MSBuildHelpers.HookAssemblyResolveForMSBuild(Path.Combine(vsinstalldir, "MSBuild", "Current", "Bin"));
-                }
-                else
-                {
-                    string vsPath = new VisualStudioLocator().GetLatestVisualStudioPath();
-                    if (string.IsNullOrWhiteSpace(vsPath))
-                        throw new Exception("Error locating VS Install Directory. Try setting Environment Variable VSINSTALLDIR.");
-                    else
-                        MSBuildHelpers.HookAssemblyResolveForMSBuild(Path.Combine(vsPath, "MSBuild", "Current", "Bin"));
-                }
-            }
-
-        }
-
         public void Dispose()
         {
         }

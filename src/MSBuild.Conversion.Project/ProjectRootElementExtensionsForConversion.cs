@@ -241,13 +241,13 @@ namespace MSBuild.Conversion.Project
                     {
                         itemGroup.RemoveChild(item);
                     }
-                    else if (XamarinFacts.UnnecessaryXamItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                    else if (baselineProject.ProjectStyle is ProjectStyle.XamarinDroid || baselineProject.ProjectStyle is ProjectStyle.XamariniOS)
                     {
-                        itemGroup.RemoveChild(item);
-                    }
-                    else if (XamarinFacts.UnnecessaryXamItemTypes.Contains(item.ItemType, StringComparer.OrdinalIgnoreCase))
-                    {
-                        itemGroup.RemoveChild(item);
+                        if (XamarinFacts.UnnecessaryXamItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                            itemGroup.RemoveChild(item);
+
+                        if (XamarinFacts.UnnecessaryXamItemTypes.Contains(item.ItemType, StringComparer.OrdinalIgnoreCase))
+                            itemGroup.RemoveChild(item);
                     }
                     else
                     {
@@ -519,7 +519,7 @@ namespace MSBuild.Conversion.Project
         public static IProjectRootElement AddGenerateAssemblyInfoAsFalse(this IProjectRootElement projectRootElement, ProjectStyle projectStyle)
         {
             //Skip adding this for .NET MAUI conversion
-            if ((projectStyle == ProjectStyle.XamarinDroid) || (projectStyle == ProjectStyle.XamariniOS))
+            if ((projectStyle is ProjectStyle.XamarinDroid) || (projectStyle is ProjectStyle.XamariniOS))
                 return projectRootElement;
 
             // Don't create a new prop group; put the desktop properties in the same group as where TFM is located

@@ -1,18 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MauiSmoke.Tests.Utilities;
 using Microsoft.Build.Construction;
+
 using MSBuild.Abstractions;
 using MSBuild.Conversion.Project;
+
+
 using Xunit;
 
-namespace Smoke.Tests.Utilities
+namespace MauiSmoke.Tests
 {
-    public class SharedTestLogic
+    public class MauiConversions : IClassFixture<SolutionPathFixture>, IClassFixture<MauiMSBuildFixture>
     {
-        public void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb = false, bool keepTargetFramework = false)
+        private string SolutionPath => Environment.CurrentDirectory;
+        private string TestDataPath => Path.Combine(SolutionPath, "tests", "TestData");
+        private string GetXamarinAndroidProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.csproj");
+        private string GetXamariniOSProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.csproj");
+
+        public MauiConversions(SolutionPathFixture solutionPathFixture, MauiMSBuildFixture msBuildFixture)
+        {
+            msBuildFixture.MSBuildPathForXamarinProject();
+            solutionPathFixture.SetCurrentDirectory();
+        }
+
+        [Fact]
+        public void ConvertsXamarinFormsAndroidToMaui()
+        {
+            var projectToConvertPath = GetXamarinAndroidProjectPath("SmokeTests.XamarinForms.Android");
+            var projectBaselinePath = GetXamarinAndroidProjectPath("SmokeTests.XamarinForms.AndroidBaseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-android");
+        }
+
+        private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb = false, bool keepTargetFramework = false)
         {
             var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath, targetTFM, forceWeb, keepTargetFramework);
             AssertPropsEqual(baselineRootElement, convertedRootElement);
@@ -100,6 +122,4 @@ namespace Smoke.Tests.Utilities
             }
         }
     }
-
-
 }

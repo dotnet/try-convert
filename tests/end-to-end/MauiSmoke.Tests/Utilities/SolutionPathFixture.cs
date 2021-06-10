@@ -7,7 +7,7 @@ namespace MauiSmoke.Tests.Utilities
     /// <summary>
     /// This test fixture sets the <see cref="Environment.CurrentDirectory" /> to the try-convert solution's path.
     /// </summary>
-    public class SolutionPathFixture : IDisposable
+    public class MauiSolutionPathFixture : IDisposable
     {
         private static int _registered = 0;
         private static string _currentDirectory;

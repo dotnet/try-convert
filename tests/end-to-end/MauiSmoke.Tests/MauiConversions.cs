@@ -13,14 +13,14 @@ using Xunit;
 
 namespace MauiSmoke.Tests
 {
-    public class MauiConversions : IClassFixture<SolutionPathFixture>, IClassFixture<MauiMSBuildFixture>
+    public class MauiConversions : IClassFixture<MauiSolutionPathFixture>, IClassFixture<MauiMSBuildFixture>
     {
         private string SolutionPath => Environment.CurrentDirectory;
         private string TestDataPath => Path.Combine(SolutionPath, "tests", "TestData");
         private string GetXamarinAndroidProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.csproj");
         private string GetXamariniOSProjectPath(string projectName) => Path.Combine(TestDataPath, projectName, $"{projectName}.csproj");
 
-        public MauiConversions(SolutionPathFixture solutionPathFixture, MauiMSBuildFixture msBuildFixture)
+        public MauiConversions(MauiSolutionPathFixture solutionPathFixture, MauiMSBuildFixture msBuildFixture)
         {
             msBuildFixture.MSBuildPathForXamarinProject();
             solutionPathFixture.SetCurrentDirectory();
@@ -33,6 +33,15 @@ namespace MauiSmoke.Tests
             var projectBaselinePath = GetXamarinAndroidProjectPath("SmokeTests.XamarinForms.AndroidBaseline");
             AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-android");
         }
+
+        [Fact]
+        public void ConvertsXamarinFormsiOSToMaui()
+        {
+            var projectToConvertPath = GetXamariniOSProjectPath("SmokeTests.XamarinForms.iOS");
+            var projectBaselinePath = GetXamariniOSProjectPath("SmokeTests.XamarinForms.iOSBaseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-ios");
+        }
+
 
         private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb = false, bool keepTargetFramework = false)
         {

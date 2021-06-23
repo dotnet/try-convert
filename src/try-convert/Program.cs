@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Invocation;
@@ -40,13 +40,14 @@ namespace MSBuild.Conversion
                 .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--no-backup" }, "Converts projects, does not create a backup of the originals and removes packages.config file.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.") { Argument = new Argument<bool>(() => false) })
+                .AddOption(new Option(new[] { "--maui-conversion" }, "Attempt to convert Xamarin.Forms Projects to .NET MAUI projects. There may be additional manual work necessary after migrating such projects.") { Argument = new Argument<bool>(() => false) })
                 .AddOption(new Option(new[] { "-u", "--update" }, "Updates the try-convert tool to the latest available version") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
-
-        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool forceWebConversion, bool preview, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool update)
+      
+        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool forceWebConversion, bool preview, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool update, bool mauiConversion)
         {
             if (update)
             {
@@ -68,7 +69,29 @@ namespace MSBuild.Conversion
 
             try
             {
-                msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(msbuildPath);
+                //For Xamarin Projects, set MSBuild path to VSInstallation Dir via Environment Variable
+                if (mauiConversion)
+                {
+                    var vsinstalldir = Environment.GetEnvironmentVariable("VSINSTALLDIR");
+                    if (!string.IsNullOrEmpty(vsinstalldir))
+                    {
+                        msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(Path.Combine(vsinstalldir, "MSBuild", "Current", "Bin"));
+                    }
+                    else
+                    {
+                        string vsPath = new VisualStudioLocator().GetLatestVisualStudioPath();
+                        if(string.IsNullOrWhiteSpace(vsPath))
+                        {
+                            Console.WriteLine("Error locating VS Install Directory. Try setting Environment Variable VSINSTALLDIR.");
+                            return -1;
+                        }
+                        else
+                            msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(Path.Combine(vsPath, "MSBuild", "Current", "Bin"));
+                    }
+                }
+                else
+                    msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(msbuildPath);
+
                 if (string.IsNullOrWhiteSpace(msbuildPath))
                 {
                     Console.WriteLine("Could not find an MSBuild.");

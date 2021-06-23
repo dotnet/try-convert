@@ -43,6 +43,18 @@ namespace MSBuild.Conversion.Project
                 projectRootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
             }
 
+            // Xamarin projects contain the Import line, not needed for .NET MAUI
+            if ((baselineProject.ProjectStyle is ProjectStyle.XamarinDroid) || (baselineProject.ProjectStyle is ProjectStyle.XamariniOS))
+            {
+                foreach (var import in projectRootElement.Imports)
+                {
+                    if (XamarinFacts.UnnecessaryXamarinImports.Contains(import.Project, StringComparer.OrdinalIgnoreCase))
+                    {
+                        projectRootElement.RemoveChild(import);
+                    }
+                }
+            }
+
             return projectRootElement;
         }
 
@@ -139,6 +151,14 @@ namespace MSBuild.Conversion.Project
                         // Old MSTest projects specify library, but this is not valid since tests on .NET Core are netcoreapp projects.
                         propGroup.RemoveChild(prop);
                     }
+                    else if (projectStyle == ProjectStyle.XamarinDroid && (XamarinFacts.UnnecessaryXamProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase)))
+                    {
+                        propGroup.RemoveChild(prop);
+                    }
+                    else if (projectStyle == ProjectStyle.XamariniOS && (XamarinFacts.UnnecessaryXamProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase)))
+                    {
+                        propGroup.RemoveChild(prop);
+                    }
                 }
 
                 if (propGroup.Properties.Count == 0)
@@ -220,6 +240,14 @@ namespace MSBuild.Conversion.Project
                     else if (ProjectItemHelpers.IsItemWithUnnecessaryMetadata(item))
                     {
                         itemGroup.RemoveChild(item);
+                    }
+                    else if (baselineProject.ProjectStyle is ProjectStyle.XamarinDroid || baselineProject.ProjectStyle is ProjectStyle.XamariniOS)
+                    {
+                        if (XamarinFacts.UnnecessaryXamItemIncludes.Contains(item.Include, StringComparer.OrdinalIgnoreCase))
+                            itemGroup.RemoveChild(item);
+
+                        if (XamarinFacts.UnnecessaryXamItemTypes.Contains(item.ItemType, StringComparer.OrdinalIgnoreCase))
+                            itemGroup.RemoveChild(item);
                     }
                     else
                     {
@@ -488,8 +516,12 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
-        public static IProjectRootElement AddGenerateAssemblyInfoAsFalse(this IProjectRootElement projectRootElement)
+        public static IProjectRootElement AddGenerateAssemblyInfoAsFalse(this IProjectRootElement projectRootElement, ProjectStyle projectStyle)
         {
+            //Skip adding this for .NET MAUI conversion
+            if ((projectStyle is ProjectStyle.XamarinDroid) || (projectStyle is ProjectStyle.XamariniOS))
+                return projectRootElement;
+
             // Don't create a new prop group; put the desktop properties in the same group as where TFM is located
             var propGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroupWithTFM(projectRootElement);
             var generateAssemblyInfo = projectRootElement.CreatePropertyElement(MSBuildFacts.GenerateAssemblyInfoNodeName);

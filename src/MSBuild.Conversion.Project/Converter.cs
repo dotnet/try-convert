@@ -44,7 +44,7 @@ namespace MSBuild.Conversion.Project
                 .RemoveDefaultedProperties(_sdkBaselineProject, _differs)
                 .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle)
                 .AddTargetFrameworkProperty(_sdkBaselineProject, _sdkBaselineProject.TargetTFM)
-                .AddGenerateAssemblyInfoAsFalse()
+                .AddGenerateAssemblyInfoAsFalse(_sdkBaselineProject.ProjectStyle)
                 .AddDesktopProperties(_sdkBaselineProject)
                 .AddCommonPropertiesToTopLevelPropertyGroup()
                 .RemoveOrUpdateItems(_differs, _sdkBaselineProject, _sdkBaselineProject.TargetTFM)

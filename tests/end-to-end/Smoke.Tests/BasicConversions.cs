@@ -73,7 +73,7 @@ namespace SmokeTests
         {
             var projectToConvertPath = GetVisualBasicProjectPath("SmokeTests.WinformsVbFramework");
             var projectBaselinePath = GetVisualBasicProjectPath("SmokeTests.WinformsVbKeepTfm");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "testdata", keepTargetFramework:true);
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "testdata", keepTargetFramework: true);
         }
 
         [Fact]
@@ -157,7 +157,7 @@ namespace SmokeTests
             if (baselinePropGroups.Count > 0)
             {
                 for (var i = 0; i < baselinePropGroups.Count; i++)
-                {                    
+                {
                     var baselineProps = new List<ProjectPropertyElement>(baselinePropGroups[i].Properties);
                     var convertedProps = new List<ProjectPropertyElement>(convertedPropGroups[i].Properties);
 

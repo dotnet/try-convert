@@ -378,6 +378,19 @@ namespace MSBuild.Abstractions
         }
 
         /// <summary>
+        /// Determines if a given project is of type Xamarin.Android.
+        /// </summary>
+        public static bool IsXamarinDroid(IProjectRootElement projectRoot) =>
+           projectRoot.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsXamarinDroidProjectTypeGuidsProperty));
+
+        /// <summary>
+        /// Determines if a given project is of type Xamarin.iOS.
+        /// </summary>
+        public static bool IsXamariniOS(IProjectRootElement projectRoot) =>
+           projectRoot.PropertyGroups.Any(pg => pg.Properties.Any(ProjectPropertyHelpers.IsXamariniOSProjectTypeGuidsProperty));
+
+
+        /// <summary>
         /// Given an optional path to MSBuild, registers an MSBuild.exe to be used for assembly resolution with this tool.
         /// </summary>
         public static string? HookAssemblyResolveForMSBuild(string? msbuildPath = null)
@@ -412,7 +425,7 @@ namespace MSBuild.Abstractions
                 return Path.Combine(vsinstalldir, "MSBuild", "Current", "Bin");
             }
 
-            // Attempt to set the version of MSBuild.
+            //Attempt to set the version of MSBuild.
             var visualStudioInstances = MSBuildLocator.QueryVisualStudioInstances().ToArray();
             var instance = visualStudioInstances.Length == 1
                 // If there is only one instance of MSBuild on this machine, set that as the one to use.

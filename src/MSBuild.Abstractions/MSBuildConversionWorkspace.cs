@@ -133,6 +133,8 @@ namespace MSBuild.Abstractions
                 case ProjectStyle.Default:
                 case ProjectStyle.DefaultSubset:
                 case ProjectStyle.MSTest:
+                case ProjectStyle.XamarinDroid:
+                case ProjectStyle.XamariniOS:
                     rootElement.Sdk = MSBuildFacts.DefaultSDKAttribute;
                     break;
                 case ProjectStyle.WindowsDesktop:
@@ -216,6 +218,7 @@ namespace MSBuild.Abstractions
                     ? MSBuildFacts.Net5Windows
                     : tfm;
 
+
             baselineProject = new BaselineProject(newProject, propertiesInTheBaseline, projectStyle, outputType, tfm, keepCurrentTFMs);
             return true;
         }
@@ -240,6 +243,13 @@ namespace MSBuild.Abstractions
                 // Note that this specifically checks the project guid type only (rather than a System.Web reference) since
                 // ASP.NET libraries may reference System.Web and should still use a Library output types. Only ASP.NET
                 // apps should convert with Exe output type.
+                return ProjectOutputType.Exe;
+            }
+
+            if (MSBuildHelpers.IsXamarinDroid(root) || MSBuildHelpers.IsXamariniOS(root))
+            {
+                // Xamarin.iOS and Xamarin.Android projects use Library but migrating to .NET MAUI output changes to Exe
+                //so force conversion here to Exe as part of Migration journey
                 return ProjectOutputType.Exe;
             }
 
@@ -295,6 +305,14 @@ namespace MSBuild.Abstractions
             else if (MSBuildHelpers.IsWeb(projectRootElement))
             {
                 return ProjectStyle.Web;
+            }
+            else if(MSBuildHelpers.IsXamarinDroid(projectRootElement))
+            {
+                return ProjectStyle.XamarinDroid;
+            }
+            else if (MSBuildHelpers.IsXamariniOS(projectRootElement))
+            {
+                return ProjectStyle.XamariniOS;
             }
             else
             {

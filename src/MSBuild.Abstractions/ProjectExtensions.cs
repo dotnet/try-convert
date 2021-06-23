@@ -45,6 +45,8 @@ namespace MSBuild.Abstractions
                 ".NETStandard" => "netstandard",
                 ".NETCoreApp" => "netcoreapp",
                 ".NETPortable" => "netstandard",
+                "MonoAndroid" => "net",
+                "Xamarin.iOS" => "net",
                 _ => throw new InvalidOperationException($"Unknown {MSBuildFacts.LegacyTargetFrameworkPropertyNodeName}: {tfi}"),
             };
 

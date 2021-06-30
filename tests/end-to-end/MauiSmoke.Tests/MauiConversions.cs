@@ -42,7 +42,6 @@ namespace MauiSmoke.Tests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-ios");
         }
 
-
         private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb = false, bool keepTargetFramework = false)
         {
             var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath, targetTFM, forceWeb, keepTargetFramework);

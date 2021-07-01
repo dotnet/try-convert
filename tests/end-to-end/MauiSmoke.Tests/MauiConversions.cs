@@ -26,8 +26,7 @@ namespace MauiSmoke.Tests
             solutionPathFixture.SetCurrentDirectory();
         }
 
-        //[Fact]
-        [Fact(Skip ="Skipping to allow Xamarin Feature Release")]
+        [Fact]
         public void ConvertsXamarinFormsAndroidToMaui()
         {
             var projectToConvertPath = GetXamarinAndroidProjectPath("SmokeTests.XamarinForms.Android");
@@ -35,15 +34,13 @@ namespace MauiSmoke.Tests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-android");
         }
 
-        //[Fact]
-        [Fact(Skip = "Skipping to allow Xamarin Feature Release")]
+        [Fact]
         public void ConvertsXamarinFormsiOSToMaui()
         {
             var projectToConvertPath = GetXamariniOSProjectPath("SmokeTests.XamarinForms.iOS");
             var projectBaselinePath = GetXamariniOSProjectPath("SmokeTests.XamarinForms.iOSBaseline");
             AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-ios");
         }
-
 
         private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb = false, bool keepTargetFramework = false)
         {

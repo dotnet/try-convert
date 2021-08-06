@@ -58,7 +58,7 @@ namespace MauiSmoke.Tests
             var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);
 
             var item = conversionWorkspace.WorkspaceItems.Single();
-            var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement, noBackup: false);
+            var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement, noBackup: false, forceRemoveCustomImports: false);
             var convertedRootElement = converter.ConvertProjectFile();
 
             return (baselineRootElement, convertedRootElement);

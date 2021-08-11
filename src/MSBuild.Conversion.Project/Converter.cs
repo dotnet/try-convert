@@ -14,15 +14,17 @@ namespace MSBuild.Conversion.Project
         private readonly BaselineProject _sdkBaselineProject;
         private readonly IProjectRootElement _projectRootElement;
         private readonly bool _noBackup;
+        private readonly bool _forceRemoveCustomImports;
         private readonly ImmutableDictionary<string, Differ> _differs;
 
         public Converter(UnconfiguredProject project, BaselineProject sdkBaselineProject,
-            IProjectRootElement projectRootElement, bool noBackup)
+            IProjectRootElement projectRootElement, bool noBackup, bool forceRemoveCustomImports)
         {
             _project = project ?? throw new ArgumentNullException(nameof(project));
             _sdkBaselineProject = sdkBaselineProject;
             _projectRootElement = projectRootElement ?? throw new ArgumentNullException(nameof(projectRootElement));
             _noBackup = noBackup;
+            _forceRemoveCustomImports = forceRemoveCustomImports;
             _differs = GetDiffers();
         }
 
@@ -39,7 +41,7 @@ namespace MSBuild.Conversion.Project
                 .ConvertAndAddPackages(_sdkBaselineProject.ProjectStyle, _sdkBaselineProject.TargetTFM, removePackagesConfig: _noBackup)
 
                 // Now we can convert the project over
-                .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject)
+                .ChangeImportsAndAddSdkAttribute(_sdkBaselineProject, _forceRemoveCustomImports)
                 .UpdateOutputTypeProperty(_sdkBaselineProject)
                 .RemoveDefaultedProperties(_sdkBaselineProject, _differs)
                 .RemoveUnnecessaryPropertiesNotInSDKByDefault(_sdkBaselineProject.ProjectStyle)

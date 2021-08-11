@@ -93,6 +93,14 @@ namespace SmokeTests
         }
 
         [Fact]
+        public void ConvertsWinformsFrameworkTemplateForNet50WithForceRemoveCustomImports()
+        {
+            var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WinformsFramework");
+            var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WinformsNet5Baseline");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows", forceRemoveCustomImports : true);
+        }
+
+        [Fact]
         public void ConvertsLegacyMSTest()
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.LegacyMSTest");
@@ -124,14 +132,14 @@ namespace SmokeTests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0", true);
         }
 
-        private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb = false, bool keepTargetFramework = false)
+        private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb = false, bool keepTargetFramework = false, bool forceRemoveCustomImports = false)
         {
-            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath, targetTFM, forceWeb, keepTargetFramework);
+            var (baselineRootElement, convertedRootElement) = GetRootElementsForComparison(projectToConvertPath, projectBaselinePath, targetTFM, forceWeb, keepTargetFramework, forceRemoveCustomImports);
             AssertPropsEqual(baselineRootElement, convertedRootElement);
             AssertItemsEqual(baselineRootElement, convertedRootElement);
         }
 
-        private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb, bool keepTargetFramework)
+        private static (IProjectRootElement baselineRootElement, IProjectRootElement convertedRootElement) GetRootElementsForComparison(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb, bool keepTargetFramework, bool forceRemoveCustomImports)
         {
             var conversionLoader = new MSBuildConversionWorkspaceLoader(projectToConvertPath, MSBuildConversionWorkspaceType.Project);
             var conversionWorkspace = conversionLoader.LoadWorkspace(projectToConvertPath, noBackup: true, targetTFM, keepTargetFramework, forceWeb);
@@ -140,7 +148,7 @@ namespace SmokeTests
             var baselineRootElement = baselineLoader.GetRootElementFromProjectFile(projectBaselinePath);
 
             var item = conversionWorkspace.WorkspaceItems.Single();
-            var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement, noBackup: false);
+            var converter = new Converter(item.UnconfiguredProject, item.SdkBaselineProject, item.ProjectRootElement, noBackup: false, forceRemoveCustomImports);
             var convertedRootElement = converter.ConvertProjectFile();
 
             return (baselineRootElement, convertedRootElement);

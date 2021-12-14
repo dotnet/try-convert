@@ -200,6 +200,7 @@ namespace MSBuild.Conversion.Facts
             { "System.CodeDom", "4.6.0" },
             { "System.ComponentModel.Composition.Registration", "4.6.0" },
             { "System.ComponentModel.Composition", "4.6.0" },
+            { "System.ComponentModel.Annotations", "4.6.0" },
             { "System.ComponentModel.DataAnnotations", "4.6.0" },
             { "System.Configuration.ConfigurationManager", "4.6.0" },
             { "System.Data.DataSetExtensions", "4.5.0" },

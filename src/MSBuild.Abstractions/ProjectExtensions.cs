@@ -43,12 +43,27 @@ namespace MSBuild.Abstractions
             {
                 ".NETFramework" => "net",
                 ".NETStandard" => "netstandard",
+                ".NETCore" => "net", // UWP
                 ".NETCoreApp" => "netcoreapp",
                 ".NETPortable" => "netstandard",
                 "MonoAndroid" => "net",
                 "Xamarin.iOS" => "net",
                 _ => throw new InvalidOperationException($"Unknown {MSBuildFacts.LegacyTargetFrameworkPropertyNodeName}: {tfi}"),
             };
+
+            if (tfi == ".NETCore")
+            {
+                var targetPlatformIdentifier = project.GetPropertyValue(MSBuildFacts.TargetPlatformIdentifierNodeName);
+                if (targetPlatformIdentifier.Equals(MSBuildFacts.UapValue, StringComparison.OrdinalIgnoreCase))
+                {
+                    var targetPlatformVersion = project.GetPropertyValue(MSBuildFacts.TargetPlatformVersionNodeName);
+                    if (!string.IsNullOrWhiteSpace(targetPlatformVersion))
+                    {
+                        tf = $"net6.0-windows{targetPlatformVersion}";
+                        return tf;
+                    }
+                }
+            }
 
             if (tfi.Equals(MSBuildFacts.NETPortableTFValuePrefix, StringComparison.OrdinalIgnoreCase))
             {

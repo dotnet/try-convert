@@ -212,6 +212,14 @@ namespace MSBuild.Abstractions
         }
 
         /// <summary>
+        /// Determines if a given project is UWP
+        /// </summary>
+        public static bool IsUwp(IProjectRootElement projectRoot)
+        {
+            return projectRoot.PropertyGroups.Any(g => g.Properties.Any(p => p.Name == "TargetPlatformIdentifier" && p.Value == "UAP"));
+        }
+
+        /// <summary>
         /// Determines if a given project references ASP.NET assemblies.
         /// </summary>
         public static bool IsWeb(IProjectRootElement projectRoot)
@@ -272,6 +280,12 @@ namespace MSBuild.Abstractions
         public static bool IsNotNetFramework(string tfm) =>
             !tfm.ContainsIgnoreCase(MSBuildFacts.NetcoreappPrelude)
             && !tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude);
+
+        /// <summary>
+        /// Checks if a given TFM include -windows
+        /// </summary>
+        public static bool IsWindows(string tfm) =>
+            tfm.ContainsIgnoreCase(MSBuildFacts.WindowsSuffix);
 
         /// <summary>
         /// Finds the item group where a packages.config is included. Assumes only one.
@@ -374,6 +388,13 @@ namespace MSBuild.Abstractions
             }
 
             s = s[1..^1];
+
+            // Make sure there wasn't another string in there
+            if (s.Contains('\''))
+            {
+                return false;
+            }
+
             return true;
         }
 

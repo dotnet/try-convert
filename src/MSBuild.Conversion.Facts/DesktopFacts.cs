@@ -46,6 +46,10 @@ namespace MSBuild.Conversion.Facts
             "WindowsBase"
         );
 
+        public static ImmutableArray<string> KnownUwpReferences => ImmutableArray.Create(
+            "Microsoft.NETCore.UniversalWindowsPlatform"
+        );
+
         public static ImmutableArray<Guid> KnownSupportedDesktopProjectTypeGuids => ImmutableArray.Create(
             MSBuildFacts.LanguageProjectTypeVisualBasic, // VB.NET
             Guid.Parse("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"), // C#

@@ -75,6 +75,7 @@ namespace MSBuild.Conversion.Project
                     ProjectOutputType.Exe => MSBuildFacts.ExeOutputType,
                     ProjectOutputType.Library => MSBuildFacts.LibraryOutputType,
                     ProjectOutputType.WinExe => MSBuildFacts.WinExeOutputType,
+                    ProjectOutputType.AppContainerExe => MSBuildFacts.WinExeOutputType,
                     _ => throw new InvalidOperationException("Unsupported output type: " + baselineProject.OutputType)
                 };
             }
@@ -117,6 +118,11 @@ namespace MSBuild.Conversion.Project
             {
                 foreach (var prop in propGroup.Properties)
                 {
+                    if (prop.Name == "RootNamespace")
+                    {
+
+                    }
+
                     if (MSBuildFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
                         propGroup.RemoveChild(prop);

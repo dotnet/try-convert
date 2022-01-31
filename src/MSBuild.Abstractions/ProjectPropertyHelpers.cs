@@ -157,12 +157,18 @@ namespace MSBuild.Abstractions
             && prop.Value.Equals(MSBuildFacts.ExeOutputType, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
+        /// Checks if an OutputType node is AppContainerExe.
+        /// </summary>
+        public static bool IsAppContainerExeOutputType(ProjectPropertyElement prop) =>
+            prop.ElementName.Equals(MSBuildFacts.OutputTypeNodeName, StringComparison.OrdinalIgnoreCase)
+            && prop.Value.Equals(MSBuildFacts.AppContainerExeOutputType, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
         /// Checks if an OutputType node is Exe.
         /// </summary>
         public static bool IsWinExeOutputType(ProjectPropertyElement prop) =>
             prop.ElementName.Equals(MSBuildFacts.OutputTypeNodeName, StringComparison.OrdinalIgnoreCase)
             && prop.Value.Equals(MSBuildFacts.WinExeOutputType, StringComparison.OrdinalIgnoreCase);
-
 
         public static bool IsVisualBasicProject(ProjectPropertyElement prop) =>
             IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').Any(guidString => Guid.Parse(guidString) == MSBuildFacts.LanguageProjectTypeVisualBasic);

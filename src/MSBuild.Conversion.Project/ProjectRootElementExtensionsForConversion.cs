@@ -99,6 +99,10 @@ namespace MSBuild.Conversion.Project
 
                     if (propDiff.DefaultedProperties.Select(p => p.Name).Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
+                        if (prop.Name == "RootNamespace")
+                        {
+                            var x = 1;
+                        }
                         propGroup.RemoveChild(prop);
                     }
                 }
@@ -120,7 +124,7 @@ namespace MSBuild.Conversion.Project
                 {
                     if (prop.Name == "RootNamespace")
                     {
-
+                        var x = 1;
                     }
 
                     if (MSBuildFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
@@ -464,6 +468,12 @@ namespace MSBuild.Conversion.Project
                 && MSBuildHelpers.IsWPF(projectRootElement))
             {
                 MSBuildHelpers.AddUseWPF(propGroup);
+            }
+
+            if (!baselineProject.GlobalProperties.Contains(DesktopFacts.UseWinUIPropertyName, StringComparer.OrdinalIgnoreCase)
+                && MSBuildHelpers.IsUwp(projectRootElement))
+            {
+                MSBuildHelpers.AddUseWinUI(propGroup);
             }
 
             if (!baselineProject.GlobalProperties.Contains(DesktopFacts.ImportWindowsDesktopTargetsName, StringComparer.OrdinalIgnoreCase)

@@ -272,6 +272,7 @@ namespace MSBuild.Conversion.Facts
         public const string NetcoreappPrelude = "netcoreapp";
         public const string NetstandardPrelude = "netstandard";
         public const string MSBuildReferenceName = "Reference";
+        public const string MSBuildPackageReferenceName = "PackageReference";
         public const string DesignerSubType = "Designer";
         public const string CodeSubTypeValue = "Code";
         public const string TargetFrameworkNodeName = "TargetFramework";

@@ -151,6 +151,12 @@ namespace MSBuild.Abstractions
             itemGroup.Items.Where(item => item.ElementName.Equals(MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
+        /// Gets all PackageReference items from a given item group.
+        /// </summary>
+        private static IEnumerable<ProjectItemElement> GetPackageReferences(ProjectItemGroupElement itemGroup) =>
+            itemGroup.Items.Where(item => item.ElementName.Equals(MSBuildFacts.MSBuildPackageReferenceName, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>
         /// Checks if a root has a project type guids node.
         /// </summary>
         public static bool HasProjectTypeGuidsNode(IProjectRootElement root) =>
@@ -216,7 +222,19 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static bool IsUwp(IProjectRootElement projectRoot)
         {
-            return projectRoot.PropertyGroups.Any(g => g.Properties.Any(p => p.Name == "TargetPlatformIdentifier" && p.Value == "UAP"));
+            if (projectRoot.PropertyGroups.Any(g => g.Properties.Any(p => p.Name == "TargetPlatformIdentifier" && p.Value == "UAP")))
+            {
+                return true;
+            }
+            var packageReferences = projectRoot.ItemGroups.SelectMany(GetPackageReferences)?.Select(elem => elem.Include.Split(',').First());
+            if (packageReferences is null)
+            {
+                return false;
+            }
+            else
+            {
+                return DesktopFacts.KnownUwpReferences.Any(reference => packageReferences.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            }
         }
 
         /// <summary>
@@ -308,6 +326,11 @@ namespace MSBuild.Abstractions
         /// Adds the UseWPF=true property to the top-level project property group.
         /// </summary>
         public static void AddUseWPF(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.UseWPFPropertyName, "true");
+
+        /// <summary>
+        /// Adds the UseWinUI=true property to the top-level project property group.
+        /// </summary>
+        public static void AddUseWinUI(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.UseWinUIPropertyName, "true");
 
         /// <summary>
         /// Adds the ImportWindowsDesktopTargets=true property to ensure builds targeting .NET Framework will succeed.

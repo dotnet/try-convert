@@ -59,6 +59,7 @@ namespace MSBuild.Conversion.Facts
         public const string WinSDKAttribute = "Microsoft.NET.Sdk.WindowsDesktop";
         public const string UseWPFPropertyName = "UseWPF";
         public const string UseWinFormsPropertyName = "UseWindowsForms";
+        public const string UseWinUIPropertyName = "UseWinUI";
         public const string ImportWindowsDesktopTargetsName = "ImportWindowsDesktopTargets";
         public const string DesignerSuffix = ".Designer.cs";
         public const string XamlFileExtension = ".xaml";

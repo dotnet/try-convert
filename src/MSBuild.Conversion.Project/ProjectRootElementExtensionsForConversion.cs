@@ -99,10 +99,6 @@ namespace MSBuild.Conversion.Project
 
                     if (propDiff.DefaultedProperties.Select(p => p.Name).Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
-                        if (prop.Name == "RootNamespace")
-                        {
-                            var x = 1;
-                        }
                         propGroup.RemoveChild(prop);
                     }
                 }
@@ -122,11 +118,6 @@ namespace MSBuild.Conversion.Project
             {
                 foreach (var prop in propGroup.Properties)
                 {
-                    if (prop.Name == "RootNamespace")
-                    {
-                        var x = 1;
-                    }
-
                     if (MSBuildFacts.UnnecessaryProperties.Contains(prop.Name, StringComparer.OrdinalIgnoreCase))
                     {
                         propGroup.RemoveChild(prop);

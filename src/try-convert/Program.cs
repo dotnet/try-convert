@@ -47,7 +47,7 @@ namespace MSBuild.Conversion
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
-      
+
         public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool forceWebConversion, bool preview, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool update, bool mauiConversion, bool forceRemoveCustomImports)
         {
             if (update)
@@ -70,28 +70,25 @@ namespace MSBuild.Conversion
 
             try
             {
+                msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(msbuildPath);
+
                 //For Xamarin Projects, set MSBuild path to VSInstallation Dir via Environment Variable
                 if (mauiConversion)
                 {
-                    var vsinstalldir = Environment.GetEnvironmentVariable("VSINSTALLDIR");
+                    // For Xamarin support we need to set the MSBuild Extensions path to VS install.
+                    var vsinstalldir = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("VSINSTALLDIR"))
+                        ? Environment.GetEnvironmentVariable("VSINSTALLDIR")
+                        : new VisualStudioLocator().GetLatestVisualStudioPath();
                     if (!string.IsNullOrEmpty(vsinstalldir))
                     {
-                        msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(Path.Combine(vsinstalldir, "MSBuild", "Current", "Bin"));
+                        Environment.SetEnvironmentVariable("MSBuildExtensionsPath", Path.Combine(vsinstalldir, "MSBuild"));
                     }
                     else
                     {
-                        string vsPath = new VisualStudioLocator().GetLatestVisualStudioPath();
-                        if(string.IsNullOrWhiteSpace(vsPath))
-                        {
-                            Console.WriteLine("Error locating VS Install Directory. Try setting Environment Variable VSINSTALLDIR.");
-                            return -1;
-                        }
-                        else
-                            msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(Path.Combine(vsPath, "MSBuild", "Current", "Bin"));
+                        Console.WriteLine("Error locating VS Install Directory. Try setting Environment Variable VSINSTALLDIR.");
+                        return -1;
                     }
                 }
-                else
-                    msbuildPath = MSBuildHelpers.HookAssemblyResolveForMSBuild(msbuildPath);
 
                 if (string.IsNullOrWhiteSpace(msbuildPath))
                 {

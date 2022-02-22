@@ -8,7 +8,6 @@ using Microsoft.Build.Construction;
 using MSBuild.Abstractions;
 using MSBuild.Conversion.Project;
 
-
 using Xunit;
 
 namespace MauiSmoke.Tests

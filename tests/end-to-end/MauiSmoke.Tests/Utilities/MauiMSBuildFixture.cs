@@ -10,7 +10,6 @@ namespace MauiSmoke.Tests.Utilities
     /// <summary>
     /// This test fixture ensures that MSBuild is loaded from VS Install Directory
     /// </summary>
-    /// 
     public class MauiMSBuildFixture : IDisposable
     {
         private static int _registered = 0;
@@ -19,23 +18,25 @@ namespace MauiSmoke.Tests.Utilities
         {
             if (Interlocked.Exchange(ref _registered, 1) == 0)
             {
-                //For Xamarin Project tests, default MSBuild instance resolved from VSINSTALLDIR Environment Variable
-                var vsinstalldir = Environment.GetEnvironmentVariable("VSINSTALLDIR");
+                // During testing we just need a default MSBuild instance to be registered.
+                var defaultInstance = MSBuildLocator.QueryVisualStudioInstances().First();
+                MSBuildHelpers.HookAssemblyResolveForMSBuild(defaultInstance.MSBuildPath);
+
+                // For Xamarin support we need to set the MSBuild Extensions path to VS install.
+                var vsinstalldir = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("VSINSTALLDIR"))
+                    ? Environment.GetEnvironmentVariable("VSINSTALLDIR")
+                    : new VisualStudioLocator().GetLatestVisualStudioPath();
                 if (!string.IsNullOrEmpty(vsinstalldir))
                 {
-                    MSBuildHelpers.HookAssemblyResolveForMSBuild(Path.Combine(vsinstalldir, "MSBuild", "Current", "Bin"));
+                    Environment.SetEnvironmentVariable("MSBuildExtensionsPath", Path.Combine(vsinstalldir, "MSBuild"));
                 }
                 else
                 {
-                    string vsPath = new VisualStudioLocator().GetLatestVisualStudioPath();
-                    if (string.IsNullOrWhiteSpace(vsPath))
-                        throw new Exception("Error locating VS Install Directory. Try setting Environment Variable VSINSTALLDIR.");
-                    else
-                        MSBuildHelpers.HookAssemblyResolveForMSBuild(Path.Combine(vsPath, "MSBuild", "Current", "Bin"));
+                    Console.WriteLine("Error locating VS Install Directory. Try setting Environment Variable VSINSTALLDIR.");
                 }
             }
-
         }
+
         public void Dispose()
         {
         }

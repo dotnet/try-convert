@@ -166,5 +166,19 @@ namespace MSBuild.Abstractions
 
         public static bool IsVisualBasicProject(ProjectPropertyElement prop) =>
             IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').Any(guidString => Guid.Parse(guidString) == MSBuildFacts.LanguageProjectTypeVisualBasic);
+
+        /// <summary>
+        /// Determines if a property lists the default project type GUId for Xamarin.Android.
+        /// </summary>
+        public static bool IsXamarinDroidProjectTypeGuidsProperty(ProjectPropertyElement prop) =>
+            IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').Any(guidString => XamarinFacts.XamarinDroidProjectTypeGuids.Contains(Guid.Parse(guidString)));
+
+        /// <summary>
+        /// Determines if a property lists the default project type GUId for Xamarin.iOS projects.
+        /// </summary>
+        public static bool IsXamariniOSProjectTypeGuidsProperty(ProjectPropertyElement prop) =>
+            IsProjectTypeGuidsNode(prop) && prop.Value.Split(';').Any(guidString => XamarinFacts.XamariniOSProjectTypeGuids.Contains(Guid.Parse(guidString)));
+
+
     }
 }

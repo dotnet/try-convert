@@ -29,10 +29,12 @@ namespace MSBuild.Abstractions
         /// Checks if a given item needs to be removed because it either only runs on desktop .NET or is automatically pulled in as a reference and is thus unnecessary.
         /// </summary>
         public static bool DesktopReferencesNeedsRemoval(ProjectItemElement item) =>
-            DesktopFacts.ReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
-            || DesktopFacts.KnownWPFReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
-            || DesktopFacts.KnownWinFormsReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
-            || DesktopFacts.KnownDesktopReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase);
+            !(item.ElementName.Equals("import", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrWhiteSpace(item.Include))
+            && (DesktopFacts.ReferencesThatNeedRemoval.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
+                || DesktopFacts.KnownWPFReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
+                || DesktopFacts.KnownWinFormsReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase)
+                || DesktopFacts.KnownDesktopReferences.Contains(item.Include, StringComparer.OrdinalIgnoreCase));
 
         /// <summary>
         /// Checks if a given item is a desktop item that is globbed, so long as the metadata is a form type.
@@ -48,7 +50,8 @@ namespace MSBuild.Abstractions
         /// Checks if a given item is a well-known reference that can be converted to PackageReference.
         /// </summary>
         public static bool IsReferenceConvertibleToPackageReference(ProjectItemElement item) =>
-            MSBuildFacts.DefaultItemsThatHavePackageEquivalents.ContainsKey(item.Include);
+            !item.ElementName.Equals("import", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(item.Include)
+            && MSBuildFacts.DefaultItemsThatHavePackageEquivalents.ContainsKey(item.Include);
 
         /// <summary>
         /// Checks if a reference is coming from an old-stlye NuGet package.

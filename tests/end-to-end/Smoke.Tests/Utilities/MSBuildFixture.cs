@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.Build.Locator;
@@ -12,7 +13,6 @@ namespace Smoke.Tests.Utilities
     public class MSBuildFixture : IDisposable
     {
         private static int _registered = 0;
-
         public void RegisterInstance()
         {
             if (Interlocked.Exchange(ref _registered, 1) == 0)
@@ -22,9 +22,9 @@ namespace Smoke.Tests.Utilities
                 MSBuildHelpers.HookAssemblyResolveForMSBuild(defaultInstance.MSBuildPath);
             }
         }
-
         public void Dispose()
         {
         }
     }
 }
+

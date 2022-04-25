@@ -41,7 +41,7 @@ namespace SmokeTests
         {
             var projectToConvertPath = GetFSharpProjectPath("SmokeTests.LegacyFSharpConsole");
             var projectBaselinePath = GetFSharpProjectPath("SmokeTests.FSharpConsoleNet5Baseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0");
         }
 
         [Fact]
@@ -57,7 +57,7 @@ namespace SmokeTests
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WpfFramework");
             var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WpfNet5Baseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-windows");
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace SmokeTests
         {
             var projectToConvertPath = GetVisualBasicProjectPath("SmokeTests.WpfVbFramework");
             var projectBaselinePath = GetVisualBasicProjectPath("SmokeTests.WpfVbNet5Baseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-windows");
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace SmokeTests
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WinformsFramework");
             var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WinformsNet5Baseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-windows");
         }
 
         [Fact]
@@ -97,7 +97,7 @@ namespace SmokeTests
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.WinformsFramework");
             var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WinformsNet5Baseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows", forceRemoveCustomImports : true);
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-windows", forceRemoveCustomImports : true);
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace SmokeTests
         {
             var projectToConvertPath = GetVisualBasicProjectPath("SmokeTests.LegacyMSTestVB");
             var projectBaselinePath = GetVisualBasicProjectPath("SmokeTests.MSTestVbNet5Baseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0-windows");
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-windows");
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace SmokeTests
         {
             var projectToConvertPath = GetCSharpProjectPath("SmokeTests.LegacyWebLibrary");
             var projectBaselinePath = GetCSharpProjectPath("SmokeTests.WebLibraryNet5Baseline");
-            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net5.0", true);
+            AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0", true);
         }
 
         private void AssertConversionWorks(string projectToConvertPath, string projectBaselinePath, string targetTFM, bool forceWeb = false, bool keepTargetFramework = false, bool forceRemoveCustomImports = false)

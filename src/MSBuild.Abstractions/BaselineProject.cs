@@ -65,8 +65,7 @@ namespace MSBuild.Abstractions
                     $"{MSBuildFacts.TargetFrameworkNodeName} is not set in {nameof(project.FirstConfiguredProject)}");
             }
 
-            // MSBuildHelpers.IsNotNetFramework is pretty much never gonna happen...
-            // but MSBuildHelpers.IsWindows(rawTFM) can happen when coverting a UWP
+            // MSBuildHelpers.IsWindows(rawTFM) can happen when coverting a UWP
             return MSBuildHelpers.IsNotNetFramework(rawTFM) && !MSBuildHelpers.IsWindows(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
 
             static string StripDecimals(string tfm)

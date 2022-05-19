@@ -406,19 +406,12 @@ namespace MSBuild.Abstractions
         /// <returns>true if string is successfuly unquoted</returns>
         private static bool UnquoteString(ref string s)
         {
-            if (s.Length < 2 || s[0] != '\'' || s[^1] != '\'')
+            if (s.Length < 2 || s[0] != '\'' || s[^1] != '\'' || s[1..^1].Contains('\''))
             {
                 return false;
             }
 
             s = s[1..^1];
-
-            // Make sure there wasn't another string in there
-            if (s.Contains('\''))
-            {
-                return false;
-            }
-
             return true;
         }
 

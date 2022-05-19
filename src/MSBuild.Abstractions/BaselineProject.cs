@@ -26,6 +26,11 @@ namespace MSBuild.Abstractions
 
         private static string AdjustTargetTFM(ProjectStyle projectStyle, ProjectOutputType outputType, string candidateTargetTFM)
         {
+            if (candidateTargetTFM.ContainsIgnoreCase(MSBuildFacts.Net6) && projectStyle is ProjectStyle.WindowsDesktop)
+            {
+                return MSBuildFacts.Net6Windows;
+            }
+
             if (candidateTargetTFM.ContainsIgnoreCase(MSBuildFacts.Net5) && projectStyle is ProjectStyle.WindowsDesktop)
             {
                 return MSBuildFacts.Net5Windows;

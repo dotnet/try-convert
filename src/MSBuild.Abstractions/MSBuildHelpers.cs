@@ -142,6 +142,7 @@ namespace MSBuild.Abstractions
             tfm.StartsWith(MSBuildFacts.NetstandardPrelude, StringComparison.OrdinalIgnoreCase)
             || tfm.StartsWith(MSBuildFacts.NetcoreappPrelude, StringComparison.OrdinalIgnoreCase)
             || tfm.StartsWith(MSBuildFacts.Net5, StringComparison.OrdinalIgnoreCase)
+            || tfm.StartsWith(MSBuildFacts.Net6, StringComparison.OrdinalIgnoreCase)
             || tfm.StartsWith(MSBuildFacts.LowestFrameworkVersionWithSystemValueTuple, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
@@ -266,7 +267,7 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static bool IsAspNetCore(IProjectRootElement projectRoot, string tfm) =>
             IsWebApp(projectRoot) || projectRoot.Sdk.Equals(WebFacts.WebSDKAttribute)
-            || (IsWeb(projectRoot) && new[] { MSBuildFacts.Net5, MSBuildFacts.NetcoreappPrelude }.Any(s => tfm.StartsWith(s, StringComparison.OrdinalIgnoreCase)));
+            || (IsWeb(projectRoot) && new[] { MSBuildFacts.Net6, MSBuildFacts.Net5, MSBuildFacts.NetcoreappPrelude }.Any(s => tfm.StartsWith(s, StringComparison.OrdinalIgnoreCase)));
 
         /// <summary>
         /// Determines if a project is a .NET Framework MSTest project by looking at its references.

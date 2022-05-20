@@ -106,7 +106,11 @@ namespace MSBuild.Conversion.Facts
 
             // No longer used in ASP.NET Core
             "MvcProjectUpgradeChecked",
-            "UseGlobalApplicationHostFile"
+            "UseGlobalApplicationHostFile",
+
+            // Not needed for converted UWP apps
+            "TargetPlatformIdentifier",
+            "TargetPlatformVersion"
         );
 
         public static ImmutableArray<string> DefaultDefineConstants => ImmutableArray.Create(
@@ -268,6 +272,7 @@ namespace MSBuild.Conversion.Facts
         public const string NetcoreappPrelude = "netcoreapp";
         public const string NetstandardPrelude = "netstandard";
         public const string MSBuildReferenceName = "Reference";
+        public const string MSBuildPackageReferenceName = "PackageReference";
         public const string DesignerSubType = "Designer";
         public const string CodeSubTypeValue = "Code";
         public const string TargetFrameworkNodeName = "TargetFramework";
@@ -284,6 +289,7 @@ namespace MSBuild.Conversion.Facts
         public const string LibraryOutputType = "Library";
         public const string ExeOutputType = "Exe";
         public const string WinExeOutputType = "WinExe";
+        public const string AppContainerExeOutputType = "AppContainerExe";
         public const string NuGetPackageImportStampNodeName = "NuGetPackageImportStamp";
         public const string ReferencePathNodeName = "ReferencePath";
         public const string LegacyTargetFrameworkPropertyNodeName = "TargetFrameworkIdentifier";
@@ -297,11 +303,15 @@ namespace MSBuild.Conversion.Facts
         public const string NetStandard20 = "netstandard2.0";
         public const string NetCoreApp31 = "netcoreapp3.1";
         public const string Net5 = "net5.0";
+        public const string WindowsSuffix = "-windows";
         public const string Net5Windows = "net5.0-windows";
         public const string Net6 = "net6.0";
         public const string Net6Windows = "net6.0-windows";
         public const string AppConfig = "App.config";
         public const string EmbeddedResourceGeneratorProperty = "Generator";
         public const string SettingsSingleFileGenerator = "SettingsSingleFileGenerator";
+        public const string TargetPlatformIdentifierNodeName = "TargetPlatformIdentifier";
+        public const string UapValue = "UAP";
+        public const string TargetPlatformVersionNodeName = "TargetPlatformVersion";
     }
 }

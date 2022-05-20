@@ -152,6 +152,12 @@ namespace MSBuild.Abstractions
             itemGroup.Items.Where(item => item.ElementName.Equals(MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
+        /// Gets all PackageReference items from a given item group.
+        /// </summary>
+        private static IEnumerable<ProjectItemElement> GetPackageReferences(ProjectItemGroupElement itemGroup) =>
+            itemGroup.Items.Where(item => item.ElementName.Equals(MSBuildFacts.MSBuildPackageReferenceName, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>
         /// Checks if a root has a project type guids node.
         /// </summary>
         public static bool HasProjectTypeGuidsNode(IProjectRootElement root) =>
@@ -209,6 +215,26 @@ namespace MSBuild.Abstractions
             else
             {
                 return DesktopFacts.KnownDesktopReferences.Any(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            }
+        }
+
+        /// <summary>
+        /// Determines if a given project is UWP
+        /// </summary>
+        public static bool IsUwp(IProjectRootElement projectRoot)
+        {
+            if (projectRoot.PropertyGroups.Any(g => g.Properties.Any(p => p.Name == "TargetPlatformIdentifier" && p.Value == "UAP")))
+            {
+                return true;
+            }
+            var packageReferences = projectRoot.ItemGroups.SelectMany(GetPackageReferences)?.Select(elem => elem.Include.Split(',').First());
+            if (packageReferences is null)
+            {
+                return false;
+            }
+            else
+            {
+                return DesktopFacts.KnownUwpReferences.Any(reference => packageReferences.Contains(reference, StringComparer.OrdinalIgnoreCase));
             }
         }
 
@@ -275,6 +301,12 @@ namespace MSBuild.Abstractions
             && !tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude);
 
         /// <summary>
+        /// Checks if a given TFM include -windows
+        /// </summary>
+        public static bool IsWindows(string tfm) =>
+            tfm.ContainsIgnoreCase(MSBuildFacts.WindowsSuffix);
+
+        /// <summary>
         /// Finds the item group where a packages.config is included. Assumes only one.
         /// </summary>
         public static ProjectItemGroupElement? GetPackagesConfigItemGroup(IProjectRootElement root) =>
@@ -295,6 +327,11 @@ namespace MSBuild.Abstractions
         /// Adds the UseWPF=true property to the top-level project property group.
         /// </summary>
         public static void AddUseWPF(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.UseWPFPropertyName, "true");
+
+        /// <summary>
+        /// Adds the UseWinUI=true property to the top-level project property group.
+        /// </summary>
+        public static void AddUseWinUI(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.UseWinUIPropertyName, "true");
 
         /// <summary>
         /// Adds the ImportWindowsDesktopTargets=true property to ensure builds targeting .NET Framework will succeed.
@@ -369,7 +406,7 @@ namespace MSBuild.Abstractions
         /// <returns>true if string is successfuly unquoted</returns>
         private static bool UnquoteString(ref string s)
         {
-            if (s.Length < 2 || s[0] != '\'' || s[^1] != '\'')
+            if (s.Length < 2 || s[0] != '\'' || s[^1] != '\'' || s[1..^1].Contains('\''))
             {
                 return false;
             }

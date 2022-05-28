@@ -26,6 +26,11 @@ namespace MSBuild.Abstractions
 
         private static string AdjustTargetTFM(ProjectStyle projectStyle, ProjectOutputType outputType, string candidateTargetTFM)
         {
+            if (candidateTargetTFM.ContainsIgnoreCase(MSBuildFacts.Net6) && projectStyle is ProjectStyle.WindowsDesktop)
+            {
+                return MSBuildFacts.Net6Windows;
+            }
+
             if (candidateTargetTFM.ContainsIgnoreCase(MSBuildFacts.Net5) && projectStyle is ProjectStyle.WindowsDesktop)
             {
                 return MSBuildFacts.Net5Windows;
@@ -60,8 +65,8 @@ namespace MSBuild.Abstractions
                     $"{MSBuildFacts.TargetFrameworkNodeName} is not set in {nameof(project.FirstConfiguredProject)}");
             }
 
-            // This is pretty much never gonna happen, but it was cheap to write the code
-            return MSBuildHelpers.IsNotNetFramework(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
+            // MSBuildHelpers.IsWindows(rawTFM) can happen when coverting a UWP
+            return MSBuildHelpers.IsNotNetFramework(rawTFM) && !MSBuildHelpers.IsWindows(rawTFM) ? StripDecimals(rawTFM) : rawTFM;
 
             static string StripDecimals(string tfm)
             {

@@ -142,6 +142,7 @@ namespace MSBuild.Abstractions
             tfm.StartsWith(MSBuildFacts.NetstandardPrelude, StringComparison.OrdinalIgnoreCase)
             || tfm.StartsWith(MSBuildFacts.NetcoreappPrelude, StringComparison.OrdinalIgnoreCase)
             || tfm.StartsWith(MSBuildFacts.Net5, StringComparison.OrdinalIgnoreCase)
+            || tfm.StartsWith(MSBuildFacts.Net6, StringComparison.OrdinalIgnoreCase)
             || tfm.StartsWith(MSBuildFacts.LowestFrameworkVersionWithSystemValueTuple, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
@@ -149,6 +150,12 @@ namespace MSBuild.Abstractions
         /// </summary>
         private static IEnumerable<ProjectItemElement> GetReferences(ProjectItemGroupElement itemGroup) =>
             itemGroup.Items.Where(item => item.ElementName.Equals(MSBuildFacts.MSBuildReferenceName, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>
+        /// Gets all PackageReference items from a given item group.
+        /// </summary>
+        private static IEnumerable<ProjectItemElement> GetPackageReferences(ProjectItemGroupElement itemGroup) =>
+            itemGroup.Items.Where(item => item.ElementName.Equals(MSBuildFacts.MSBuildPackageReferenceName, StringComparison.OrdinalIgnoreCase));
 
         /// <summary>
         /// Checks if a root has a project type guids node.
@@ -212,6 +219,26 @@ namespace MSBuild.Abstractions
         }
 
         /// <summary>
+        /// Determines if a given project is UWP
+        /// </summary>
+        public static bool IsUwp(IProjectRootElement projectRoot)
+        {
+            if (projectRoot.PropertyGroups.Any(g => g.Properties.Any(p => p.Name == "TargetPlatformIdentifier" && p.Value == "UAP")))
+            {
+                return true;
+            }
+            var packageReferences = projectRoot.ItemGroups.SelectMany(GetPackageReferences)?.Select(elem => elem.Include.Split(',').First());
+            if (packageReferences is null)
+            {
+                return false;
+            }
+            else
+            {
+                return DesktopFacts.KnownUwpReferences.Any(reference => packageReferences.Contains(reference, StringComparer.OrdinalIgnoreCase));
+            }
+        }
+
+        /// <summary>
         /// Determines if a given project references ASP.NET assemblies.
         /// </summary>
         public static bool IsWeb(IProjectRootElement projectRoot)
@@ -240,7 +267,7 @@ namespace MSBuild.Abstractions
         /// </summary>
         public static bool IsAspNetCore(IProjectRootElement projectRoot, string tfm) =>
             IsWebApp(projectRoot) || projectRoot.Sdk.Equals(WebFacts.WebSDKAttribute)
-            || (IsWeb(projectRoot) && new[] { MSBuildFacts.Net5, MSBuildFacts.NetcoreappPrelude }.Any(s => tfm.StartsWith(s, StringComparison.OrdinalIgnoreCase)));
+            || (IsWeb(projectRoot) && new[] { MSBuildFacts.Net6, MSBuildFacts.Net5, MSBuildFacts.NetcoreappPrelude }.Any(s => tfm.StartsWith(s, StringComparison.OrdinalIgnoreCase)));
 
         /// <summary>
         /// Determines if a project is a .NET Framework MSTest project by looking at its references.
@@ -274,6 +301,12 @@ namespace MSBuild.Abstractions
             && !tfm.ContainsIgnoreCase(MSBuildFacts.NetstandardPrelude);
 
         /// <summary>
+        /// Checks if a given TFM include -windows
+        /// </summary>
+        public static bool IsWindows(string tfm) =>
+            tfm.ContainsIgnoreCase(MSBuildFacts.WindowsSuffix);
+
+        /// <summary>
         /// Finds the item group where a packages.config is included. Assumes only one.
         /// </summary>
         public static ProjectItemGroupElement? GetPackagesConfigItemGroup(IProjectRootElement root) =>
@@ -294,6 +327,11 @@ namespace MSBuild.Abstractions
         /// Adds the UseWPF=true property to the top-level project property group.
         /// </summary>
         public static void AddUseWPF(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.UseWPFPropertyName, "true");
+
+        /// <summary>
+        /// Adds the UseWinUI=true property to the top-level project property group.
+        /// </summary>
+        public static void AddUseWinUI(ProjectPropertyGroupElement propGroup) => propGroup.AddProperty(DesktopFacts.UseWinUIPropertyName, "true");
 
         /// <summary>
         /// Adds the ImportWindowsDesktopTargets=true property to ensure builds targeting .NET Framework will succeed.
@@ -368,7 +406,7 @@ namespace MSBuild.Abstractions
         /// <returns>true if string is successfuly unquoted</returns>
         private static bool UnquoteString(ref string s)
         {
-            if (s.Length < 2 || s[0] != '\'' || s[^1] != '\'')
+            if (s.Length < 2 || s[0] != '\'' || s[^1] != '\'' || s[1..^1].Contains('\''))
             {
                 return false;
             }

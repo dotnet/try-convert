@@ -75,6 +75,7 @@ namespace MSBuild.Conversion.Project
                     ProjectOutputType.Exe => MSBuildFacts.ExeOutputType,
                     ProjectOutputType.Library => MSBuildFacts.LibraryOutputType,
                     ProjectOutputType.WinExe => MSBuildFacts.WinExeOutputType,
+                    ProjectOutputType.AppContainerExe => MSBuildFacts.WinExeOutputType,
                     _ => throw new InvalidOperationException("Unsupported output type: " + baselineProject.OutputType)
                 };
             }
@@ -458,6 +459,12 @@ namespace MSBuild.Conversion.Project
                 && MSBuildHelpers.IsWPF(projectRootElement))
             {
                 MSBuildHelpers.AddUseWPF(propGroup);
+            }
+
+            if (!baselineProject.GlobalProperties.Contains(DesktopFacts.UseWinUIPropertyName, StringComparer.OrdinalIgnoreCase)
+                && MSBuildHelpers.IsUwp(projectRootElement))
+            {
+                MSBuildHelpers.AddUseWinUI(propGroup);
             }
 
             if (!baselineProject.GlobalProperties.Contains(DesktopFacts.ImportWindowsDesktopTargetsName, StringComparer.OrdinalIgnoreCase)

@@ -139,7 +139,7 @@ namespace MSBuild.Abstractions
                     break;
                 case ProjectStyle.WindowsDesktop:
                     rootElement.Sdk =
-                        tfm.ContainsIgnoreCase(MSBuildFacts.Net5)
+                        tfm.ContainsIgnoreCase(MSBuildFacts.Net5) || tfm.ContainsIgnoreCase(MSBuildFacts.Net6)
                             ? MSBuildFacts.DefaultSDKAttribute
                             : DesktopFacts.WinSDKAttribute; // pre-.NET 5 apps need a special SDK attribute.
                     break;
@@ -165,6 +165,7 @@ namespace MSBuild.Abstractions
                 ProjectOutputType.Exe => MSBuildFacts.ExeOutputType,
                 ProjectOutputType.Library => MSBuildFacts.LibraryOutputType,
                 ProjectOutputType.WinExe => MSBuildFacts.WinExeOutputType,
+                ProjectOutputType.AppContainerExe => MSBuildFacts.WinExeOutputType,
                 _ => project.GetPropertyValue(MSBuildFacts.OutputTypeNodeName)
             };
             propGroup.AddProperty(MSBuildFacts.OutputTypeNodeName, outputTypeValue ?? throw new InvalidOperationException($"OutputType is not set! '{projectFilePath}'"));
@@ -185,7 +186,7 @@ namespace MSBuild.Abstractions
                 MSBuildHelpers.AddUseWinForms(propGroup);
             }
 
-            if (MSBuildHelpers.HasWPFOrWinForms(propGroup) && tfm.ContainsIgnoreCase(MSBuildFacts.Net5))
+            if (MSBuildHelpers.HasWPFOrWinForms(propGroup) && tfm.ContainsIgnoreCase(MSBuildFacts.Net5) || tfm.ContainsIgnoreCase(MSBuildFacts.Net6))
             {
                 MSBuildHelpers.AddImportWindowsDesktopTargets(propGroup);
             }
@@ -213,14 +214,20 @@ namespace MSBuild.Abstractions
                 propertiesInTheBaseline = propertiesInTheBaseline.Add(DesktopFacts.UseWPFPropertyName);
             }
 
-            tfm =
-                projectStyle == ProjectStyle.WindowsDesktop && tfm.ContainsIgnoreCase(MSBuildFacts.Net5)
-                    ? MSBuildFacts.Net5Windows
-                    : tfm;
-
+            tfm = GetTFMString(projectStyle, tfm);
 
             baselineProject = new BaselineProject(newProject, propertiesInTheBaseline, projectStyle, outputType, tfm, keepCurrentTFMs);
             return true;
+        }
+        static string GetTFMString(ProjectStyle projectStyle, string tfm) {
+            if (projectStyle == ProjectStyle.WindowsDesktop)
+            {
+                if (tfm.ContainsIgnoreCase(MSBuildFacts.Net5))
+                    return MSBuildFacts.Net5Windows;
+                if (tfm.ContainsIgnoreCase(MSBuildFacts.Net6))
+                    return MSBuildFacts.Net6Windows;
+            }
+            return tfm;
         }
 
         private bool IsSupportedOutputType(ProjectOutputType type) =>
@@ -229,6 +236,7 @@ namespace MSBuild.Abstractions
                 ProjectOutputType.Exe => true,
                 ProjectOutputType.Library => true,
                 ProjectOutputType.WinExe => true,
+                ProjectOutputType.AppContainerExe => true,
                 _ => false
             };
 
@@ -271,6 +279,10 @@ namespace MSBuild.Abstractions
             {
                 return ProjectOutputType.WinExe;
             }
+            else if (ProjectPropertyHelpers.IsAppContainerExeOutputType(outputTypeNode))
+            {
+                return ProjectOutputType.AppContainerExe;
+            }
             else
             {
                 return ProjectOutputType.Other;
@@ -298,7 +310,7 @@ namespace MSBuild.Abstractions
             {
                 return ProjectStyle.MSTest;
             }
-            else if (MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement))
+            else if (MSBuildHelpers.IsWPF(projectRootElement) || MSBuildHelpers.IsWinForms(projectRootElement) || MSBuildHelpers.IsDesktop(projectRootElement) || MSBuildHelpers.IsUwp(projectRootElement))
             {
                 return ProjectStyle.WindowsDesktop;
             }

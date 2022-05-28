@@ -12,6 +12,7 @@ namespace MSBuild.Abstractions
         Library,
         Exe,
         WinExe,
+        AppContainerExe,
         Other,
         None
     }

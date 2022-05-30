@@ -1,7 +1,6 @@
 ﻿using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using System.IO;
 using System.Threading.Tasks;
@@ -14,58 +13,88 @@ namespace MSBuild.Conversion
 {
     internal class Program
     {
+        private static Task<int> ErrorResult => Task.FromResult(-1);
+        private static Task<int> SuccessResult => Task.FromResult(0);
+
+        private static Option ProjectOption => new Option<string?>(new[] { "-p", "--project" }, "The path to a project to convert");
+        private static Option WorkspaceOption => new Option<string?>(new[] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.");
+        private static Option MSBuildPathOption => new Option<string?>(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that");
+        private static Option TargetFrameworkOption => new Option<string?>(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to. If unspecified, the default TFM for apps chosen will be the highest available one found on your machine, and the default TFM for libraries will be .NET Standard 2.0.");
+        private static Option ForceWebConversionOption => new Option<bool>(new[] { "--force-web-conversion" }, "Attempt to convert MVC and WebAPI projects even though significant manual work is necessary after migrating such projects.");
+        private static Option PreviewOption => new Option<bool>(new[] { "--preview" }, "Use preview SDKs as part of conversion");
+        private static Option DiffOnlyOption => new Option<bool>(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done");
+        private static Option NoBackupOption => new Option<bool>(new[] { "--no-backup" }, "Converts projects, does not create a backup of the originals and removes packages.config file.");
+        private static Option KeepCurrentTfmsOption => new Option<bool>(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.");
+        private static Option MauiConverionOption => new Option<bool>(new[] { "--maui-conversion" }, "Attempt to convert Xamarin.Forms Projects to .NET MAUI projects. There may be additional manual work necessary after migrating such projects.");
+        private static Option ForceRemoveCustomImportsOption => new Option<bool>(new[] { "--force-remove-custom-imports" }, "Force remove custom imports from the project file if set to true.");
+        private static Option UpdateOption => new Option<bool>(new[] { "-u", "--update" }, "Updates the try-convert tool to the latest available version");
+
         private static async Task<int> Main(string[] args)
         {
             var rootCommand = new RootCommand
             {
-                Name = "try-convert",
-                Handler = CommandHandler.Create(typeof(Program).GetMethod(nameof(Run))!)
+                ProjectOption,
+                WorkspaceOption,
+                MSBuildPathOption,
+                TargetFrameworkOption,
+                ForceWebConversionOption,
+                PreviewOption,
+                DiffOnlyOption,
+                NoBackupOption,
+                KeepCurrentTfmsOption,
+                MauiConverionOption,
+                ForceRemoveCustomImportsOption,
+                UpdateOption
             };
+
+            Func<string?, string?, string?, string?, bool, bool, bool, bool, bool, bool, bool, bool, Task<int>> handler = Run;
+
+            rootCommand.SetHandler(
+                handler,
+                ProjectOption,
+                WorkspaceOption,
+                MSBuildPathOption,
+                TargetFrameworkOption,
+                ForceWebConversionOption,
+                PreviewOption,
+                DiffOnlyOption,
+                NoBackupOption,
+                KeepCurrentTfmsOption,
+                MauiConverionOption,
+                ForceRemoveCustomImportsOption,
+                UpdateOption);
 
             var parser =
                 new CommandLineBuilder(rootCommand)
                 .UseParseDirective()
                 .UseHelp()
-                .UseDebugDirective()
                 .UseSuggestDirective()
                 .RegisterWithDotnetSuggest()
                 .UseParseErrorReporting()
                 .UseExceptionHandler()
-                .AddOption(new Option(new[] { "-p", "--project" }, "The path to a project to convert") { Argument = new Argument<string?>(() => null) })
-                .AddOption(new Option(new[] { "-w", "--workspace" }, "The solution or project file to operate on. If a project is not specified, the command will search the current directory for one.") { Argument = new Argument<string?>(() => null) })
-                .AddOption(new Option(new[] { "-m", "--msbuild-path" }, "The path to an MSBuild.exe, if you prefer to use that") { Argument = new Argument<string?>(() => null) })
-                .AddOption(new Option(new[] { "-tfm", "--target-framework" }, "The name of the framework you would like to upgrade to. If unspecified, the default TFM for apps chosen will be the highest available one found on your machine, and the default TFM for libraries will be .NET Standard 2.0.") { Argument = new Argument<string?>(() => null) })
-                .AddOption(new Option(new[] { "--force-web-conversion" }, "Attempt to convert MVC and WebAPI projects even though significant manual work is necessary after migrating such projects.") { Argument = new Argument<bool>(() => false) })
-                .AddOption(new Option(new[] { "--preview" }, "Use preview SDKs as part of conversion") { Argument = new Argument<bool>(() => false) })
-                .AddOption(new Option(new[] { "--diff-only" }, "Produces a diff of the project to convert; no conversion is done") { Argument = new Argument<bool>(() => false) })
-                .AddOption(new Option(new[] { "--no-backup" }, "Converts projects, does not create a backup of the originals and removes packages.config file.") { Argument = new Argument<bool>(() => false) })
-                .AddOption(new Option(new[] { "--keep-current-tfms" }, "Converts project files but does not change any TFMs. If unspecified, TFMs may change.") { Argument = new Argument<bool>(() => false) })
-                .AddOption(new Option(new[] { "--maui-conversion" }, "Attempt to convert Xamarin.Forms Projects to .NET MAUI projects. There may be additional manual work necessary after migrating such projects.") { Argument = new Argument<bool>(() => false) })
-                .AddOption(new Option(new[] { "--force-remove-custom-imports" }, "Force remove custom imports from the project file if set to true.") { Argument = new Argument<bool>(() => false) })
-                .AddOption(new Option(new[] { "-u", "--update" }, "Updates the try-convert tool to the latest available version") { Argument = new Argument<bool>(() => false) })
                 .Build();
 
             return await parser.InvokeAsync(args).ConfigureAwait(false);
         }
 
-        public static int Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool forceWebConversion, bool preview, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool update, bool mauiConversion, bool forceRemoveCustomImports)
+        public static Task<int> Run(string? project, string? workspace, string? msbuildPath, string? tfm, bool forceWebConversion, bool preview, bool diffOnly, bool noBackup, bool keepCurrentTfms, bool update, bool mauiConversion, bool forceRemoveCustomImports)
         {
             if (update)
             {
                 UpdateTryConvert.Update();
-                return 0;
+                return SuccessResult;
             }
 
             if (!string.IsNullOrWhiteSpace(project) && !string.IsNullOrWhiteSpace(workspace))
             {
                 Console.WriteLine("Cannot specify both a project and a workspace.");
-                return -1;
+                return ErrorResult;
             }
 
             if (!string.IsNullOrWhiteSpace(tfm) && keepCurrentTfms)
             {
                 Console.WriteLine($"Both '{nameof(tfm)}' and '{nameof(keepCurrentTfms)}' cannot be specified. Please pick one.");
-                return -1;
+                return ErrorResult;
             }
 
             try
@@ -86,14 +115,14 @@ namespace MSBuild.Conversion
                     else
                     {
                         Console.WriteLine("Error locating VS Install Directory. Try setting Environment Variable VSINSTALLDIR.");
-                        return -1;
+                        return ErrorResult;
                     }
                 }
 
                 if (string.IsNullOrWhiteSpace(msbuildPath))
                 {
                     Console.WriteLine("Could not find an MSBuild.");
-                    return -1;
+                    return ErrorResult;
                 }
 
                 if (!string.IsNullOrWhiteSpace(tfm))
@@ -102,7 +131,7 @@ namespace MSBuild.Conversion
                     if (!TargetFrameworkHelper.IsValidTargetFramework(tfm))
                     {
                         Console.WriteLine($"Invalid framework specified for --target-framework: '{tfm}'");
-                        return -1;
+                        return ErrorResult;
                     }
                 }
                 else
@@ -133,7 +162,7 @@ namespace MSBuild.Conversion
                 if (msbuildWorkspace.WorkspaceItems.Length is 0)
                 {
                     Console.WriteLine("No projects converted.");
-                    return 0;
+                    return SuccessResult;
                 }
 
                 foreach (var item in msbuildWorkspace.WorkspaceItems)
@@ -161,11 +190,11 @@ namespace MSBuild.Conversion
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
-                return -1;
+                return ErrorResult;
             }
 
             Console.WriteLine("Conversion complete!");
-            return 0;
+            return SuccessResult;
         }
     }
 }

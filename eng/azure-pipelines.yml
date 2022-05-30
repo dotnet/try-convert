@@ -12,7 +12,7 @@ pr:
 variables:
   - name: _TeamName
     value: DotNetCore
-  - name: _BuildConfig 
+  - name: _BuildConfig
     value: Release
   - name: _PublishUsingPipelines
     value: true
@@ -31,7 +31,7 @@ jobs:
     helixRepo: dotnet/standard
     jobs:
     - job: Windows_NT
-      pool: 
+      pool:
         ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
           name: NetCore1ESPool-Public
           demands: ImageOverride -equals build.windows.10.amd64.vs2019.pre.open
@@ -50,7 +50,7 @@ jobs:
         - name: _BuildArgs
           value: /p:SignType=$(_SignType)
             /p:DotNetSignType=$(_SignType)
-            /p:MicroBuild_SigningEnabled=true 
+            /p:MicroBuild_SigningEnabled=true
             /p:OverridePackageSource=https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json
             /p:TeamName=$(_TeamName)
             /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1)
@@ -78,8 +78,15 @@ jobs:
       - checkout: self
         clean: true
       - script: eng\common\cibuild.cmd
-          -configuration $(_BuildConfig) 
+          -configuration $(_BuildConfig)
           -prepareMachine
           -warnaserror:0
           $(_BuildArgs)
         displayName: Windows Build / Publish
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact: TestResults'
+        inputs:
+          PathtoPublish: '$(Build.SourcesDirectory)\artifacts\TestResults\$(_BuildConfig)'
+          ArtifactName: 'Windows $(_BuildConfig) Test Logs'
+        continueOnError: true
+        condition: always()

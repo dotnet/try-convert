@@ -13,6 +13,7 @@ namespace MSBuild.Abstractions
         Exe,
         WinExe,
         AppContainerExe,
+        WinMdObj,
         Other,
         None
     }

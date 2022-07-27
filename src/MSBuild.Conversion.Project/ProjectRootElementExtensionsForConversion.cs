@@ -65,6 +65,21 @@ namespace MSBuild.Conversion.Project
             return projectRootElement;
         }
 
+        public static IProjectRootElement AddCsWinRTReferenceAndComponentProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
+        {
+            if (baselineProject.OutputType == ProjectOutputType.WinMdObj)
+            {
+                var topLevelPropGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroup(baselineProject, projectRootElement);
+                topLevelPropGroup.AddProperty(MSBuildFacts.CsWinRTComponentName, "true");
+
+                var itemGroup = projectRootElement.ItemGroups.Where(ig => ig.Items.Where(i => i.ItemType == MSBuildFacts.MSBuildPackageReferenceName).Any())
+                    .FirstOrDefault() ?? projectRootElement.AddItemGroup();
+                AddPackageReferenceElement(itemGroup, MSBuildFacts.CsWinRTPackageReference.Name, MSBuildFacts.CsWinRTPackageReference.Version);
+            }
+
+            return projectRootElement;
+        }
+
         public static IProjectRootElement UpdateOutputTypeProperty(this IProjectRootElement projectRootElement, BaselineProject baselineProject)
         {
             var outputTypeNode = projectRootElement.GetOutputTypeNode();
@@ -76,6 +91,7 @@ namespace MSBuild.Conversion.Project
                     ProjectOutputType.Library => MSBuildFacts.LibraryOutputType,
                     ProjectOutputType.WinExe => MSBuildFacts.WinExeOutputType,
                     ProjectOutputType.AppContainerExe => MSBuildFacts.WinExeOutputType,
+                    ProjectOutputType.WinMdObj => MSBuildFacts.LibraryOutputType,
                     _ => throw new InvalidOperationException("Unsupported output type: " + baselineProject.OutputType)
                 };
             }

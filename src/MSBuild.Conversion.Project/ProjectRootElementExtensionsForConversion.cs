@@ -72,9 +72,9 @@ namespace MSBuild.Conversion.Project
                 var topLevelPropGroup = MSBuildHelpers.GetOrCreateTopLevelPropertyGroup(baselineProject, projectRootElement);
                 topLevelPropGroup.AddProperty(MSBuildFacts.CsWinRTComponentName, "true");
 
-                var itemGroup = projectRootElement.ItemGroups.Where(ig => ig.Items.Where(i => i.ItemType == MSBuildFacts.MSBuildPackageReferenceName).Any())
+                var packageReferenceItemGroup = projectRootElement.ItemGroups.Where(ig => ig.Items.Any(i => i.ItemType == MSBuildFacts.MSBuildPackageReferenceName))
                     .FirstOrDefault() ?? projectRootElement.AddItemGroup();
-                AddPackageReferenceElement(itemGroup, MSBuildFacts.CsWinRTPackageReference.Name, MSBuildFacts.CsWinRTPackageReference.Version);
+                AddPackageReferenceElement(packageReferenceItemGroup, MSBuildFacts.CsWinRTPackageReference.Name, MSBuildFacts.CsWinRTPackageReference.Version);
             }
 
             return projectRootElement;

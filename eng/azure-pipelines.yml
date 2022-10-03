@@ -29,15 +29,20 @@ jobs:
     enablePublishUsingPipelines: $(_PublishUsingPipelines)
     enableTelemetry: true
     helixRepo: dotnet/standard
+    ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
+      runAsPublic: true
+    ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+      runAsPublic: false
+
     jobs:
     - job: Windows_NT
       pool: 
         ${{ if or(eq(variables['System.TeamProject'], 'public'), in(variables['Build.Reason'], 'PullRequest')) }}:
-          name: NetCore1ESPool-Public
-          demands: ImageOverride -equals build.windows.10.amd64.vs2019.pre.open
+          name: NetCore-Public
+          demands: ImageOverride -equals windows.vs2022preview.amd64.open
         ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
           name: NetCore1ESPool-Internal
-          demands: ImageOverride -equals build.windows.10.amd64.vs2019
+          demands: ImageOverride -equals windows.vs2022preview.amd64
       variables:
       # Enable signing for internal, non-PR builds
       - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:

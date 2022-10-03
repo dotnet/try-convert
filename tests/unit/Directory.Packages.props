@@ -1,0 +1,18 @@
+<Project>
+
+  <ItemGroup>
+    <PackageVersion Include="coverlet.collector" Version="1.3.0" />
+    <PackageVersion Include="Microsoft.Build.Locator" Version="1.4.1" />
+    <PackageVersion Include="Microsoft.Build" Version="16.7" />
+    <PackageVersion Include="Microsoft.VisualStudio.SDK.EmbedInteropTypes" Version="15.0.21" />
+    <PackageVersion Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="1.16.30" />
+    <PackageVersion Include="Microsoft.Win32.Registry" Version="5.0.0-rc.1.20451.14" />
+    <PackageVersion Include="Moq" Version="4.14.6" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageVersion Include="NuGet.Versioning" Version="5.8.0-preview.3.6823" />
+    <PackageVersion Include="System.Collections.Immutable" Version="5.0.0-rc.1.20451.14" />
+    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
+    <PackageVersion Include="System.Configuration.ConfigurationManager" Version="5.0.0-rc.1.20451.14" />
+    <PackageVersion Include="System.Security.Principal.Windows" Version="5.0.0-rc.1.20451.14" />
+  </ItemGroup>
+</Project>

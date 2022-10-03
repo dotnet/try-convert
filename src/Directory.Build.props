@@ -15,4 +15,13 @@
     <DiscoverEditorConfigFiles>true</DiscoverEditorConfigFiles>
   </PropertyGroup>
 
+  <!-- Nuget settings -->
+  <PropertyGroup>
+    <!-- Use Directory.Packages.props for nuget package versions -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <!-- Enable faster restore times -->
+    <RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation>
+  </PropertyGroup>
+  
 </Project>

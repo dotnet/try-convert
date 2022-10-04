@@ -1,16 +1,16 @@
 {
   "tools": {
-    "dotnet": "6.0.100",
+    "dotnet": "6.0.401",
     "runtimes": {
       "dotnet": [
-        "5.0.14",
-        "3.1.7",
-        "2.1.11"
+        "5.0.17",
+        "3.1.29",
+        "2.1.818"
       ]
     }
   },
   "sdk": {
-    "version": "6.0.100",
+    "version": "6.0.401",
     "rollForward": "major"
   },
   "msbuild-sdks": {

@@ -18,6 +18,8 @@ variables:
     value: true
   - name: _DotNetArtifactsCategory
     value: .NETCore
+  - name: Codeql.Enabled
+    value: true
 
 jobs:
 - template: /eng/common/templates/jobs/jobs.yml

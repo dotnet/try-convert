@@ -18,6 +18,9 @@ variables:
     value: true
   - name: _DotNetArtifactsCategory
     value: .NETCore
+${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
+  - name: Codeql.Enabled
+    value: true
 
 jobs:
 - template: /eng/common/templates/jobs/jobs.yml

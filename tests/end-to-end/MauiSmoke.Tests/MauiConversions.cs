@@ -25,7 +25,7 @@ namespace MauiSmoke.Tests
             solutionPathFixture.SetCurrentDirectory();
         }
 
-        [Fact(Skip = true)]
+        [Fact(Skip = "Xamarin targets are not available on build machine")]
         public void ConvertsXamarinFormsAndroidToMaui()
         {
             var projectToConvertPath = GetXamarinAndroidProjectPath("SmokeTests.XamarinForms.Android");
@@ -33,7 +33,7 @@ namespace MauiSmoke.Tests
             AssertConversionWorks(projectToConvertPath, projectBaselinePath, "net6.0-android");
         }
 
-        [Fact(Skip = true)]
+        [Fact(Skip = "Xamarin targets are not available on build machine")]
         public void ConvertsXamarinFormsiOSToMaui()
         {
             var projectToConvertPath = GetXamariniOSProjectPath("SmokeTests.XamarinForms.iOS");

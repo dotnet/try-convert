@@ -12,7 +12,7 @@ namespace MSBuild.Abstractions
         private const string SearchUrl = "https://api-v2v3search-0.nuget.org/query?q={0}&prerelease=false&semVerLevel=2.0.0&take=1";
 
         private static readonly Dictionary<string, string?> s_packageToVersionCache = new Dictionary<string, string?>();
-        private static readonly HttpClient s_httpClient = new HttpClient();
+        private static readonly HttpClient s_httpClient = new HttpClient(new HttpClientHandler() { CheckCertificateRevocationList = true });
 
         public static async ValueTask<string?> GetLatestVersionForPackageNameAsync(string packageName)
         {

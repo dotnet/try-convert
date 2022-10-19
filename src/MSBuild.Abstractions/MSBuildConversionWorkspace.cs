@@ -237,6 +237,7 @@ namespace MSBuild.Abstractions
                 ProjectOutputType.Library => true,
                 ProjectOutputType.WinExe => true,
                 ProjectOutputType.AppContainerExe => true,
+                ProjectOutputType.WinMdObj => true,
                 _ => false
             };
 
@@ -282,6 +283,10 @@ namespace MSBuild.Abstractions
             else if (ProjectPropertyHelpers.IsAppContainerExeOutputType(outputTypeNode))
             {
                 return ProjectOutputType.AppContainerExe;
+            }
+            else if (ProjectPropertyHelpers.IsWinMdObjProjectType(outputTypeNode))
+            {
+                return ProjectOutputType.WinMdObj;
             }
             else
             {

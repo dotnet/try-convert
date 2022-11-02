@@ -25,6 +25,11 @@ namespace MSBuild.Conversion.Facts
             "Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions"
         );
 
+        public static ImmutableArray<string> MSTestPackages = ImmutableArray.Create(
+            "MSTest.TestAdapter",
+            "MSTest.TestFramework"
+        );
+
         public const string IsCodedUITestNodeName = "IsCodedUITest";
         public const string TestProjectTypeNodeName = "TestProjectType";
         public const string UnitTestTestProjectType = "UnitTest";

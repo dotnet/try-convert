@@ -276,14 +276,20 @@ namespace MSBuild.Abstractions
         /// <returns></returns>
         public static bool IsNETFrameworkMSTestProject(IProjectRootElement projectRoot)
         {
+            var packages = GetOrCreatePackageReferencesItemGroup(projectRoot).Items.Select(elem => elem.Include);
             var references = projectRoot.ItemGroups.SelectMany(GetReferences)?.Select(elem => elem.Include.Split(',').First());
-            if (references is null)
+            if (references is null && packages is null)
             {
                 return false;
             }
             else
             {
-                return MSTestFacts.MSTestReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+                var hasTestReference = false;
+                if(references != null)
+                    hasTestReference = MSTestFacts.MSTestReferences.All(reference => references.Contains(reference, StringComparer.OrdinalIgnoreCase));
+                if (references != null)
+                    hasTestReference = hasTestReference || MSTestFacts.MSTestPackages.All(package => packages.Contains(package, StringComparer.OrdinalIgnoreCase));
+                return hasTestReference;
             }
         }
 

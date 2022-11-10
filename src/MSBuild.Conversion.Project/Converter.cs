@@ -89,6 +89,10 @@ namespace MSBuild.Conversion.Project
             projectXml.Descendants().Elements().Where(x => x.Name == "PreBuildEvent" && string.IsNullOrEmpty(x.Value)).Remove();
             projectXml.Descendants().Elements().Where(x => x.Name == "PostBuildEvent" && string.IsNullOrEmpty(x.Value)).Remove();
 
+            // Remove empty ItemGroup and PropertyGroup elements
+            projectXml.Descendants().Elements().Where(x => x.Name == "ItemGroup" && x.IsEmpty && !x.HasElements && !x.HasAttributes).Remove();
+            projectXml.Descendants().Elements().Where(x => x.Name == "PropertyGroup" && x.IsEmpty && !x.HasElements && !x.HasAttributes).Remove();
+
             // Do not keep comments as the entire file is changing
             var readerSettings = new XmlReaderSettings()
             {
